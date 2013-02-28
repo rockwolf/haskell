@@ -55,23 +55,19 @@ main = do
     let priceBuy = 25.0
     let sharesBuy = 100
     putStrLn $ show (
-        calcBoughtSold priceBuy sharesBuy
-    )
+        calcBoughtSold priceBuy sharesBuy)
     -- sold
     let priceSell = 25.0
     let sharesSell = sharesBuy
     putStrLn $ show (
-        calcBoughtSold priceSell sharesSell
-    )
+        calcBoughtSold priceSell sharesSell)
     -- cost_buy
     let taxBuy = 0.0025
     let commissionBuy = 7.5
     putStrLn $ show (
-        costTransaction "buy" priceBuy sharesBuy taxBuy commissionBuy
-    )
+        costTransaction "buy" priceBuy sharesBuy taxBuy commissionBuy)
     -- cost_sell
     let taxSell = taxBuy
     let commissionSell = commissionBuy
     putStrLn $ show (
-        costTransaction "sell" priceSell sharesSell taxSell commissionSell
-    )
+        costTransaction "sell" priceSell sharesSell taxSell commissionSell)
