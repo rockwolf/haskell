@@ -5,6 +5,7 @@ import Test.QuickCheck
 import Prelude hiding (Either(..))
 import Data.List (sort)
 import Control.Monad (forM_)
+import System.IO (stdin, stdout, hSetEcho, hSetBuffering, BufferMode(..))
 
 type Coord = (Int, Int)
 
@@ -56,22 +57,37 @@ loadLevel str =  foldl consume (emptyWorld{wMax = maxi}) elems
                 ' ' -> wld
                 otherwise -> error (show elt ++ " not recognized")
 
--- at 01:06
 displayWorld :: World -> IO ()
-displayWorld w = forM_ coords $ \c -> do
-    putStr $ case () of () | isCrate w c && isStorage w c   -> "*"
-                           | isWorker w c && isStorage w c  -> "+"
-                           | isWall w c                     -> "#"
-                           | isWorker w c                   -> "@"
-                           | isCrate w c                    -> "o"
-                           | isStorage w c                  -> "."
-                           | otherwise                      -> " "
-    where (maxX, maxY) = wMax w
-          coords       = [(x,y) | x <- [0..maxX], y <- [0..maxY]]
-          isWorker w c = wWorker w == c
+displayWorld w = putStrLn . unlines . map (map func) $ coords
+    where (maxX, maxY)  = wMax w
+          coords          = [[(x,y) | x <- [0..maxX]] | y <- [0..maxY]]
+          isWorker w c    = wWorker w == c
+          func c          =
+            case () of () | isCrate w c && isStorage w c   -> '*'
+                          | isWorker w c && isStorage w c  -> '+'
+                          | isWall w c                     -> '#'
+                          | isWorker w c                   -> '@'
+                          | isCrate w c                    -> 'o'
+                          | isStorage w c                  -> '.'
+                          | otherwise                      -> ' '
 
+moveCrate :: (Int, Int) -> (Int, Int) -> World
+moveCrate = undefined
+
+-- continue with the refactor at 1:18 or something
 modifyWorld :: World -> Input -> World
-modifyWorld world input = world
+modifyWorld world input =
+    case () of ()   | isWall world newPos      -> world
+                    | isCrate world newPos ->
+                        if not (isCrate world newPos') && not (isWall world newPos')
+                        then moveCrate newPos newPos'
+                        else world
+                    | otherwise                -> world
+    where
+        oldPos = wWorker world
+        newPos = add oldPos input
+        newPos' = add newPos input 
+        world' = world{wWorker = newPos, wSteps = wSteps world + 1}
 
 data Input = Up 
             | Down
@@ -122,14 +138,16 @@ isFinished :: World -> Bool
 isFinished world = sort (wCrates world) == sort (wStorage world)
 
 main :: IO ()
-main = gameLoop $ loadLevel level
+main = do
+    hSetEcho stdin False
+    hSetBuffering stdin NoBuffering
+    hSetBuffering stdout NoBuffering
+    gameLoop $ loadLevel level
 
 gameLoop world = do
     displayWorld world
     input <- getInput
-    let world' = if isValid world input
-                then modifyWorld world input
-                else world
+    let world' = modifyWorld world input
     if isFinished world'
     then displayWorld world' >> print "Awesome!"
     else gameLoop world'
