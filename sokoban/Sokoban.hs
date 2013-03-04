@@ -9,8 +9,6 @@ module Sokoban (modifyWorld
 import Prelude hiding (Either(..))
 import Data.List (sort, delete)
 import Control.Monad (forM_)
-import Test.HUnit
-import Test.QuickCheck
 
 data Input = Up 
             | Down
@@ -142,16 +140,3 @@ storage spaces
 warehouse man
 [number of steps]
 -}
-
--- TESTS
-
-testsSoko = TestList $ map TestCase
-    [assertEqual "" 1
-                    1
-    ]
-
-prop_empty c1 = (c1::Int) == c1
-
-runTests = do
-    runTestTT testsSoko
-    quickCheck prop_empty
