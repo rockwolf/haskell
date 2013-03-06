@@ -35,7 +35,7 @@ data Output = Output {
                 -- buying
                 oPriceBuy :: Double -- just the input price
                 ,oSharesBuy :: Int -- This is what you need to know
-                ,oBought :: Double
+                ,oAmountBuySimple :: Double
                 ,oCommissionBuy :: Double
                 ,oTaxBuy :: Double
                 ,oCostBuy :: Double
@@ -46,7 +46,7 @@ data Output = Output {
                 -- selling at stoploss
                 ,oStoploss :: Double
                 ,oSharesSell :: Int
-                ,oSold :: Double -- Can also be input when shorting
+                ,oAmountSellSimple :: Double -- Can also be input when shorting
                 ,oCommissionSell :: Double
                 ,oTaxSell :: Double
                 ,oCostSell :: Double
@@ -83,7 +83,7 @@ setOutput varInput =
         -- buying
         oPriceBuy               = varPriceBuy
         ,oSharesBuy             = varSharesBuy
-        ,oBought                = varBought
+        ,oAmountBuySimple       = varAmountBuySimple
         ,oCommissionBuy         = varCommissionBuy--calc later
         ,oTaxBuy                = varTaxBuy -- calc later
         ,oCostBuy               = costTransaction "buy" varPriceBuy varSharesBuy varTaxBuy varCommissionBuy
@@ -92,7 +92,7 @@ setOutput varInput =
         -- selling at stoploss
         ,oStoploss              = varStoploss
         ,oSharesSell            = varSharesSell
-        ,oSold                  = varSold
+        ,oAmountSellSimple      = varAmountSellSimple
         ,oCommissionSell        = varCommissionSell --calc later
         ,oTaxSell               = varTaxSell --calc later
         ,oCostSell              = costTransaction "sell" varStoploss varSharesSell varTaxSell varCommissionSell
@@ -115,22 +115,22 @@ setOutput varInput =
         defaultDecimal = 0.0
         varPriceBuy = iPrice varInput
         varSharesBuy = iShares varInput
-        varBought = calcBoughtSold varPriceBuy varSharesBuy
+        varAmountBuySimple = calcAmountSimple varPriceBuy varSharesBuy
         varCommissionBuy = iCommission varInput
         varTaxBuy = iTax varInput
         varStoploss = defaultDecimal -- oStoploss from Output
         varSharesSell = varSharesBuy
-        varSold = calcBoughtSold varStoploss varSharesSell
+        varAmountSellSimple = calcAmountSimple varStoploss varSharesSell
         varCommissionSell = varCommissionBuy
         varTaxSell = varTaxBuy
         varCostTotal = defaultDecimal --calcCostTotal
         varPoolAtStart = iPool varInput
         varPoolNew = varPoolAtStart - varSold - varCostTotal
 
-{-calcStoploss :: Double -> Double 
-calcStoploss undefined
+calcStoploss :: Double -> Double 
+calcStoploss 
 
-calcRiskInput :: Double -> Double -> Double
+{--calcRiskInput :: Double -> Double -> Double
 calcRiskInput undefined
 
 calcPercentageOf :: Double -> Double -> Double
@@ -147,8 +147,8 @@ calcCostOther = undefined
 -}
 
 -- calcBoughtSold
-calcBoughtSold :: Double -> Int -> Double
-calcBoughtSold price shares = price * fromIntegral shares
+calcAmountSimple :: Double -> Int -> Double
+calcAmountSimple price shares = price * fromIntegral shares
 
 -- cost of transaction (tax and commission)
 costTransaction :: String -> Double -> Int -> Double -> Double -> Double
