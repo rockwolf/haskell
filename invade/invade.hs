@@ -41,7 +41,7 @@ data Output = Output {
                 ,o_tax_buy :: Double
                 ,o_cost_buy :: Double
                 {- risk theoretical, just using the input
-                    2% -> 2% from iPool -}
+                    2% -> 2% from i_pool -}
                 ,o_risk_input :: Double
                 ,o_risk_input_percentage :: Double
                 -- selling at stoploss
@@ -70,15 +70,6 @@ data Output = Output {
             }
             deriving (Show) --, Eq, Ord)
 
-getPrice :: Input -> String -> Double
-getPrice varInput transaction =
-    case lowerCase transaction of
-        []      -> error errorMsgEmpty
-        "buy"   -> iPrice varInput
-        "sell"  -> 0.0--calcStoploss
-    where
-        errorMsgEmpty = "Error in getPrice: buy or sell not specified!"
-
 setOutput :: Input -> Output
 setOutput varInput = 
     Output {
@@ -89,11 +80,11 @@ setOutput varInput =
         ,o_commission_buy          = varCommissionBuy--calc later
         ,o_tax_buy                 = varTaxBuy -- calc later
         ,o_cost_buy                = costTransaction "buy" varPriceBuy varSharesBuy varTaxBuy varCommissionBuy
-        ,o_risk_input              = defaultDecimal--calcRiskInput (iRisk varInput)
-        ,o_risk_input_percentage   = defaultDecimal--calcPercentageOf oRiskInput (iPool varInput)
+        ,o_risk_input              = defaultDecimal--calcRiskInput (i_risk varInput)
+        ,o_risk_input_percentage   = defaultDecimal--calcPercentageOf oRiskInput (i_pool varInput)
         -- selling at stoploss
         ,o_stoploss                = varStoploss
-        ,o_sharesSell              = varSharesSell
+        ,o_shares_sell             = varSharesSell
         ,o_amount_sell_simple      = varAmountSellSimple
         ,o_commission_sell         = varCommissionSell --calc later
         ,o_tax_sell                = varTaxSell --calc later
@@ -104,9 +95,10 @@ setOutput varInput =
         --,oDateBuy                = currentDate
         ,o_pool_at_start           = varPoolAtStart
         ,o_pool_new                = varPoolNew
-        ,o_long_short              = iLongShort varInput
-        ,o_currency                = iCurrency varInput
-        ,o_exchange_rate           = iExchangeRate varInput
+        ,o_long_short              = i_long_short varInput
+        ,o_currency_from           = i_currency_from varInput
+        ,o_currency_to             = i_currency_to varInput
+        ,o_exchange_rate           = i_exchange_rate varInput
         -- extra info for close at stoploss
         ,o_profit_loss             = defaultDecimal--calcProfitLoss
         ,o_profit_loss_percent     = defaultDecimal--calcProfitLossPercentage
@@ -127,14 +119,14 @@ setOutput varInput =
         varTaxSell = varTaxBuy
         varCostTotal = defaultDecimal --calcCostTotal
         varPoolAtStart = i_pool varInput
-        varPoolNew = varPoolAtStart - varSold - varCostTotal
+        varPoolNew = varPoolAtStart - varAmountSellSimple - varCostTotal
 
 {-- Helper functions --}
 calcPercentage :: Double -> Double
-calcPercentage value = value / fromIntegral 100.0
+calcPercentage value = value / 100.0
 
 calcPercentageOf :: Double -> Double -> Double
-calcPercentageOf value from_value = (value / fromIntegral 100.0) * from_value 
+calcPercentageOf value from_value = (value / 100.0) * from_value 
 
 {-- CalculatorFinance --}
 -- NOTE: amount_buy = with tax and everything included, amount_buy_simple = without tax and commission!
@@ -142,22 +134,22 @@ calcPercentageOf value from_value = (value / fromIntegral 100.0) * from_value
 -- NOTE: ((R * P - A) - C) / (S * (T - 1))
 calcStoploss :: Double -> Int -> Double -> Double -> Double -> Double -> Double 
 calcStoploss amount_buy_simple shares_buy tax_buy commission_buy i_risk pool_at_start =
-    (((R * P) - A) - C) / (S * (T - 1))
+    (((var_R * var_P) - var_A) - var_C) / (var_S * (var_T - 1))
     where
-        R = calcPercentage i_risk
-        P = amount_buy_simple
-        A = amount_buy_simple
-        S = shares_buy
-        T = tax_buy / fromIntegral 100.0
-        C = commission_buy
+        var_R = calcPercentage i_risk
+        var_P = pool_at_start
+        var_A = amount_buy_simple
+        var_S = fromIntegral shares_buy
+        var_T = tax_buy / 100.0
+        var_C = commission_buy
 
 -- TODO: only allow positive numbers
 calcRiskInput :: Double -> Double -> Double
 calcRiskInput i_risk i_pool =
-    R * Po
+    var_R * var_Po
     where
-        R = calcPercentage i_risk
-        Po = i_pool
+        var_R = calcPercentage i_risk
+        var_Po = i_pool
 
 calcRiskInitial :: Double -> Int -> Double -> Double
 calcRiskInitial price_buy shares_buy stoploss =
@@ -181,7 +173,7 @@ calcRMultiple price_buy price_sell stoploss =
 
 calcCostTotal :: Double -> Double -> Double -> Double -> Double
 calcCostTotal tax_buy commission_buy tax_sell commission_sell =
-    tax_buy + commission_buy + tax_sell + cmmission_sell
+    tax_buy + commission_buy + tax_sell + commission_sell
 
 -- NOTE: commission + tax = seperate = costs
 calcAmountSimple :: Double -> Int -> Double
@@ -207,7 +199,7 @@ lowerCase = map toLower
 calcCommission :: String -> String -> Double -> Int -> Double
 calcCommission  market stockname price shares =
     -- TODO: getPredefined commission, based on type of input/commodity/market
-    defaultDecimal
+    0.0
 
 main = do
     -- TODO: option parsing
