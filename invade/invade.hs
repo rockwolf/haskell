@@ -129,14 +129,17 @@ setOutput varInput =
         varPoolAtStart = i_pool varInput
         varPoolNew = varPoolAtStart - varSold - varCostTotal
 
--- Helper functions
+{-- Helper functions --}
 calcPercentage :: Double -> Double
 calcPercentage value = value / fromIntegral 100.0
 
 calcPercentageOf :: Double -> Double -> Double
 calcPercentageOf value from_value = value / fromIntegral 100.0 * from_value 
 
--- CalculatorFinance
+{-- CalculatorFinance --}
+-- NOTE: amount_buy = with tax and everything included, amount_buy_simple = without tax and commission!
+-- NOTE: ((risk/100 * pool_at_start - amount_buy_simple) - commission_buy)/(shares_buy * (tax_buy/100 - 1))
+-- NOTE: ((R * P - A) - C) / (S * (T - 1))
 calcStoploss :: Double -> Int -> Double -> Double -> Double -> Double -> Double 
 calcStoploss amount_buy_simple shares_buy tax_buy commission_buy i_risk pool_at_start =
     ((R * P -A) - C) / (S * (T - 1))
@@ -148,7 +151,7 @@ calcStoploss amount_buy_simple shares_buy tax_buy commission_buy i_risk pool_at_
         T = tax_buy / fromIntegral 100.0
         C = commission_buy
 
-#TODO: only allow positive numbers
+-- TODO: only allow positive numbers
 calcRiskInput :: Double -> Double -> Double
 calcRiskInput i_risk i_pool =
     R * Po
@@ -162,6 +165,7 @@ calcRiskInitial price_buy shares_buy stoploss =
     where
         shares_buy_ = fromIntegral shares_buy
 
+-- NOTE: price_sell > stoploss = max risk was the initial risk
 calcRiskActual :: Double -> Int -> Double -> Int -> Double -> Double -> Double
 calcRiskActual price_buy shares_buy price_sell shares_sell stoploss risk_initial =
     if price_sell < stoploss
@@ -179,7 +183,7 @@ calcCostTotal :: Double -> Double -> Double -> Double -> Double
 calcCostTotal tax_buy commission_buy tax_sell commission_sell =
     tax_buy + commission_buy + tax_sell + cmmission_sell
 
--- without tax and commission
+-- NOTE: commission + tax = seperate = costs
 calcAmountSimple :: Double -> Int -> Double
 calcAmountSimple price shares = price * fromIntegral shares
 
@@ -199,6 +203,11 @@ lowerCase = map toLower
 
 --currentDate :: IO (Integer,Int,Int) -- :: (year,month,day)
 --currentDate = getCurrentTime >>= return . toGregorian . utctDay
+
+calcCommission :: String -> String -> Double -> Int -> Double
+calcCommission  market stockname price shares =
+    -- TODO: getPredefined commission, based on type of input/commodity/market
+    defaultDecimal
 
 main = do
     -- TODO: option parsing
