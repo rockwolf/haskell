@@ -171,6 +171,10 @@ calcRiskActual price_buy shares_buy price_sell shares_sell stoploss risk_initial
         shares_buy_ = fromIntegral shares_buy
         shares_sell_ = fromIntegral shares_sell
 
+calcRMultiple :: Double -> Double -> Double -> Double
+calcRMultiple price_buy price_sell stoploss =
+    (price_sell - price_buy) / (price_buy - stoploss)
+
 calcCostTotal :: Double -> Double -> Double -> Double -> Double
 calcCostTotal tax_buy commission_buy tax_sell commission_sell =
     tax_buy + commission_buy + tax_sell + cmmission_sell
