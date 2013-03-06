@@ -133,18 +133,26 @@ calcStoploss :: Double -> Int -> Double -> Double -> Double -> Double -> Double
 calcStoploss amount_buy_simple shares_buy tax_buy commission_buy i_risk pool_at_start =
     ((R * P -A) - C) / (S * (T - 1))
     where
-        R = i_risk / fromIntegral 100.0
+        R = calcPercentage i_risk
         P = amount_buy_simple
         A = amount_buy_simple
         S = shares_buy
         T = tax_buy / fromIntegral 100.0
         C = commission_buy
 
-{--calcRiskInput :: Double -> Double -> Double
-calcRiskInput undefined
+calcPercentage :: Double -> Double
+calcPercentage value = value / fromIntegral 100.0
 
 calcPercentageOf :: Double -> Double -> Double
 calcPercentageOf undefined
+
+#TODO: only allow positive numbers
+calcRiskInput :: Double -> Double -> Double
+calcRiskInput i_risk i_pool =
+    R * Po
+    where
+        R = calcPercentage i_risk
+        Po = i_pool
 
 calcRiskInitial :: Double -> Double -> Double
 calcRiskInitial = undefined
