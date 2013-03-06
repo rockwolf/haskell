@@ -171,14 +171,11 @@ calcRiskActual price_buy shares_buy price_sell shares_sell stoploss risk_initial
         shares_buy_ = fromIntegral shares_buy
         shares_sell_ = fromIntegral shares_sell
 
-calcCostTotal :: Double -> Double -> Double
-calcCostTotal = undefined
+calcCostTotal :: Double -> Double -> Double -> Double -> Double
+calcCostTotal tax_buy commission_buy tax_sell commission_sell =
+    tax_buy + commission_buy + tax_sell + cmmission_sell
 
-calcCostOther :: Double -> Double -> Double
-calcCostOther = undefined
--}
-
--- calcBoughtSold
+-- without tax and commission
 calcAmountSimple :: Double -> Int -> Double
 calcAmountSimple price shares = price * fromIntegral shares
 
