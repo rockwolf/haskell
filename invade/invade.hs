@@ -162,8 +162,17 @@ calcRiskInitial price_buy shares_buy stoploss =
     where
         shares_buy_ = fromIntegral shares_buy
 
+calcRiskActual :: Double -> Int -> Double -> Int -> Double -> Double -> Double
+calcRiskActual price_buy shares_buy price_sell shares_sell stoploss risk_initial =
+    if price_sell < stoploss
+    then (price_buy * shares_buy_) - (price_sell * shares_sell_)
+    else risk_initial
+    where
+        shares_buy_ = fromIntegral shares_buy
+        shares_sell_ = fromIntegral shares_sell
+
 calcCostTotal :: Double -> Double -> Double
-calccostTotal = undefined
+calcCostTotal = undefined
 
 calcCostOther :: Double -> Double -> Double
 calcCostOther = undefined
