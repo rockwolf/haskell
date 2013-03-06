@@ -134,7 +134,7 @@ calcPercentage :: Double -> Double
 calcPercentage value = value / fromIntegral 100.0
 
 calcPercentageOf :: Double -> Double -> Double
-calcPercentageOf value from_value = value / fromIntegral 100.0 * from_value 
+calcPercentageOf value from_value = (value / fromIntegral 100.0) * from_value 
 
 {-- CalculatorFinance --}
 -- NOTE: amount_buy = with tax and everything included, amount_buy_simple = without tax and commission!
@@ -142,7 +142,7 @@ calcPercentageOf value from_value = value / fromIntegral 100.0 * from_value
 -- NOTE: ((R * P - A) - C) / (S * (T - 1))
 calcStoploss :: Double -> Int -> Double -> Double -> Double -> Double -> Double 
 calcStoploss amount_buy_simple shares_buy tax_buy commission_buy i_risk pool_at_start =
-    ((R * P -A) - C) / (S * (T - 1))
+    (((R * P) - A) - C) / (S * (T - 1))
     where
         R = calcPercentage i_risk
         P = amount_buy_simple
