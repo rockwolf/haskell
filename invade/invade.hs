@@ -16,55 +16,57 @@ import Data.Time.Clock
 import Data.Time.Calendar
 
 data Input = Input {
-                    iPool :: Double -- Retrieve from db later
-                    ,iMoneyToUse :: Double
-                    ,iLongShort :: Char
-                    ,iPrice :: Double
-                    ,iShares :: Int
-                    ,iCommission :: Double
-                    ,iTax :: Double
-                    ,iRisk :: Double
-                    ,iMarket :: String --Needed for calculating with the correct tax/commission
-                    ,iStockname :: String
-                    ,iSpread :: Double
-                    ,iCurrency :: String
-                    ,iExchangeRate :: Double
+                    i_pool :: Double -- Retrieve from db later
+                    ,i_money_to_use :: Double
+                    ,i_long_short :: Char
+                    ,i_price :: Double
+                    ,i_shares :: Int
+                    ,i_commission :: Double
+                    ,i_tax :: Double
+                    ,i_risk :: Double
+                    ,i_market :: String --Needed for calculating with the correct tax/commission
+                    ,i_stockname :: String
+                    ,i_spread :: Double
+                    ,i_currency_from :: String
+                    ,i_currency_to :: String
+                    ,i_exchange_rate :: Double
              } deriving (Show)
 
 data Output = Output {
                 -- buying
-                oPriceBuy :: Double -- just the input price
-                ,oSharesBuy :: Int -- This is what you need to know
-                ,oAmountBuySimple :: Double
-                ,oCommissionBuy :: Double
-                ,oTaxBuy :: Double
-                ,oCostBuy :: Double
+                o_price_buy :: Double -- just the input price
+                ,o_shares_buy :: Int -- This is what you need to know
+                ,o_amount_buy_simple :: Double
+                ,o_commission_buy :: Double
+                ,o_tax_buy :: Double
+                ,o_cost_buy :: Double
                 {- risk theoretical, just using the input
                     2% -> 2% from iPool -}
-                ,oRiskInput :: Double
-                ,oRiskInputPercentage :: Double
+                ,o_risk_input :: Double
+                ,o_risk_input_percentage :: Double
                 -- selling at stoploss
-                ,oStoploss :: Double
-                ,oSharesSell :: Int
-                ,oAmountSellSimple :: Double -- Can also be input when shorting
-                ,oCommissionSell :: Double
-                ,oTaxSell :: Double
-                ,oCostSell :: Double
+                ,o_stoploss :: Double
+                ,o_shares_sell :: Int
+                ,o_amount_sell_simple :: Double -- Can also be input when shorting
+                ,o_commission_sell :: Double
+                ,o_tax_sell :: Double
+                ,o_cost_sell :: Double
                 {- risk taken, when minimum stoploss is reached -}
-                ,oRiskInitial :: Double
-                ,oRiskInitialPercentage :: Double
+                ,o_risk_initial :: Double
+                ,o_risk_initial_percentage :: Double
                 -- extra info at buying
-                --,oDateBuy :: IO (Integer, Int, Int)-- extra, not really necessary
-                ,oPoolAtStart :: Double
-                ,oPoolNew :: Double
-                ,oLongShort :: Char
-                ,oCurrency :: String
-                ,oExchangeRate :: Double
+                --,o_date_buy :: IO (Integer, Int, Int)-- extra, not really necessary
+                ,o_pool_at_start :: Double
+                ,o_pool_new :: Double
+                ,o_long_short :: Char
+                ,o_currency_from :: String
+                ,o_currency_to :: String
+                ,o_exchange_rate :: Double
                 -- extra info for close at stoploss
-                ,oProfitLoss :: Double
-                ,oProfitLossPercent :: Double
-                ,oCostTotal :: Double
-                ,oCostOther :: Double
+                ,o_profit_loss :: Double
+                ,o_profit_loss_percent :: Double
+                ,o_cost_total :: Double
+                ,o_cost_other :: Double
             }
             deriving (Show) --, Eq, Ord)
 
@@ -81,50 +83,50 @@ setOutput :: Input -> Output
 setOutput varInput = 
     Output {
         -- buying
-        oPriceBuy               = varPriceBuy
-        ,oSharesBuy             = varSharesBuy
-        ,oAmountBuySimple       = varAmountBuySimple
-        ,oCommissionBuy         = varCommissionBuy--calc later
-        ,oTaxBuy                = varTaxBuy -- calc later
-        ,oCostBuy               = costTransaction "buy" varPriceBuy varSharesBuy varTaxBuy varCommissionBuy
-        ,oRiskInput             = defaultDecimal--calcRiskInput (iRisk varInput)
-        ,oRiskInputPercentage   = defaultDecimal--calcPercentageOf oRiskInput (iPool varInput)
+        o_price_buy                = varPriceBuy
+        ,o_shares_buy              = varSharesBuy
+        ,o_amount_buy_simple       = varAmountBuySimple
+        ,o_commission_buy          = varCommissionBuy--calc later
+        ,o_tax_buy                 = varTaxBuy -- calc later
+        ,o_cost_buy                = costTransaction "buy" varPriceBuy varSharesBuy varTaxBuy varCommissionBuy
+        ,o_risk_input              = defaultDecimal--calcRiskInput (iRisk varInput)
+        ,o_risk_input_percentage   = defaultDecimal--calcPercentageOf oRiskInput (iPool varInput)
         -- selling at stoploss
-        ,oStoploss              = varStoploss
-        ,oSharesSell            = varSharesSell
-        ,oAmountSellSimple      = varAmountSellSimple
-        ,oCommissionSell        = varCommissionSell --calc later
-        ,oTaxSell               = varTaxSell --calc later
-        ,oCostSell              = costTransaction "sell" varStoploss varSharesSell varTaxSell varCommissionSell
-        ,oRiskInitial           = defaultDecimal--calcRiskInitial
-        ,oRiskInitialPercentage = defaultDecimal--calcRiskInitialPercentage
+        ,o_stoploss                = varStoploss
+        ,o_sharesSell              = varSharesSell
+        ,o_amount_sell_simple      = varAmountSellSimple
+        ,o_commission_sell         = varCommissionSell --calc later
+        ,o_tax_sell                = varTaxSell --calc later
+        ,o_cost_sell               = costTransaction "sell" varStoploss varSharesSell varTaxSell varCommissionSell
+        ,o_risk_initial            = defaultDecimal--calcRiskInitial
+        ,o_risk_initial_percentage = defaultDecimal--calcRiskInitialPercentage
         -- extra info at buying
-        --,oDateBuy               = currentDate
-        ,oPoolAtStart           = varPoolAtStart
-        ,oPoolNew               = varPoolNew
-        ,oLongShort             = iLongShort varInput
-        ,oCurrency              = iCurrency varInput
-        ,oExchangeRate          = iExchangeRate varInput
+        --,oDateBuy                = currentDate
+        ,o_pool_at_start           = varPoolAtStart
+        ,o_pool_new                = varPoolNew
+        ,o_long_short              = iLongShort varInput
+        ,o_currency                = iCurrency varInput
+        ,o_exchange_rate           = iExchangeRate varInput
         -- extra info for close at stoploss
-        ,oProfitLoss            = defaultDecimal--calcProfitLoss
-        ,oProfitLossPercent     = defaultDecimal--calcProfitLossPercentage
-        ,oCostTotal             = varCostTotal
-        ,oCostOther             = defaultDecimal--calcCostOther
+        ,o_profit_loss             = defaultDecimal--calcProfitLoss
+        ,o_profit_loss_percent     = defaultDecimal--calcProfitLossPercentage
+        ,o_cost_total              = varCostTotal
+        ,o_cost_other              = defaultDecimal--calcCostOther
     }
     where
         defaultDecimal = 0.0
-        varPriceBuy = iPrice varInput
-        varSharesBuy = iShares varInput
+        varPriceBuy = i_price varInput
+        varSharesBuy = i_shares varInput
         varAmountBuySimple = calcAmountSimple varPriceBuy varSharesBuy
-        varCommissionBuy = iCommission varInput
-        varTaxBuy = iTax varInput
+        varCommissionBuy = i_commission varInput
+        varTaxBuy = i_tax varInput
         varStoploss = defaultDecimal -- oStoploss from Output
         varSharesSell = varSharesBuy
         varAmountSellSimple = calcAmountSimple varStoploss varSharesSell
         varCommissionSell = varCommissionBuy
         varTaxSell = varTaxBuy
         varCostTotal = defaultDecimal --calcCostTotal
-        varPoolAtStart = iPool varInput
+        varPoolAtStart = i_pool varInput
         varPoolNew = varPoolAtStart - varSold - varCostTotal
 
 calcStoploss :: Double -> Double 
