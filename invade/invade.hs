@@ -129,6 +129,14 @@ setOutput varInput =
         varPoolAtStart = i_pool varInput
         varPoolNew = varPoolAtStart - varSold - varCostTotal
 
+-- Helper functions
+calcPercentage :: Double -> Double
+calcPercentage value = value / fromIntegral 100.0
+
+calcPercentageOf :: Double -> Double -> Double
+calcPercentageOf value from_value = value / fromIntegral 100.0 * from_value 
+
+-- CalculatorFinance
 calcStoploss :: Double -> Int -> Double -> Double -> Double -> Double -> Double 
 calcStoploss amount_buy_simple shares_buy tax_buy commission_buy i_risk pool_at_start =
     ((R * P -A) - C) / (S * (T - 1))
@@ -140,12 +148,6 @@ calcStoploss amount_buy_simple shares_buy tax_buy commission_buy i_risk pool_at_
         T = tax_buy / fromIntegral 100.0
         C = commission_buy
 
-calcPercentage :: Double -> Double
-calcPercentage value = value / fromIntegral 100.0
-
-calcPercentageOf :: Double -> Double -> Double
-calcPercentageOf undefined
-
 #TODO: only allow positive numbers
 calcRiskInput :: Double -> Double -> Double
 calcRiskInput i_risk i_pool =
@@ -154,8 +156,11 @@ calcRiskInput i_risk i_pool =
         R = calcPercentage i_risk
         Po = i_pool
 
-calcRiskInitial :: Double -> Double -> Double
-calcRiskInitial = undefined
+calcRiskInitial :: Double -> Int -> Double -> Double
+calcRiskInitial price_buy shares_buy stoploss =
+    (price_buy * shares_buy_) - (stoploss * shares_buy_)
+    where
+        shares_buy_ = fromIntegral shares_buy
 
 calcCostTotal :: Double -> Double -> Double
 calccostTotal = undefined
