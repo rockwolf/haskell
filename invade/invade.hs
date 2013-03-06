@@ -120,7 +120,7 @@ setOutput varInput =
         varAmountBuySimple = calcAmountSimple varPriceBuy varSharesBuy
         varCommissionBuy = i_commission varInput
         varTaxBuy = i_tax varInput
-        varStoploss = defaultDecimal -- oStoploss from Output
+        varStoploss = defaultDecimal -- o_stoploss from Output
         varSharesSell = varSharesBuy
         varAmountSellSimple = calcAmountSimple varStoploss varSharesSell
         varCommissionSell = varCommissionBuy
@@ -129,8 +129,16 @@ setOutput varInput =
         varPoolAtStart = i_pool varInput
         varPoolNew = varPoolAtStart - varSold - varCostTotal
 
-calcStoploss :: Double -> Double 
-calcStoploss 
+calcStoploss :: Double -> Int -> Double -> Double -> Double -> Double -> Double 
+calcStoploss amount_buy_simple shares_buy tax_buy commission_buy i_risk pool_at_start =
+    ((R * P -A) - C) / (S * (T - 1))
+    where
+        R = i_risk / fromIntegral 100.0
+        P = amount_buy_simple
+        A = amount_buy_simple
+        S = shares_buy
+        T = tax_buy / fromIntegral 100.0
+        C = commission_buy
 
 {--calcRiskInput :: Double -> Double -> Double
 calcRiskInput undefined
