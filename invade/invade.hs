@@ -243,7 +243,6 @@ startOptions = Options  { opt_verbose     = False
                         }
 
 options :: [ OptDescr (Options -> IO Options) ]
--- TODO: specify what kind of options I need.
 options =
     [ Option "o" ["i_opt_pool"]
         (ReqArg
@@ -393,24 +392,26 @@ main = do
         ++ "-y <i_currency_to>\n"
         ++ "-e <i_exchange_rate>\n")
  
-    -- TODO: instead of the below, set the Input to whats in the options.
-    input >>= output
+    --input >>= output -- applyMaybe
     
-    let varInput = Input {
-            i_pool = 104000.0 
-            ,i_money_to_use = 5000.0
-            ,i_long_short = 'L'
-            ,i_price = 25.0
-            ,i_shares = 100
-            ,i_commission = 7.5
-            ,i_tax = 0.0025
-            ,i_risk = 0.02 
-            ,i_market = "world"
-            ,i_stockname = ".Gold"
-            ,i_spread = 4.0
-            ,i_currency_from = "EUR"
-            ,i_currency_to = "EUR"
-            ,i_exchange_rate = 1.0
+    -- TODO: change some options through functions, so we can get calculate some stuff in advance
+    -- It might be possible to leave out those options, so startOptions are used for them.
+    -- Then you specify startOptions through functions.
+    let varInpt = Input {
+            i_pool = i_opt_pool 
+            ,i_money_to_use = i_opt_money_to_use
+            ,i_long_short = i_opt_long_short
+            ,i_price = i_opt_price
+            ,i_shares = i_opt_shares
+            ,i_commission = i_opt_commission
+            ,i_tax = i_opt_tax
+            ,i_risk = i_opt_risk
+            ,i_market = i_opt_market
+            ,i_stockname = i_opt_stockname
+            ,i_spread = i_opt_spread
+            ,i_currency_from = i_opt_currency_from
+            ,i_currency_to = i_opt_currency_to
+            ,i_exchange_rate = i_opt_exchange_rate
     }
     
     putStrLn $ show (setOutput varInput)  
