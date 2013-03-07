@@ -206,31 +206,48 @@ calcCommission  market stockname price shares =
     0.0
 
 {- CLI interfacing -}
-data Options = Options  { optVerbose    :: Bool
-                        , optInput      :: IO String
-                        , optOutput     :: String -> IO ()
+data Options = Options  { opt_verbose    :: Bool
+                        , opt_input      :: IO String
+                        , opt_output     :: String -> IO ()
                         }
 
 startOptions :: Options
-startOptions = Options  { optVerbose    = False
-                        , optInput      = getContents
-                        , optOutput     = putStr
+startOptions = Options  { opt_verbose     = False
+                        , i_money_to_use  = setMoneyToUse
+                        , i_long_short    = setLongShort
+                        , i_price         = setPrice
+                        , i_shares        = setShares
+                        , i_commission    = setCommission
+                        , i_tax           = setTax
+                        , i_risk          = setRisk --getContents
+                        , i_market        = setMarket
+                        , i_stockname     = setStockname
+                        , i_spread        = setSpread
+                        , i_currency_from = setCurrencyFrom
+                        , i_currency_to   = setCurrencyTo
+                        , i_exchange_rate = setEchangeRate--putStr
                         }
 
 options :: [ OptDescr (Options -> IO Options) ]
 -- TODO: specify what kind of options I need.
 options =
-    [ Option "i" ["input"]
+    [ Option "p" ["i_pool"]
         (ReqArg
             (\arg opt -> return opt { optInput = readFile arg })
             "FILE")
-        "Input file"
- 
-    , Option "o" ["output"]
+        "i_pool: pool at start"
+
+    , Option "m" ["i_money_to_use"]
         (ReqArg
             (\arg opt -> return opt { optOutput = writeFile arg })
             "FILE")
-        "Output file"
+        "i_money_to_use: money to use"
+
+    , Option "r" ["i_risk"]
+        (ReqArg
+            (\arg opt -> return opt { optOutput = writeFile arg })
+            "FILE")
+        "i_risk: risk you are willing to take"
  
     , Option "s" ["string"]
         (ReqArg
