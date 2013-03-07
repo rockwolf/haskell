@@ -285,7 +285,7 @@ options =
     , Option "h" ["help"]
         (NoArg
             (\_ -> do
-                                prg <- getProgName
+                prg <- getProgName
                 hPutStrLn stderr (usageInfo prg options)
                 exitWith ExitSuccess))
         "Show help"
@@ -305,7 +305,7 @@ main = do
                 , optInput = input
                 , optOutput = output   } = opts
  
-    when verbose (hPutStrLn stderr "Usage: invade [-<option1> <value1> ...]\n"
+    when verbose (hPutStrLn stderr "This is handled by usageInfo -> Usage: invade [-<option1> <value1> ...]\n"
         ++ "\nOptions:\n"
         ++ "-o <i_pool>\n"
         ++ "-u <i_money_to_use>\n"
