@@ -397,7 +397,7 @@ main = do
     -- TODO: change some options through functions, so we can get calculate some stuff in advance
     -- It might be possible to leave out those options, so startOptions are used for them.
     -- Then you specify startOptions through functions.
-    let varInpt = Input {
+    let varInput = Input {
             i_pool = i_opt_pool 
             ,i_money_to_use = i_opt_money_to_use
             ,i_long_short = i_opt_long_short
