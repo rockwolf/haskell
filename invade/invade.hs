@@ -246,13 +246,13 @@ startOptions = Options  { opt_verbose     = False
 options :: [ OptDescr (Options -> IO Options) ]
 -- TODO: specify what kind of options I need.
 options =
-    [ Option "p" ["i_pool"]
+    [ Option "o" ["i_pool"]
         (ReqArg
             (\arg opt -> return opt { optInput = readFile arg })
             "FILE")
         "i_pool: pool at start"
 
-    , Option "m" ["i_money_to_use"]
+    , Option "u" ["i_money_to_use"]
         (ReqArg
             (\arg opt -> return opt { optOutput = writeFile arg })
             "FILE")
@@ -305,7 +305,22 @@ main = do
                 , optInput = input
                 , optOutput = output   } = opts
  
-    when verbose (hPutStrLn stderr "Hello!")
+    when verbose (hPutStrLn stderr "Usage: invade [-<option1> <value1> ...]\n"
+        ++ "\nOptions:\n"
+        ++ "-o <i_pool>\n"
+        ++ "-u <i_money_to_use>\n"
+        ++ "-p <i_price>\n"
+        ++ "-l <i_long_short>\n"
+        ++ "-s <i_shares>\n"
+        ++ "-c <i_commission>\n"
+        ++ "-t <i_tax>\n"
+        ++ "-r <i_risk>\n"
+        ++ "-m <i_market>\n"
+        ++ "-n <i_stockname>\n"
+        ++ "-d <i_spread>\n"
+        ++ "-x <i_currency_from>\n"
+        ++ "-y <i_currency_to>\n"
+        ++ "-e <i_exchange_rate>\n")
  
     -- TODO: instead of the below, set the Input to whats in the options.
     input >>= output
