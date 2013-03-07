@@ -206,9 +206,21 @@ calcCommission  market stockname price shares =
     0.0
 
 {- CLI interfacing -}
-data Options = Options  { opt_verbose    :: Bool
-                        , opt_input      :: IO String
-                        , opt_output     :: String -> IO ()
+data Options = Options  { opt_verbose     :: Bool
+                        , i_money_to_use  :: IO Double
+                        , i_long_short    :: IO Char
+                        , i_price         :: IO Double
+                        , i_shares        :: IO Int
+                        , i_commission    :: IO Double
+                        , i_tax           :: IO Double
+                        , i_risk          :: IO Double
+                        , i_market        :: IO String
+                        , i_stockname     :: IO String
+                        , i_spread        :: IO Double
+                        , i_currency_from :: IO Double
+                        , i_currency_to   :: IO Double
+                        , i_exchange_rate :: IO Double
+                        --, opt_output      :: String -> IO ()
                         }
 
 startOptions :: Options
