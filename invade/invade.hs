@@ -12,12 +12,14 @@ Makes the necessary calculations with regards to trading, investing and money ma
 -}
 
 import System.Console.GetOpt
-{-import Control.Monad
+import Control.Monad
+import Data.List
 import System.IO
-import Data.List-}
+import System.Exit
 import Data.Char
 import Data.Time.Clock
 import Data.Time.Calendar
+import System.Environment
 
 data Input = Input {
                     i_pool :: Double -- Retrieve from db later
@@ -206,27 +208,29 @@ calcCommission  market stockname price shares =
     0.0
 
 {- CLI interfacing -}
-data Options = Options  { opt_verbose     :: Bool
-                        , opt_money_to_use  :: IO Double
-                        , opt_long_short    :: IO Char
-                        , opt_price         :: IO Double
-                        , opt_shares        :: IO Int
-                        , opt_commission    :: IO Double
-                        , opt_tax           :: IO Double
-                        , opt_risk          :: IO Double
-                        , opt_market        :: IO String
-                        , opt_stockname     :: IO String
-                        , opt_spread        :: IO Double
-                        , opt_currency_from :: IO Double
-                        , opt_currency_to   :: IO Double
-                        , opt_exchange_rate :: IO Double
+data Options = Options  { opt_verbose       :: Bool
+                        , opt_pool          :: Double
+                        , opt_money_to_use  :: Double
+                        , opt_long_short    :: Char
+                        , opt_price         :: Double
+                        , opt_shares        :: Int
+                        , opt_commission    :: Double
+                        , opt_tax           :: Double
+                        , opt_risk          :: Double
+                        , opt_market        :: String
+                        , opt_stockname     :: String
+                        , opt_spread        :: Double
+                        , opt_currency_from :: String
+                        , opt_currency_to   :: String
+                        , opt_exchange_rate :: Double
                         }
 
 getPool :: Double
 getPool = 100000.0
 
 startOptions :: Options
-startOptions = Options  { opt_verbose     = False
+startOptions = Options  { opt_verbose       = False
+                        , opt_pool          = getPool
                         , opt_money_to_use  = getPool / 10.0 -- use 1 tenth of our total pool by default
                         , opt_long_short    = 'L'
                         , opt_price         = 0.0
@@ -237,8 +241,8 @@ startOptions = Options  { opt_verbose     = False
                         , opt_market        = "world."
                         , opt_stockname     = "gold"
                         , opt_spread        = 0.0
-                        , opt_currency_from = 'EUR'
-                        , opt_currency_to   = 'EUR'
+                        , opt_currency_from = "EUR"
+                        , opt_currency_to   = "EUR"
                         , opt_exchange_rate = 1.0
                         }
 
@@ -268,7 +272,7 @@ options =
             "FILE")
         "i_long_short: 'L' or 'S' for long or short"
 
-    , Option "s" [i_opt_shares"]
+    , Option "s" ["i_opt_shares"]
         (ReqArg
             (\arg opt -> return opt { opt_shares = return arg })
             "FILE")
@@ -368,14 +372,14 @@ main = do
                 , opt_commission = i_opt_commission
                 , opt_tax = i_opt_tax
                 , opt_risk = i_opt_risk
-                , opt_marker = i_opt_marker
+                , opt_market = i_opt_market
                 , opt_stockname = i_opt_stockname
                 , opt_spread = i_opt_spread
                 , opt_currency_from = i_opt_currency_from
                 , opt_currency_to = i_opt_currency_to
                 , opt_exchange_rate = i_opt_exchange_rate } = opts
  
-    when verbose (hPutStrLn stderr "This is handled by usageInfo -> Usage: invade [-<option1> <value1> ...]\n"
+    {-when opt_verbose (hPutStrLn stderr "This is handled by usageInfo -> Usage: invade [-<option1> <value1> ...]\n"
         ++ "\nOptions:\n"
         ++ "-o <i_pool>\n"
         ++ "-u <i_money_to_use>\n"
@@ -390,7 +394,7 @@ main = do
         ++ "-d <i_spread>\n"
         ++ "-x <i_currency_from>\n"
         ++ "-y <i_currency_to>\n"
-        ++ "-e <i_exchange_rate>\n")
+        ++ "-e <i_exchange_rate>\n") -}
  
     --input >>= output -- applyMaybe
     
