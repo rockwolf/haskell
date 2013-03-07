@@ -206,143 +206,142 @@ calcCommission  market stockname price shares =
     0.0
 
 {- CLI interfacing -}
-data Options = Options  { i_verbose     :: Bool
-                        , i_money_to_use  :: IO Double
-                        , i_long_short    :: IO Char
-                        , i_price         :: IO Double
-                        , i_shares        :: IO Int
-                        , i_commission    :: IO Double
-                        , i_tax           :: IO Double
-                        , i_risk          :: IO Double
-                        , i_market        :: IO String
-                        , i_stockname     :: IO String
-                        , i_spread        :: IO Double
-                        , i_currency_from :: IO Double
-                        , i_currency_to   :: IO Double
-                        , i_exchange_rate :: IO Double
-                        --, opt_output      :: String -> IO ()
+data Options = Options  { opt_verbose     :: Bool
+                        , opt_money_to_use  :: IO Double
+                        , opt_long_short    :: IO Char
+                        , opt_price         :: IO Double
+                        , opt_shares        :: IO Int
+                        , opt_commission    :: IO Double
+                        , opt_tax           :: IO Double
+                        , opt_risk          :: IO Double
+                        , opt_market        :: IO String
+                        , opt_stockname     :: IO String
+                        , opt_spread        :: IO Double
+                        , opt_currency_from :: IO Double
+                        , opt_currency_to   :: IO Double
+                        , opt_exchange_rate :: IO Double
                         }
 
 getPool :: Double
 getPool = 100000.0
 
 startOptions :: Options
-startOptions = Options  { i_verbose     = False
-                        , i_money_to_use  = getPool / 10.0 -- use 1 tenth of our total pool by default
-                        , i_long_short    = 'L'
-                        , i_price         = 0.0
-                        , i_shares        = 0
-                        , i_commission    = 7.50
-                        , i_tax           = 0.25
-                        , i_risk          = 2.0
-                        , i_market        = "world."
-                        , i_stockname     = "gold"
-                        , i_spread        = 0.0
-                        , i_currency_from = 'EUR'
-                        , i_currency_to   = 'EUR'
-                        , i_exchange_rate = 1.0
+startOptions = Options  { opt_verbose     = False
+                        , opt_money_to_use  = getPool / 10.0 -- use 1 tenth of our total pool by default
+                        , opt_long_short    = 'L'
+                        , opt_price         = 0.0
+                        , opt_shares        = 0
+                        , opt_commission    = 7.50
+                        , opt_tax           = 0.25
+                        , opt_risk          = 2.0
+                        , opt_market        = "world."
+                        , opt_stockname     = "gold"
+                        , opt_spread        = 0.0
+                        , opt_currency_from = 'EUR'
+                        , opt_currency_to   = 'EUR'
+                        , opt_exchange_rate = 1.0
                         }
 
 options :: [ OptDescr (Options -> IO Options) ]
 -- TODO: specify what kind of options I need.
 options =
-    [ Option "o" ["i_pool"]
+    [ Option "o" ["i_opt_pool"]
         (ReqArg
-            (\arg opt -> return opt { i_pool = readFile arg })
+            (\arg opt -> return opt { opt_pool = return arg })
             "FILE")
         "i_pool: pool at start"
 
-    , Option "u" ["i_money_to_use"]
+    , Option "u" ["i_opt_money_to_use"]
         (ReqArg
-            (\arg opt -> return opt { i_money_to_use = readFile arg })
+            (\arg opt -> return opt { opt_money_to_use = return arg })
             "FILE")
         "i_money_to_use: money to use"
 
-    , Option "p" ["i_price"]
+    , Option "p" ["i_opt_price"]
         (ReqArg
-            (\arg opt -> return opt { i_price = readFile arg })
+            (\arg opt -> return opt { opt_price = return arg })
             "FILE")
         "i_price: price"
   
-    , Option "l" ["i_long_short"]
+    , Option "l" ["i_opt_long_short"]
         (ReqArg
-            (\arg opt -> return opt { i_long_short = readFile arg })
+            (\arg opt -> return opt { opt_long_short = return arg })
             "FILE")
         "i_long_short: 'L' or 'S' for long or short"
 
-    , Option "s" ["i_shares"]
+    , Option "s" [i_opt_shares"]
         (ReqArg
-            (\arg opt -> return opt { i_shares = return arg })
+            (\arg opt -> return opt { opt_shares = return arg })
             "FILE")
         "i_shares: shares"
 
-    , Option "c" ["i_commission"]
+    , Option "c" ["i_opt_commission"]
         (ReqArg
-            (\arg opt -> return opt { i_commission = return arg })
+            (\arg opt -> return opt { opt_commission = return arg })
             "FILE")
         "i_commission: commission"
     
-    , Option "t" ["i_tax"]
+    , Option "t" ["i_opt_tax"]
         (ReqArg
-            (\arg opt -> return opt { i_tax = return arg })
+            (\arg opt -> return opt { opt_tax = return arg })
             "FILE")
         "i_tax: tax"
 
-    , Option "r" ["i_risk"]
+    , Option "r" ["i_opt_risk"]
         (ReqArg
-            (\arg opt -> return opt { i_risk = return arg })
+            (\arg opt -> return opt { opt_risk = return arg })
             "FILE")
         "i_risk: risk you are willing to take"
  
-    , Option "m" ["i_market"]
+    , Option "m" ["i_opt_market"]
         (ReqArg
-            (\arg opt -> return opt { i_market = return arg })
+            (\arg opt -> return opt { opt_market = return arg })
             "FILE")
         "i_market: market name"
  
-    , Option "n" ["i_stockname"]
+    , Option "n" ["i_opt_stockname"]
         (ReqArg
-            (\arg opt -> return opt { i_stockname = return arg })
+            (\arg opt -> return opt { opt_stockname = return arg })
             "FILE")
         "i_stockname: stock name"
  
-    , Option "d" ["i_spread"]
+    , Option "d" ["i_opt_spread"]
         (ReqArg
-            (\arg opt -> return opt { i_spread = return arg })
+            (\arg opt -> return opt { opt_spread = return arg })
             "FILE")
         "i_spread: spread"
 
-    , Option "x" ["i_currency_from"]
+    , Option "x" ["i_opt_currency_from"]
         (ReqArg
-            (\arg opt -> return opt { i_currency_from = return arg })
+            (\arg opt -> return opt { opt_currency_from = return arg })
             "FILE")
         "i_currency_from: currency from"
  
-    , Option "y" ["i_currency_to"]
+    , Option "y" ["i_opt_currency_to"]
         (ReqArg
-            (\arg opt -> return opt { i_currency_to = return arg })
+            (\arg opt -> return opt { opt_currency_to = return arg })
             "FILE")
         "i_currency_to: currency to"
 
-    , Option "e" ["i_exchange_rate"]
+    , Option "e" ["i_opt_exchange_rate"]
         (ReqArg
-            (\arg opt -> return opt { i_exchange_rate = return arg })
+            (\arg opt -> return opt { opt_exchange_rate = return arg })
             "FILE")
         "i_exchange_rate: exchange_rate"
  
-    , Option "v" ["verbose"]
+    , Option "v" ["i_opt_verbose"]
         (NoArg
-            (\opt -> return opt { i_verbose = True }))
+            (\opt -> return opt { opt_verbose = True }))
         "Enable verbose messages"
  
-    , Option "V" ["version"]
+    , Option "V" ["i_opt_version"]
         (NoArg
             (\_ -> do
                 hPutStrLn stderr "Version 0.01"
                 exitWith ExitSuccess))
         "Print version"
  
-    , Option "h" ["help"]
+    , Option "h" ["i_opt_help"]
         (NoArg
             (\_ -> do
                 prg <- getProgName
@@ -361,9 +360,21 @@ main = do
     -- Here we thread startOptions through all supplied option actions
     opts <- foldl (>>=) (return startOptions) actions
  
-    let Options { optVerbose = verbose
-                , optInput = input
-                , optOutput = output   } = opts
+    let Options { opt_verbose = i_opt_verbose
+                , opt_pool = i_opt_pool
+                , opt_money_to_use = i_opt_money_to_use
+                , opt_price = i_opt_price
+                , opt_long_short = i_opt_long_short
+                , opt_shares = i_opt_shares
+                , opt_commission = i_opt_commission
+                , opt_tax = i_opt_tax
+                , opt_risk = i_opt_risk
+                , opt_marker = i_opt_marker
+                , opt_stockname = i_opt_stockname
+                , opt_spread = i_opt_spread
+                , opt_currency_from = i_opt_currency_from
+                , opt_currency_to = i_opt_currency_to
+                , opt_exchange_rate = i_opt_exchange_rate } = opts
  
     when verbose (hPutStrLn stderr "This is handled by usageInfo -> Usage: invade [-<option1> <value1> ...]\n"
         ++ "\nOptions:\n"
