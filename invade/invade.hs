@@ -223,21 +223,24 @@ data Options = Options  { opt_verbose     :: Bool
                         --, opt_output      :: String -> IO ()
                         }
 
+getPool :: Double
+getPool = 100000.0
+
 startOptions :: Options
 startOptions = Options  { opt_verbose     = False
-                        , i_money_to_use  = setMoneyToUse
-                        , i_long_short    = setLongShort
-                        , i_price         = setPrice
-                        , i_shares        = setShares
-                        , i_commission    = setCommission
-                        , i_tax           = setTax
-                        , i_risk          = setRisk --getContents
-                        , i_market        = setMarket
-                        , i_stockname     = setStockname
-                        , i_spread        = setSpread
-                        , i_currency_from = setCurrencyFrom
-                        , i_currency_to   = setCurrencyTo
-                        , i_exchange_rate = setEchangeRate--putStr
+                        , i_money_to_use  = getPool / 10.0 -- use 1 tenth of our total pool by default
+                        , i_long_short    = 'L'
+                        , i_price         = 0.0
+                        , i_shares        = 0
+                        , i_commission    = 7.50
+                        , i_tax           = 0.25
+                        , i_risk          = 2.0
+                        , i_market        = "world."
+                        , i_stockname     = "gold"
+                        , i_spread        = 0.0
+                        , i_currency_from = 'EUR'
+                        , i_currency_to   = 'EUR'
+                        , i_exchange_rate = 1.0
                         }
 
 options :: [ OptDescr (Options -> IO Options) ]
