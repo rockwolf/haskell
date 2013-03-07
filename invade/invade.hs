@@ -206,7 +206,7 @@ calcCommission  market stockname price shares =
     0.0
 
 {- CLI interfacing -}
-data Options = Options  { opt_verbose     :: Bool
+data Options = Options  { i_verbose     :: Bool
                         , i_money_to_use  :: IO Double
                         , i_long_short    :: IO Char
                         , i_price         :: IO Double
@@ -227,7 +227,7 @@ getPool :: Double
 getPool = 100000.0
 
 startOptions :: Options
-startOptions = Options  { opt_verbose     = False
+startOptions = Options  { i_verbose     = False
                         , i_money_to_use  = getPool / 10.0 -- use 1 tenth of our total pool by default
                         , i_long_short    = 'L'
                         , i_price         = 0.0
@@ -248,31 +248,91 @@ options :: [ OptDescr (Options -> IO Options) ]
 options =
     [ Option "o" ["i_pool"]
         (ReqArg
-            (\arg opt -> return opt { optInput = readFile arg })
+            (\arg opt -> return opt { i_pool = readFile arg })
             "FILE")
         "i_pool: pool at start"
 
     , Option "u" ["i_money_to_use"]
         (ReqArg
-            (\arg opt -> return opt { optOutput = writeFile arg })
+            (\arg opt -> return opt { i_money_to_use = readFile arg })
             "FILE")
         "i_money_to_use: money to use"
 
+    , Option "p" ["i_price"]
+        (ReqArg
+            (\arg opt -> return opt { i_price = readFile arg })
+            "FILE")
+        "i_price: price"
+  
+    , Option "l" ["i_long_short"]
+        (ReqArg
+            (\arg opt -> return opt { i_long_short = readFile arg })
+            "FILE")
+        "i_long_short: 'L' or 'S' for long or short"
+
+    , Option "s" ["i_shares"]
+        (ReqArg
+            (\arg opt -> return opt { i_shares = return arg })
+            "FILE")
+        "i_shares: shares"
+
+    , Option "c" ["i_commission"]
+        (ReqArg
+            (\arg opt -> return opt { i_commission = return arg })
+            "FILE")
+        "i_commission: commission"
+    
+    , Option "t" ["i_tax"]
+        (ReqArg
+            (\arg opt -> return opt { i_tax = return arg })
+            "FILE")
+        "i_tax: tax"
+
     , Option "r" ["i_risk"]
         (ReqArg
-            (\arg opt -> return opt { optOutput = writeFile arg })
+            (\arg opt -> return opt { i_risk = return arg })
             "FILE")
         "i_risk: risk you are willing to take"
  
-    , Option "s" ["string"]
+    , Option "m" ["i_market"]
         (ReqArg
-            (\arg opt -> return opt { optInput = return arg })
+            (\arg opt -> return opt { i_market = return arg })
             "FILE")
-        "Input string"
+        "i_market: market name"
+ 
+    , Option "n" ["i_stockname"]
+        (ReqArg
+            (\arg opt -> return opt { i_stockname = return arg })
+            "FILE")
+        "i_stockname: stock name"
+ 
+    , Option "d" ["i_spread"]
+        (ReqArg
+            (\arg opt -> return opt { i_spread = return arg })
+            "FILE")
+        "i_spread: spread"
+
+    , Option "x" ["i_currency_from"]
+        (ReqArg
+            (\arg opt -> return opt { i_currency_from = return arg })
+            "FILE")
+        "i_currency_from: currency from"
+ 
+    , Option "y" ["i_currency_to"]
+        (ReqArg
+            (\arg opt -> return opt { i_currency_to = return arg })
+            "FILE")
+        "i_currency_to: currency to"
+
+    , Option "e" ["i_exchange_rate"]
+        (ReqArg
+            (\arg opt -> return opt { i_exchange_rate = return arg })
+            "FILE")
+        "i_exchange_rate: exchange_rate"
  
     , Option "v" ["verbose"]
         (NoArg
-            (\opt -> return opt { optVerbose = True }))
+            (\opt -> return opt { i_verbose = True }))
         "Enable verbose messages"
  
     , Option "V" ["version"]
