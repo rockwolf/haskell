@@ -289,7 +289,7 @@ options =
         "i_exchange_rate: exchange_rate"
  
     , Option "v" ["i_opt_verbose"]
-        (NoArg (\opt -> return opt { i_verbose = True }))
+        (NoArg (\opt ->  opt { i_verbose = True }))
         "Enable verbose messages"
  
     , Option "V" ["i_opt_version"]
@@ -314,7 +314,7 @@ main = do
     let (actions, nonOptions, errors) = getOpt RequireOrder options args
  
     -- Here we thread startOptions through all supplied option actions
-    opts <- foldl (>>=) (return startOptions) actions
+    opts <- foldl (>>=) startOptions actions
  
     let Input { i_verbose = i_opt_verbose
                 , i_pool = i_opt_pool
