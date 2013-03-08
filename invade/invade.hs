@@ -21,8 +21,8 @@ import Data.Time.Clock
 import Data.Time.Calendar
 import System.Environment
 
-data Input = Input {
-                    i_pool :: Double -- Retrieve from db later
+data Input = Input {i_verbose :: Bool
+                    ,i_pool :: Double -- Retrieve from db later
                     ,i_money_to_use :: Double
                     ,i_long_short :: Char
                     ,i_price :: Double
@@ -208,7 +208,7 @@ calcCommission  market stockname price shares =
     0.0
 
 {- CLI interfacing -}
-data Options = Options  { opt_verbose       :: Bool
+{-data Options = Options  { opt_verbose       :: Bool
                         , opt_pool          :: Double
                         , opt_money_to_use  :: Double
                         , opt_long_short    :: Char
@@ -223,7 +223,8 @@ data Options = Options  { opt_verbose       :: Bool
                         , opt_currency_from :: String
                         , opt_currency_to   :: String
                         , opt_exchange_rate :: Double
-                        }
+                        }-}
+-- TODO: use the Input record directly
 
 getPool :: Double
 getPool = 100000.0
@@ -363,21 +364,21 @@ main = do
     -- Here we thread startOptions through all supplied option actions
     opts <- foldl (>>=) (return startOptions) actions
  
-    let Options { opt_verbose = i_opt_verbose
-                , opt_pool = i_opt_pool
-                , opt_money_to_use = i_opt_money_to_use
-                , opt_price = i_opt_price
-                , opt_long_short = i_opt_long_short
-                , opt_shares = i_opt_shares
-                , opt_commission = i_opt_commission
-                , opt_tax = i_opt_tax
-                , opt_risk = i_opt_risk
-                , opt_market = i_opt_market
-                , opt_stockname = i_opt_stockname
-                , opt_spread = i_opt_spread
-                , opt_currency_from = i_opt_currency_from
-                , opt_currency_to = i_opt_currency_to
-                , opt_exchange_rate = i_opt_exchange_rate } = opts
+    let Input { i_verbose = i_opt_verbose
+                , i_pool = i_opt_pool
+                , i_money_to_use = i_opt_money_to_use
+                , i_price = i_opt_price
+                , i_long_short = i_opt_long_short
+                , i_shares = i_opt_shares
+                , i_commission = i_opt_commission
+                , i_tax = i_opt_tax
+                , i_risk = i_opt_risk
+                , i_market = i_opt_market
+                , i_stockname = i_opt_stockname
+                , i_spread = i_opt_spread
+                , i_currency_from = i_opt_currency_from
+                , i_currency_to = i_opt_currency_to
+                , i_exchange_rate = i_opt_exchange_rate } = opts
  
     {-when opt_verbose (hPutStrLn stderr "This is handled by usageInfo -> Usage: invade [-<option1> <value1> ...]\n"
         ++ "\nOptions:\n"
