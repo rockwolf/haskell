@@ -11,6 +11,8 @@ Portability :  portable
 Makes the necessary calculations with regards to trading, investing and money management/risk management.
 -}
 
+module Main (main) where
+
 import System.Console.GetOpt
 import Control.Monad
 import Data.List
@@ -19,7 +21,7 @@ import System.Exit
 import Data.Char
 import Data.Time.Clock
 import Data.Time.Calendar
-import System.Environment
+import System.Environment (getArgs, getProgName)
 
 data Input = Input {i_verbose :: Bool
                     ,i_pool :: Double -- Retrieve from db later
@@ -230,66 +232,66 @@ startOptions = Input  { i_verbose       = False
                         , i_exchange_rate = 1.0
                         }
 
-options :: [ OptDescr (Input -> Input) ]
+options :: [ OptDescr (Input -> IO Input) ]
 options =
     [ Option "o" ["i_opt_pool"]
-        (ReqArg (\arg opt -> opt { i_pool = read arg }) "SOMETHING")
+        (ReqArg (\arg opt -> return opt { i_pool = read arg }) "SOMETHING")
         "i_pool: pool at start"
 
     , Option "u" ["i_opt_money_to_use"]
-        (ReqArg (\arg opt -> opt { i_money_to_use = read arg }) "SOMETHING")
+        (ReqArg (\arg opt -> return opt { i_money_to_use = read arg }) "SOMETHING")
         "i_money_to_use: money to use"
 
     , Option "p" ["i_opt_price"]
-        (ReqArg (\arg opt -> opt { i_price = read arg }) "SOMETHING")
+        (ReqArg (\arg opt -> return opt { i_price = read arg }) "SOMETHING")
         "i_price: price"
   
     , Option "l" ["i_opt_long_short"]
-        (ReqArg (\arg opt -> opt { i_long_short = read arg }) "SOMETHING")
+        (ReqArg (\arg opt -> return opt { i_long_short = read arg }) "SOMETHING")
         "i_long_short: 'L' or 'S' for long or short"
 
     , Option "s" ["i_opt_shares"]
-        (ReqArg (\arg opt -> opt { i_shares = read arg }) "SOMETHING")
+        (ReqArg (\arg opt -> return opt { i_shares = read arg }) "SOMETHING")
         "i_shares: shares"
 
     , Option "c" ["i_opt_commission"]
-        (ReqArg (\arg opt -> opt { i_commission = read arg }) "SOMETHING")
+        (ReqArg (\arg opt -> return opt { i_commission = read arg }) "SOMETHING")
         "i_commission: commission"
     
     , Option "t" ["i_opt_tax"]
-        (ReqArg (\arg opt -> opt { i_tax = read arg }) "SOMETHING")
+        (ReqArg (\arg opt -> return opt { i_tax = read arg }) "SOMETHING")
         "i_tax: tax"
 
     , Option "r" ["i_opt_risk"]
-        (ReqArg (\arg opt -> opt { i_risk = read arg }) "SOMETHING")
+        (ReqArg (\arg opt -> return opt { i_risk = read arg }) "SOMETHING")
         "i_risk: risk you are willing to take"
  
     , Option "m" ["i_opt_market"]
-        (ReqArg (\arg opt -> opt { i_market = read arg }) "SOMETHING")
+        (ReqArg (\arg opt -> return opt { i_market = read arg }) "SOMETHING")
         "i_market: market name"
  
     , Option "n" ["i_opt_stockname"]
-        (ReqArg (\arg opt -> opt { i_stockname = read arg }) "SOMETHING")
+        (ReqArg (\arg opt -> return opt { i_stockname = read arg }) "SOMETHING")
         "i_stockname: stock name"
  
     , Option "d" ["i_opt_spread"]
-        (ReqArg (\arg opt -> opt { i_spread = read arg }) "SOMETHING")
+        (ReqArg (\arg opt -> return opt { i_spread = read arg }) "SOMETHING")
         "i_spread: spread"
 
     , Option "x" ["i_opt_currency_from"]
-        (ReqArg (\arg opt -> opt { i_currency_from = read arg }) "SOMETHING")
+        (ReqArg (\arg opt -> return opt { i_currency_from = read arg }) "SOMETHING")
         "i_currency_from: currency from"
  
     , Option "y" ["i_opt_currency_to"]
-        (ReqArg (\arg opt -> opt { i_currency_to = read arg }) "SOMETHING")
+        (ReqArg (\arg opt -> return opt { i_currency_to = read arg }) "SOMETHING")
         "i_currency_to: currency to"
 
     , Option "e" ["i_opt_exchange_rate"]
-        (ReqArg (\arg opt -> opt { i_exchange_rate = read arg }) "SOMETHING")
+        (ReqArg (\arg opt -> return opt { i_exchange_rate = read arg }) "SOMETHING")
         "i_exchange_rate: exchange_rate"
  
     , Option "v" ["i_opt_verbose"]
-        (NoArg (\opt ->  opt { i_verbose = True }))
+        (NoArg (\opt -> return opt { i_verbose = True }))
         "Enable verbose messages"
  
     , Option "V" ["i_opt_version"]
@@ -306,6 +308,7 @@ options =
         "Show help"
     ]
 
+main :: IO ()
 main = do
     -- TODO: finish and test option parsing
     args <- getArgs
@@ -314,7 +317,7 @@ main = do
     let (actions, nonOptions, errors) = getOpt RequireOrder options args
  
     -- Here we thread startOptions through all supplied option actions
-    opts <- foldl (>>=) startOptions actions
+    opts <- foldl (>>=) (return startOptions) actions
  
     let Input { i_verbose = i_opt_verbose
                 , i_pool = i_opt_pool
@@ -343,7 +346,8 @@ main = do
     -- It might be possible to leave out those options, so startOptions are used for them.
     -- Then you specify startOptions through functions.
     let varInput = Input {
-            i_pool = i_opt_pool 
+            i_verbose = i_opt_verbose
+            ,i_pool = i_opt_pool 
             ,i_money_to_use = i_opt_money_to_use
             ,i_long_short = i_opt_long_short
             ,i_price = i_opt_price
