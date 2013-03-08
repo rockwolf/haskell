@@ -207,130 +207,100 @@ calcCommission  market stockname price shares =
     -- TODO: getPredefined commission, based on type of input/commodity/market
     0.0
 
-{- CLI interfacing -}
-{-data Options = Options  { opt_verbose       :: Bool
-                        , opt_pool          :: Double
-                        , opt_money_to_use  :: Double
-                        , opt_long_short    :: Char
-                        , opt_price         :: Double
-                        , opt_shares        :: Int
-                        , opt_commission    :: Double
-                        , opt_tax           :: Double
-                        , opt_risk          :: Double
-                        , opt_market        :: String
-                        , opt_stockname     :: String
-                        , opt_spread        :: Double
-                        , opt_currency_from :: String
-                        , opt_currency_to   :: String
-                        , opt_exchange_rate :: Double
-                        }-}
--- TODO: use the Input record directly
-
 getPool :: Double
 getPool = 100000.0
 
-startOptions :: Options
-startOptions = Options  { opt_verbose       = False
-                        , opt_pool          = getPool
-                        , opt_money_to_use  = getPool / 10.0 -- use 1 tenth of our total pool by default
-                        , opt_long_short    = 'L'
-                        , opt_price         = 0.0
-                        , opt_shares        = 0
-                        , opt_commission    = 7.50
-                        , opt_tax           = 0.25
-                        , opt_risk          = 2.0
-                        , opt_market        = "world."
-                        , opt_stockname     = "gold"
-                        , opt_spread        = 0.0
-                        , opt_currency_from = "EUR"
-                        , opt_currency_to   = "EUR"
-                        , opt_exchange_rate = 1.0
+{- CLI interfacing -}
+
+startOptions :: Input
+startOptions = Input  { i_verbose       = False
+                        , i_pool          = getPool
+                        , i_money_to_use  = getPool / 10.0 -- use 1 tenth of our total pool by default
+                        , i_long_short    = 'L'
+                        , i_price         = 0.0
+                        , i_shares        = 0
+                        , i_commission    = 7.50
+                        , i_tax           = 0.25
+                        , i_risk          = 2.0
+                        , i_market        = "world."
+                        , i_stockname     = "gold"
+                        , i_spread        = 0.0
+                        , i_currency_from = "EUR"
+                        , i_currency_to   = "EUR"
+                        , i_exchange_rate = 1.0
                         }
 
-options :: [ OptDescr (Options -> IO Options) ]
+options :: [ OptDescr (Input -> Input) ]
 options =
     [ Option "o" ["i_opt_pool"]
         (ReqArg
-            (\arg opt -> return opt { opt_pool = return arg })
+            (\arg opt -> opt { i_pool = read arg })
             "FILE")
         "i_pool: pool at start"
 
     , Option "u" ["i_opt_money_to_use"]
         (ReqArg
-            (\arg opt -> return opt { opt_money_to_use = return arg })
-            "FILE")
+            (\arg opt -> opt { i_money_to_use = read arg }))
         "i_money_to_use: money to use"
 
     , Option "p" ["i_opt_price"]
         (ReqArg
-            (\arg opt -> return opt { opt_price = return arg })
-            "FILE")
+            (\arg opt -> opt { i_price = read arg }))
         "i_price: price"
   
     , Option "l" ["i_opt_long_short"]
         (ReqArg
-            (\arg opt -> return opt { opt_long_short = return arg })
-            "FILE")
+            (\arg opt -> opt { i_long_short = read arg }))
         "i_long_short: 'L' or 'S' for long or short"
 
     , Option "s" ["i_opt_shares"]
         (ReqArg
-            (\arg opt -> return opt { opt_shares = return arg })
-            "FILE")
+            (\arg opt -> opt { opt_shares = read arg }))
         "i_shares: shares"
 
     , Option "c" ["i_opt_commission"]
         (ReqArg
-            (\arg opt -> return opt { opt_commission = return arg })
-            "FILE")
+            (\arg opt -> opt { opt_commission = read arg }))
         "i_commission: commission"
     
     , Option "t" ["i_opt_tax"]
         (ReqArg
-            (\arg opt -> return opt { opt_tax = return arg })
-            "FILE")
+            (\arg opt -> opt { opt_tax = read arg }))
         "i_tax: tax"
 
     , Option "r" ["i_opt_risk"]
         (ReqArg
-            (\arg opt -> return opt { opt_risk = return arg })
-            "FILE")
+            (\arg opt -> opt { opt_risk = read arg }))
         "i_risk: risk you are willing to take"
  
     , Option "m" ["i_opt_market"]
         (ReqArg
-            (\arg opt -> return opt { opt_market = return arg })
-            "FILE")
+            (\arg opt -> opt { opt_market = read arg }))
         "i_market: market name"
  
     , Option "n" ["i_opt_stockname"]
         (ReqArg
-            (\arg opt -> return opt { opt_stockname = return arg })
-            "FILE")
+            (\arg opt -> opt { opt_stockname = read arg }))
         "i_stockname: stock name"
  
     , Option "d" ["i_opt_spread"]
         (ReqArg
-            (\arg opt -> return opt { opt_spread = return arg })
-            "FILE")
+            (\arg opt -> opt { opt_spread = read arg }))
         "i_spread: spread"
 
     , Option "x" ["i_opt_currency_from"]
         (ReqArg
-            (\arg opt -> return opt { opt_currency_from = return arg })
-            "FILE")
+            (\arg opt -> opt { opt_currency_from = read arg }))
         "i_currency_from: currency from"
  
     , Option "y" ["i_opt_currency_to"]
         (ReqArg
-            (\arg opt -> return opt { opt_currency_to = return arg })
-            "FILE")
+            (\arg opt -> opt { opt_currency_to = read arg }))
         "i_currency_to: currency to"
 
     , Option "e" ["i_opt_exchange_rate"]
         (ReqArg
-            (\arg opt -> return opt { opt_exchange_rate = return arg })
-            "FILE")
+            (\arg opt -> opt { opt_exchange_rate = read arg }))
         "i_exchange_rate: exchange_rate"
  
     , Option "v" ["i_opt_verbose"]
@@ -380,24 +350,8 @@ main = do
                 , i_currency_to = i_opt_currency_to
                 , i_exchange_rate = i_opt_exchange_rate } = opts
  
-    {-when opt_verbose (hPutStrLn stderr "This is handled by usageInfo -> Usage: invade [-<option1> <value1> ...]\n"
-        ++ "\nOptions:\n"
-        ++ "-o <i_pool>\n"
-        ++ "-u <i_money_to_use>\n"
-        ++ "-p <i_price>\n"
-        ++ "-l <i_long_short>\n"
-        ++ "-s <i_shares>\n"
-        ++ "-c <i_commission>\n"
-        ++ "-t <i_tax>\n"
-        ++ "-r <i_risk>\n"
-        ++ "-m <i_market>\n"
-        ++ "-n <i_stockname>\n"
-        ++ "-d <i_spread>\n"
-        ++ "-x <i_currency_from>\n"
-        ++ "-y <i_currency_to>\n"
-        ++ "-e <i_exchange_rate>\n") -}
+    {-when i_verbose (hPutStrLn stderr "Yoyoma's cousin, little Nepetiz..." -}
  
-    --input >>= output -- applyMaybe
     -- NOTE: excellent info on option parsing:
     -- http://stackoverflow.com/questions/6321728/haskell-command-line-options
     -- http://leiffrenzel.de/papers/commandline-options-in-haskell.html
@@ -424,18 +378,3 @@ main = do
     }
     
     putStrLn $ show (setOutput varInput)  
-    -- TODO: is show necessary here? 
-    -- bought
-    {-putStrLn $ show (
-        calcBoughtSold oPriceBuy oSharesBuy)
-    -- sold
-    putStrLn $ show (
-        calcBoughtSold oStoploss oSharesSell)
-    -- cost_buy
-    -- TODO: determine tax and commission based on market/stockname
-    putStrLn $ show (
-        costTransaction "buy" oPriceBuy oSharesBuy oTaxBuy oCommissionBuy)
-    -- cost_sell
-    putStrLn $ show (
-        costTransaction "sell" oStoploss oSharesBuy oTaxBuy oCommissionBuy)
-    -}
