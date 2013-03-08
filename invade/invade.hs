@@ -233,91 +233,73 @@ startOptions = Input  { i_verbose       = False
 options :: [ OptDescr (Input -> Input) ]
 options =
     [ Option "o" ["i_opt_pool"]
-        (ReqArg
-            (\arg opt -> opt { i_pool = read arg })
-            "FILE")
+        (ReqArg (\arg opt -> opt { i_pool = read arg }))
         "i_pool: pool at start"
 
     , Option "u" ["i_opt_money_to_use"]
-        (ReqArg
-            (\arg opt -> opt { i_money_to_use = read arg }))
+        (ReqArg (\arg opt -> opt { i_money_to_use = read arg }))
         "i_money_to_use: money to use"
 
     , Option "p" ["i_opt_price"]
-        (ReqArg
-            (\arg opt -> opt { i_price = read arg }))
+        (ReqArg (\arg opt -> opt { i_price = read arg }))
         "i_price: price"
   
     , Option "l" ["i_opt_long_short"]
-        (ReqArg
-            (\arg opt -> opt { i_long_short = read arg }))
+        (ReqArg (\arg opt -> opt { i_long_short = read arg }))
         "i_long_short: 'L' or 'S' for long or short"
 
     , Option "s" ["i_opt_shares"]
-        (ReqArg
-            (\arg opt -> opt { opt_shares = read arg }))
+        (ReqArg (\arg opt -> opt { opt_shares = read arg }))
         "i_shares: shares"
 
     , Option "c" ["i_opt_commission"]
-        (ReqArg
-            (\arg opt -> opt { opt_commission = read arg }))
+        (ReqArg (\arg opt -> opt { opt_commission = read arg }))
         "i_commission: commission"
     
     , Option "t" ["i_opt_tax"]
-        (ReqArg
-            (\arg opt -> opt { opt_tax = read arg }))
+        (ReqArg (\arg opt -> opt { opt_tax = read arg }))
         "i_tax: tax"
 
     , Option "r" ["i_opt_risk"]
-        (ReqArg
-            (\arg opt -> opt { opt_risk = read arg }))
+        (ReqArg (\arg opt -> opt { opt_risk = read arg }))
         "i_risk: risk you are willing to take"
  
     , Option "m" ["i_opt_market"]
-        (ReqArg
-            (\arg opt -> opt { opt_market = read arg }))
+        (ReqArg (\arg opt -> opt { opt_market = read arg }))
         "i_market: market name"
  
     , Option "n" ["i_opt_stockname"]
-        (ReqArg
-            (\arg opt -> opt { opt_stockname = read arg }))
+        (ReqArg (\arg opt -> opt { opt_stockname = read arg }))
         "i_stockname: stock name"
  
     , Option "d" ["i_opt_spread"]
-        (ReqArg
-            (\arg opt -> opt { opt_spread = read arg }))
+        (ReqArg (\arg opt -> opt { opt_spread = read arg }))
         "i_spread: spread"
 
     , Option "x" ["i_opt_currency_from"]
-        (ReqArg
-            (\arg opt -> opt { opt_currency_from = read arg }))
+        (ReqArg (\arg opt -> opt { opt_currency_from = read arg }))
         "i_currency_from: currency from"
  
     , Option "y" ["i_opt_currency_to"]
-        (ReqArg
-            (\arg opt -> opt { opt_currency_to = read arg }))
+        (ReqArg (\arg opt -> opt { opt_currency_to = read arg }))
         "i_currency_to: currency to"
 
     , Option "e" ["i_opt_exchange_rate"]
-        (ReqArg
-            (\arg opt -> opt { opt_exchange_rate = read arg }))
+        (ReqArg (\arg opt -> opt { opt_exchange_rate = read arg }))
         "i_exchange_rate: exchange_rate"
  
     , Option "v" ["i_opt_verbose"]
-        (NoArg
-            (\opt -> return opt { opt_verbose = True }))
+        (NoArg (\opt -> return opt { opt_verbose = True }))
         "Enable verbose messages"
  
     , Option "V" ["i_opt_version"]
-        (NoArg
-            (\_ -> do
+        (NoArg (\_ -> do
                 hPutStrLn stderr "Version 0.01"
                 exitWith ExitSuccess))
         "Print version"
  
     , Option "h" ["i_opt_help"]
-        (NoArg
-            (\_ -> do
+        (NoArg (\_ -> do
                 prg <- getProgName
                 hPutStrLn stderr (usageInfo prg options)
                 exitWith ExitSuccess))
