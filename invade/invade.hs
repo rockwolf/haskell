@@ -397,6 +397,10 @@ main = do
         ++ "-e <i_exchange_rate>\n") -}
  
     --input >>= output -- applyMaybe
+    -- NOTE: excellent info on option parsing:
+    -- http://stackoverflow.com/questions/6321728/haskell-command-line-options
+    -- http://leiffrenzel.de/papers/commandline-options-in-haskell.html
+    -- http://en.literateprograms.org/Word_count_(Haskell)
     
     -- TODO: change some options through functions, so we can get calculate some stuff in advance
     -- It might be possible to leave out those options, so startOptions are used for them.
