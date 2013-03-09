@@ -259,53 +259,53 @@ options =
         (ReqArg (\arg opt -> return opt { i_shares = read arg }) "<number of shares>")
         "shares"
 
-    , Option "c" ["i_opt_commission"]
+    , Option "c" ["commission"]
         (ReqArg (\arg opt -> return opt { i_commission = read arg }) "<commission>")
         "commission"
     
-    , Option "t" ["i_opt_tax"]
+    , Option "t" ["tax"]
         (ReqArg (\arg opt -> return opt { i_tax = read arg }) "<tax>")
         "tax"
 
-    , Option "r" ["i_opt_risk"]
+    , Option "r" ["risk"]
         (ReqArg (\arg opt -> return opt { i_risk = read arg }) "<risk>")
         "risk you are willing to take"
  
-    , Option "m" ["i_opt_market"]
+    , Option "m" ["market"]
         (ReqArg (\arg opt -> return opt { i_market = arg }) "<market name>")
         "market name"
  
-    , Option "n" ["i_opt_stockname"]
+    , Option "n" ["stockname"]
         (ReqArg (\arg opt -> return opt { i_stockname = arg }) "<stock name>")
         "stock name"
  
-    , Option "d" ["i_opt_spread"]
+    , Option "d" ["spread"]
         (ReqArg (\arg opt -> return opt { i_spread = read arg }) "<spread>")
         "spread"
 
-    , Option "x" ["i_opt_currency_from"]
+    , Option "x" ["currency_from"]
         (ReqArg (\arg opt -> return opt { i_currency_from = arg }) "<currency from>")
         "currency from"
  
-    , Option "y" ["i_opt_currency_to"]
+    , Option "y" ["currency_to"]
         (ReqArg (\arg opt -> return opt { i_currency_to = arg }) "<currency to>")
         "currency to"
 
-    , Option "e" ["i_opt_exchange_rate"]
+    , Option "e" ["exchange_rate"]
         (ReqArg (\arg opt -> return opt { i_exchange_rate = read arg }) "<exchange rate>")
         "exchange_rate"
  
-    , Option "v" ["i_opt_verbose"]
+    , Option "v" ["verbose"]
         (NoArg (\opt -> return opt { i_verbose = True }))
         "Enable verbose messages"
  
-    , Option "V" ["i_opt_version"]
+    , Option "V" ["version"]
         (NoArg (\_ -> do
                 hPutStrLn stderr "Version 0.01"
                 exitWith ExitSuccess))
         "Print version"
  
-    , Option "h" ["i_opt_help"]
+    , Option "h" ["help"]
         (NoArg (\_ -> do
                 prg <- getProgName
                 hPutStrLn stderr (usageInfo prg options)
