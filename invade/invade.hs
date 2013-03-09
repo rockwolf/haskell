@@ -247,7 +247,7 @@ options =
         "price"
   
     , Option "l" ["long_short"]
-        (ReqArg (\arg opt -> return opt { i_long_short = read arg }) "<L/S>")
+        (ReqArg (\arg opt -> return opt { i_long_short = head arg }) "<L/S>")
         "'L' or 'S' for long or short"
 
     , Option "s" ["shares"]
@@ -267,11 +267,11 @@ options =
         "risk you are willing to take"
  
     , Option "m" ["i_opt_market"]
-        (ReqArg (\arg opt -> return opt { i_market = read arg }) "<market name>")
+        (ReqArg (\arg opt -> return opt { i_market = arg }) "<market name>")
         "market name"
  
     , Option "n" ["i_opt_stockname"]
-        (ReqArg (\arg opt -> return opt { i_stockname = read arg }) "<stock name>")
+        (ReqArg (\arg opt -> return opt { i_stockname = arg }) "<stock name>")
         "stock name"
  
     , Option "d" ["i_opt_spread"]
@@ -279,11 +279,11 @@ options =
         "spread"
 
     , Option "x" ["i_opt_currency_from"]
-        (ReqArg (\arg opt -> return opt { i_currency_from = read arg }) "<currency from>")
+        (ReqArg (\arg opt -> return opt { i_currency_from = arg }) "<currency from>")
         "currency from"
  
     , Option "y" ["i_opt_currency_to"]
-        (ReqArg (\arg opt -> return opt { i_currency_to = read arg }) "<currency to>")
+        (ReqArg (\arg opt -> return opt { i_currency_to = arg }) "<currency to>")
         "currency to"
 
     , Option "e" ["i_opt_exchange_rate"]
@@ -363,4 +363,5 @@ main = do
             ,i_exchange_rate = i_opt_exchange_rate
     }
     
+    putStrLn $ show (varInput)  
     putStrLn $ show (setOutput varInput)  
