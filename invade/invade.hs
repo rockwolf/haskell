@@ -207,6 +207,11 @@ lowerCase = map toLower
 calcCommission :: String -> String -> Double -> Int -> Double
 calcCommission  market stockname price shares =
     -- TODO: getPredefined commission, based on type of input/commodity/market
+    -- TODO: check info on commissions and create this function based on that info
+    -- BINB00 BE < 2500 
+    -- BINB00 BE >= 2500 
+    -- BINB00 US
+    -- WHSI00 US
     0.0
 
 getPool :: Double
