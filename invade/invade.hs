@@ -213,7 +213,7 @@ calcCommission :: String -> String -> String -> Double -> Int -> Double
 calcCommission  account market stockname price shares =
     case lowerCase account of
         "binb00" -> getBinb00Commission market stockname amount_simple
-        "whsi00" -> 4.50 + 0.023 * fromIntegral shares
+        "whsi00" -> getWhsiCommission market stockname amount_simple
         _ -> 0.0
     where
         amount_simple = calcAmountSimple price shares
@@ -229,7 +229,7 @@ calcCommission  account market stockname price shares =
         -- WHSI00 SHARE CFDs and ETFs - non-share CFDs (oil, gold, indices...)
         --3.00
 
-getBinb00Commission :: Double -> Double
+getBinb00Commission :: String -> String -> Double -> Double
 getBinb00Commission _ _ 0.0 = 0.0
 getBinb00Commission "" "" _ = 0.0
 getBinb00Commission market stockname amount_simple 
@@ -316,6 +316,51 @@ getBinb00Commission50000Plus market _
     | isEuronextOther market = 9.25
     | otherwise = 0.0
 
+getWhsi00Commission :: String -> String -> Double -> Double -> Double
+getWhsi00Commission _ _ 0.0 _ = 0.0
+getWhsi00Commission _ _ _ 0 = 0.0
+getWhsi00Commission "" "" _ _ = 0.0
+getWhsi00Commission market stockname price shares
+    | isNonShareCfd market = 3.0
+    | isShareCfd market = 4.50 + (calcPercentageOf 0.054 amount_simple)
+    | isShareCfdDev1 market = 4.50 + (calcPercentageOf 0.09 amount_simple)
+    | isShareCfdDev2 market = 4.50 + (calcPercentageOf 0.19 amount_simple)
+    | isShareCfdUS market = 4.50 + 0.023 * fromIntegral shares
+    | otherwise = 0.0
+    where
+        amount_simple = price * fromIntegral shares
+
+isNonShareCfd :: String -> Bool
+isNonShareCfd "" = False
+isNonShareCfd market
+    | market = ".gold" = True
+    | market = ".silver" = True
+    -- TODO: add oil, indices and look up what else
+    | market = "oil, indices" = True
+    | otherwise = False
+
+isShareCfdDev1 :: String -> Bool
+isShareCfdDev1 "" = False
+isShareCfdDev1 market
+    | market = ".cfd Australia"
+    | market = ".cfd Austria"
+    | otherwise = False
+
+isShareCfdDev2 :: String -> Bool
+isShareCfdDev2 "" = False
+isShareCfdDev2 market
+    | market = ".cfd China"
+    | market = ".cfd Poland"
+    | market = ".cfd Singapore"
+    | otherwise = False
+
+isShareCfdUS :: String -> Bool
+isShareCfdUS "" = False
+isShareCfdUS market
+    -- TODO: figure out whats in here
+    -- TODO: sync this file with lisa
+    | market = ".cfd US"
+    | otherwise = False
 
 getPool :: Double
 getPool = 100000.0
