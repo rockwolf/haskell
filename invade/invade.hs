@@ -23,66 +23,71 @@ import Data.Time.Clock
 import Data.Time.Calendar
 import System.Environment (getArgs, getProgName)
 
-data Input = Input {i_verbose :: Bool
-                    ,i_pool :: Double -- Retrieve from db later
-                    ,i_money_to_use :: Double
-                    ,i_long_short :: Char
-                    ,i_price :: Double
-                    ,i_shares :: Int
-                    ,i_commission :: Double
-                    ,i_tax :: Double
-                    ,i_risk :: Double
-                    ,i_market :: String --Needed for calculating with the correct tax/commission
-                    ,i_stockname :: String
-                    ,i_spread :: Double
-                    ,i_currency_from :: String
-                    ,i_currency_to :: String
-                    ,i_exchange_rate :: Double
+data Input = Input {i_verbose           :: Bool
+                    ,i_account          :: String
+                    ,i_pool             :: Double -- Retrieve from db later
+                    ,i_money_to_use     :: Double
+                    ,i_long_short       :: Char
+                    ,i_price            :: Double
+                    ,i_shares           :: Int
+                    ,i_commission       :: Double
+                    ,i_tax              :: Double
+                    ,i_risk             :: Double
+                    ,i_market           :: String --Needed for calculating with the correct tax/commission
+                    ,i_stockname        :: String
+                    ,i_spread           :: Double
+                    ,i_currency_from    :: String
+                    ,i_currency_to      :: String
+                    ,i_exchange_rate    :: Double
              } deriving (Show)
 
 data Output = Output {
+                -- general
+                o_account                   :: String
                 -- buying
-                o_price_buy :: Double -- just the input price
-                ,o_shares_buy :: Int -- This is what you need to know
-                ,o_amount_buy_simple :: Double
-                ,o_commission_buy :: Double
-                ,o_tax_buy :: Double
-                ,o_cost_buy :: Double
+                ,o_price_buy                :: Double -- just the input price
+                ,o_shares_buy               :: Int -- This is what you need to know
+                ,o_amount_buy_simple        :: Double
+                ,o_commission_buy           :: Double
+                ,o_tax_buy                  :: Double
+                ,o_cost_buy                 :: Double
                 {- risk theoretical, just using the input
                     2% -> 2% from i_pool -}
-                ,o_risk_input :: Double
-                ,o_risk_input_percentage :: Double
+                ,o_risk_input               :: Double
+                ,o_risk_input_percentage    :: Double
                 -- selling at stoploss
-                ,o_stoploss :: Double
-                ,o_shares_sell :: Int
-                ,o_amount_sell_simple :: Double -- Can also be input when shorting
-                ,o_commission_sell :: Double
-                ,o_tax_sell :: Double
-                ,o_cost_sell :: Double
+                ,o_stoploss                 :: Double
+                ,o_shares_sell              :: Int
+                ,o_amount_sell_simple       :: Double -- Can also be input when shorting
+                ,o_commission_sell          :: Double
+                ,o_tax_sell                 :: Double
+                ,o_cost_sell                :: Double
                 {- risk taken, when minimum stoploss is reached -}
-                ,o_risk_initial :: Double
-                ,o_risk_initial_percentage :: Double
+                ,o_risk_initial             :: Double
+                ,o_risk_initial_percentage  :: Double
                 -- extra info at buying
                 --,o_date_buy :: IO (Integer, Int, Int)-- extra, not really necessary
-                ,o_pool_at_start :: Double
-                ,o_pool_new :: Double
-                ,o_long_short :: Char
-                ,o_currency_from :: String
-                ,o_currency_to :: String
-                ,o_exchange_rate :: Double
+                ,o_pool_at_start            :: Double
+                ,o_pool_new                 :: Double
+                ,o_long_short               :: Char
+                ,o_currency_from            :: String
+                ,o_currency_to              :: String
+                ,o_exchange_rate            :: Double
                 -- extra info for close at stoploss
-                ,o_profit_loss :: Double
-                ,o_profit_loss_percent :: Double
-                ,o_cost_total :: Double
-                ,o_cost_other :: Double
+                ,o_profit_loss              :: Double
+                ,o_profit_loss_percent      :: Double
+                ,o_cost_total               :: Double
+                ,o_cost_other               :: Double
             }
             deriving (Show) --, Eq, Ord)
 
 setOutput :: Input -> Output
 setOutput varInput = 
     Output {
+        -- general
+        o_account                  = i_account varInput
         -- buying
-        o_price_buy                = varPriceBuy
+        ,o_price_buy               = varPriceBuy
         ,o_shares_buy              = varSharesBuy
         ,o_amount_buy_simple       = varAmountBuySimple
         ,o_commission_buy          = varCommissionBuy--calc later
@@ -204,15 +209,25 @@ lowerCase = map toLower
 --currentDate :: IO (Integer,Int,Int) -- :: (year,month,day)
 --currentDate = getCurrentTime >>= return . toGregorian . utctDay
 
-calcCommission :: String -> String -> Double -> Int -> Double
-calcCommission  market stockname price shares =
+calcCommission :: String -> String -> String -> Double -> Int -> Double
+calcCommission  account market stockname price shares =
     -- TODO: getPredefined commission, based on type of input/commodity/market
     -- TODO: check info on commissions and create this function based on that info
     -- BINB00 BE < 2500 
     -- BINB00 BE >= 2500 
     -- BINB00 US
-    -- WHSI00 US
-    0.0
+    -- WHSI00 SHARE CFDs and ETFs - GB, FR, DE, BE, DK, F, IT, NL, N, P, S, CH, ES
+    -- TODO: use function to convert currency? Might nod be needed, usd is entered as usd!
+    --4.50 + calcPercentageOf 0.054 (calcAmountSimple price shares)
+    -- WHSI00 SHARE CFDs and ETFs - AU, AUS
+    --4.50 + calcPercentageOf 0.09 (calcAmountSimple price shares)
+    -- WHSI00 SHARE CFDs and ETFs - China, PL, Singapore
+    --4.50 + calcPercentageOf 0.19 (calcAmountSimple price shares)
+    -- WHSI00 SHARE CFDs and ETFs - US markets (incl. ADR and ETF)
+    -- NOTE: this is in USD and not in EUR!
+    4.50 + 0.023 * fromIntegral shares
+    -- WHSI00 SHARE CFDs and ETFs - non-share CFDs (oil, gold, indices...)
+    --3.00
 
 getPool :: Double
 getPool = 100000.0
@@ -220,7 +235,8 @@ getPool = 100000.0
 {- CLI interfacing -}
 
 startOptions :: Input
-startOptions = Input  { i_verbose       = False
+startOptions = Input  { i_verbose         = False
+                        , i_account       = "whsi00"
                         , i_pool          = getPool
                         , i_money_to_use  = getPool / 10.0 -- use 1 tenth of our total pool by default
                         , i_long_short    = 'L'
@@ -239,7 +255,11 @@ startOptions = Input  { i_verbose       = False
 
 options :: [ OptDescr (Input -> IO Input) ]
 options =
-    [ Option "o" ["pool"]
+    [ Option "a" ["account"]
+        (ReqArg (\arg opt -> return opt { i_account = arg }) "<account name>")
+        "account"
+
+    , Option "o" ["pool"]
         (ReqArg (\arg opt -> return opt { i_pool = read arg }) "<pool at start>")
         "pool at start"
 
@@ -324,21 +344,22 @@ main = do
     -- Here we thread startOptions through all supplied option actions
     opts <- foldl (>>=) (return startOptions) actions
  
-    let Input { i_verbose = i_opt_verbose
-                , i_pool = i_opt_pool
-                , i_money_to_use = i_opt_money_to_use
-                , i_price = i_opt_price
-                , i_long_short = i_opt_long_short
-                , i_shares = i_opt_shares
-                , i_commission = i_opt_commission
-                , i_tax = i_opt_tax
-                , i_risk = i_opt_risk
-                , i_market = i_opt_market
-                , i_stockname = i_opt_stockname
-                , i_spread = i_opt_spread
-                , i_currency_from = i_opt_currency_from
-                , i_currency_to = i_opt_currency_to
-                , i_exchange_rate = i_opt_exchange_rate } = opts
+    let Input { i_verbose = verbose
+                , i_account = account
+                , i_pool = pool
+                , i_money_to_use = money_to_use
+                , i_price = price
+                , i_long_short = long_short
+                , i_shares = shares
+                , i_commission = commission
+                , i_tax = tax
+                , i_risk = risk
+                , i_market = market
+                , i_stockname = stockname
+                , i_spread = spread
+                , i_currency_from = currency_from
+                , i_currency_to = currency_to
+                , i_exchange_rate = exchange_rate } = opts
  
     {-when i_verbose (hPutStrLn stderr "Yoyoma's cousin, little Nepetiz..." -}
  
@@ -351,21 +372,22 @@ main = do
     -- It might be possible to leave out those options, so startOptions are used for them.
     -- Then you specify startOptions through functions.
     let varInput = Input {
-            i_verbose = i_opt_verbose
-            ,i_pool = i_opt_pool 
-            ,i_money_to_use = i_opt_money_to_use
-            ,i_long_short = i_opt_long_short
-            ,i_price = i_opt_price
-            ,i_shares = i_opt_shares
-            ,i_commission = i_opt_commission
-            ,i_tax = i_opt_tax
-            ,i_risk = i_opt_risk
-            ,i_market = i_opt_market
-            ,i_stockname = i_opt_stockname
-            ,i_spread = i_opt_spread
-            ,i_currency_from = i_opt_currency_from
-            ,i_currency_to = i_opt_currency_to
-            ,i_exchange_rate = i_opt_exchange_rate
+            i_verbose = verbose
+            ,i_account = account
+            ,i_pool = pool 
+            ,i_money_to_use = money_to_use
+            ,i_long_short = long_short
+            ,i_price = price
+            ,i_shares = shares
+            ,i_commission = commission
+            ,i_tax = tax
+            ,i_risk = risk
+            ,i_market = market
+            ,i_stockname = stockname
+            ,i_spread = spread
+            ,i_currency_from = currency_from
+            ,i_currency_to = currency_to
+            ,i_exchange_rate = exchange_rate
     }
     
     putStrLn $ show (varInput)  
