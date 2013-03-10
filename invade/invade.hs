@@ -229,24 +229,93 @@ calcCommission  account market stockname price shares =
         -- WHSI00 SHARE CFDs and ETFs - non-share CFDs (oil, gold, indices...)
         --3.00
 
-getBinb00Commission :: String -> String -> Double -> Double
+getBinb00Commission :: Double -> Double
 getBinb00Commission _ _ 0.0 = 0.0
 getBinb00Commission "" "" _ = 0.0
-getBinb00Commission _ _ amount_simple 
-    | amount_simple <= 2500.0 = 7.25 -- TODO: take market into consideration
-    | amount_simple > 2500.0 && amount_simple <= 5000.0 = 9.75
-    | amount_simple > 5000.0 && amount_simple <= 25000.0 = 13.75
-    | amount_simple > 25000.0 && amount_simple <= 50000.0 = 19.75
-    | amount_simple > 50000.0 = perDiscNumber * 19.75
+getBinb00Commission market stockname amount_simple 
+    | amount_simple <= 2500.0 = getBinb00Comission2500 market stockname
+    | amount_simple > 2500.0 && amount_simple <= 5000.0 = getBinb00Commission5000 market stockname
+    | amount_simple > 5000.0 && amount_simple <= 25000.0 = getBinb00Commission25000 market stockname
+    | amount_simple > 25000.0 && amount_simple <= 50000.0 = getBinb00Commission50000 market stockname
+    | amount_simple > 50000.0 = perDiscNumber * getBinb00Commission50000Plus market stockname
+    | otherwise = 0.0
     where
         perDiscNumber = fromIntegral (ceiling $ amount_simple / 50000.0)
 
-getWhsi00Commission :: String -> String -> Double -> Double
-getWhsi00Commission _ _ 0.0 = 0.0
-getWhsi00Commission "" "" _ = 0.0
-getWhsi00Commission market _ amount_simple = 0.0
-    -- TODO: make a complete list of market abbreviations, to use in both lisa and here!
-    | market = "ebr" amount_simple
+isEuronextBrussels :: String -> Bool
+isEuronextBrussels "" = False
+isEuronextBrussels market
+    | market = "ebr" = True
+    | otherwise = False
+
+isEuronextOther :: String -> Bool
+isEuronextOther "" = False
+isEuronextOther market
+    | market = "ams" = True
+    | market = "epa" = True
+    | market = "eli" = True
+    | otherwise = False
+
+isUS :: String -> Bool
+isUS "" = False
+isUS market
+    -- TODO: add NYSE, nasdaq, amex, OTC BB en pink sheets to abbreviations
+    | market = "dummy" = True
+    | otherwise = False
+
+isEuroExchange :: String -> Bool
+isEuroExchange "" = False
+isEuroExchange market
+    | market = "dummy" = True
+    | otherwise = False
+
+isCanadaExchange :: String -> Bool
+isCanadaExchange "" = False
+isCanadaExchange market
+    | market = "dummy" = True
+    | otherwise = False
+
+isSwissScandinavianExchange :: String -> Bool
+isSwissScandinavianExchange "" = False
+isSwissScandinavianExchange market
+    | market = "dummy" = True
+    | otherwise = False
+
+getBinb00Commission2500 :: String -> String -> Double -> Double
+getBinb00Commission2500 "" "" = 0.0
+getBinb00Commission2500 market _
+    | isEuronextBrussels market = 7.25        
+    | isEuronextOther market = 9.75
+    | isUS market = 9.75
+
+getBinb00Commission5000 :: String -> String -> Double -> Double
+getBinb00Commission5000 "" "" = 0.0
+getBinb00Commission5000 market _
+    | isEuronextBrussels market = 9.75        
+    | isEuronextOther market = 9.25
+    | otherwise = 0.0
+
+getBinb00Commission25000 :: String -> String -> Double -> Double
+getBinb00Commission25000 "" "" = 0.0
+getBinb00Commission25000 market _
+    | isEuronextBrussels market = 13.75        
+    | isEuronextOther market = 9.25
+    | otherwise = 0.0
+
+getBinb00Commission50000 :: String -> String -> Double -> Double
+getBinb00Commission50000 "" "" = 0.0
+getBinb00Commission50000 market _
+    | isEuronextBrussels market = 19.75        
+    | isEuronextOther market = 9.25
+    | otherwise = 0.0
+
+getBinb00Commission50000Plus :: String -> String -> Double -> Double
+getBinb00Commission50000Plus "" "" = 0.0
+getBinb00Commission50000Plus market _
+    | isEuronextBrussels market = 19.75        
+    | isEuronextOther market = 9.25
+    | otherwise = 0.0
+
 
 getPool :: Double
 getPool = 100000.0
