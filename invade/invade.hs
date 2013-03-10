@@ -211,23 +211,42 @@ lowerCase = map toLower
 
 calcCommission :: String -> String -> String -> Double -> Int -> Double
 calcCommission  account market stockname price shares =
-    -- TODO: getPredefined commission, based on type of input/commodity/market
-    -- TODO: check info on commissions and create this function based on that info
-    -- BINB00 BE < 2500 
-    -- BINB00 BE >= 2500 
-    -- BINB00 US
-    -- WHSI00 SHARE CFDs and ETFs - GB, FR, DE, BE, DK, F, IT, NL, N, P, S, CH, ES
-    -- TODO: use function to convert currency? Might nod be needed, usd is entered as usd!
-    --4.50 + calcPercentageOf 0.054 (calcAmountSimple price shares)
-    -- WHSI00 SHARE CFDs and ETFs - AU, AUS
-    --4.50 + calcPercentageOf 0.09 (calcAmountSimple price shares)
-    -- WHSI00 SHARE CFDs and ETFs - China, PL, Singapore
-    --4.50 + calcPercentageOf 0.19 (calcAmountSimple price shares)
-    -- WHSI00 SHARE CFDs and ETFs - US markets (incl. ADR and ETF)
-    -- NOTE: this is in USD and not in EUR!
-    4.50 + 0.023 * fromIntegral shares
-    -- WHSI00 SHARE CFDs and ETFs - non-share CFDs (oil, gold, indices...)
-    --3.00
+    case lowerCase account of
+        "binb00" -> getBinb00Commission market stockname amount_simple
+        "whsi00" -> 4.50 + 0.023 * fromIntegral shares
+        _ -> 0.0
+    where
+        amount_simple = calcAmountSimple price shares
+        -- WHSI00 SHARE CFDs and ETFs - GB, FR, DE, BE, DK, F, IT, NL, N, P, S, CH, ES
+        -- TODO: use function to convert currency? Might nod be needed, usd is entered as usd!
+        --4.50 + calcPercentageOf 0.054 amount_simple
+        -- WHSI00 SHARE CFDs and ETFs - AU, AUS
+        --4.50 + calcPercentageOf 0.09 amount_simple
+        -- WHSI00 SHARE CFDs and ETFs - China, PL, Singapore
+        --4.50 + calcPercentageOf 0.19 amount_simple
+        -- WHSI00 SHARE CFDs and ETFs - US markets (incl. ADR and ETF)
+        -- NOTE: this is in USD and not in EUR!
+        -- WHSI00 SHARE CFDs and ETFs - non-share CFDs (oil, gold, indices...)
+        --3.00
+
+getBinb00Commission :: String -> String -> Double -> Double
+getBinb00Commission _ _ 0.0 = 0.0
+getBinb00Commission "" "" _ = 0.0
+getBinb00Commission _ _ amount_simple 
+    | amount_simple <= 2500.0 = 7.25 -- TODO: take market into consideration
+    | amount_simple > 2500.0 && amount_simple <= 5000.0 = 9.75
+    | amount_simple > 5000.0 && amount_simple <= 25000.0 = 13.75
+    | amount_simple > 25000.0 && amount_simple <= 50000.0 = 19.75
+    | amount_simple > 50000.0 = perDiscNumber * 19.75
+    where
+        perDiscNumber = fromIntegral (ceiling $ amount_simple / 50000.0)
+
+getWhsi00Commission :: String -> String -> Double -> Double
+getWhsi00Commission _ _ 0.0 = 0.0
+getWhsi00Commission "" "" _ = 0.0
+getWhsi00Commission market _ amount_simple = 0.0
+    -- TODO: make a complete list of market abbreviations, to use in both lisa and here!
+    | market = "ebr" amount_simple
 
 getPool :: Double
 getPool = 100000.0
@@ -392,3 +411,6 @@ main = do
     
     putStrLn $ show (varInput)  
     putStrLn $ show (setOutput varInput)  
+    putStrLn $ show (getBinb00Commission "" "" 1000)
+    putStrLn $ show (getBinb00Commission "test2" "test2" 2600)
+    putStrLn $ show (getBinb00Commission "test3" "test3" 60000)
