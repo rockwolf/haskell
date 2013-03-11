@@ -11,14 +11,10 @@ Portability :  portable
 Makes the necessary calculations with regards to trading, investing and money management/risk management.
 -}
 
-module Invade (i_verbose
-               ,i_account
-               ,i_pool
-               ,i_money_to_use
+module Invade (Input
+               ,Output
                ) where
 
-
-import System.Console.GetOpt
 import Control.Monad
 import Data.List
 import System.IO
@@ -26,7 +22,6 @@ import System.Exit
 import Data.Char
 import Data.Time.Clock
 import Data.Time.Calendar
-import System.Environment (getArgs, getProgName)
 
 data Input = Input {i_verbose           :: Bool
                     ,i_account          :: String
