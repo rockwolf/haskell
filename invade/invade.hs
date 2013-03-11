@@ -1,5 +1,5 @@
 {- |
-Module      :  invade.hs
+Module      :  Invade.hs
 Description :  Investment and trading calculations.
 Copyright   :  (c) <Andy Nagels>
 License     :  See LICENSE file for license details.
@@ -11,7 +11,12 @@ Portability :  portable
 Makes the necessary calculations with regards to trading, investing and money management/risk management.
 -}
 
-module Main (main) where
+module Invade (i_verbose
+               ,i_account
+               ,i_pool
+               ,i_money_to_use
+               ) where
+
 
 import System.Console.GetOpt
 import Control.Monad
