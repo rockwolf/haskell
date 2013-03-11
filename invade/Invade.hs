@@ -81,7 +81,7 @@ data Output = Output {
             }
             deriving (Show) --, Eq, Ord)
 
-startOptions :: Input
+defaultInput :: Input
 defaultInput = Input { i_verbose = False
                        , i_account = "whsi00"
                        , i_pool = getPool
@@ -232,7 +232,7 @@ calcCommission :: String -> String -> String -> Double -> Int -> Double
 calcCommission  account market stockname price shares =
     case lowerCase account of
         "binb00" -> getBinb00Commission market stockname amount_simple
-        "whsi00" -> getWhsiCommission market stockname amount_simple
+        "whsi00" -> getWhsi00Commission market stockname price shares
         _ -> 0.0
     where
         amount_simple = calcAmountSimple price shares
@@ -252,7 +252,7 @@ getBinb00Commission :: String -> String -> Double -> Double
 getBinb00Commission _ _ 0.0 = 0.0
 getBinb00Commission "" "" _ = 0.0
 getBinb00Commission market stockname amount_simple 
-    | amount_simple <= 2500.0 = getBinb00Comission2500 market stockname
+    | amount_simple <= 2500.0 = getBinb00Commission2500 market stockname
     | amount_simple > 2500.0 && amount_simple <= 5000.0 = getBinb00Commission5000 market stockname
     | amount_simple > 5000.0 && amount_simple <= 25000.0 = getBinb00Commission25000 market stockname
     | amount_simple > 25000.0 && amount_simple <= 50000.0 = getBinb00Commission50000 market stockname
@@ -262,83 +262,69 @@ getBinb00Commission market stockname amount_simple
         perDiscNumber = fromIntegral (ceiling $ amount_simple / 50000.0)
 
 isEuronextBrussels :: String -> Bool
-isEuronextBrussels "" = False
 isEuronextBrussels market
-    | market = "ebr" = True
-    | otherwise = False
+    | market == "ebr"   = True
+    | otherwise         = False
 
 isEuronextOther :: String -> Bool
-isEuronextOther "" = False
 isEuronextOther market
-    | market = "ams" = True
-    | market = "epa" = True
-    | market = "eli" = True
-    | otherwise = False
+    | market == "ams"   = True
+    | market == "epa"   = True
+    | market == "eli"   = True
+    | otherwise         = False
 
 isUS :: String -> Bool
-isUS "" = False
 isUS market
     -- TODO: add NYSE, nasdaq, amex, OTC BB en pink sheets to abbreviations
-    | market = "dummy" = True
-    | otherwise = False
+    | market == "dummy" = True
+    | otherwise         = False
 
 isEuroExchange :: String -> Bool
-isEuroExchange "" = False
 isEuroExchange market
-    | market = "dummy" = True
-    | otherwise = False
+    | market == "dummy" = True
+    | otherwise         = False
 
 isCanadaExchange :: String -> Bool
-isCanadaExchange "" = False
 isCanadaExchange market
-    | market = "dummy" = True
-    | otherwise = False
+    | market == "dummy" = True
+    | otherwise         = False
 
 isSwissScandinavianExchange :: String -> Bool
-isSwissScandinavianExchange "" = False
 isSwissScandinavianExchange market
-    | market = "dummy" = True
-    | otherwise = False
+    | market == "dummy" = True
+    | otherwise         = False
 
-getBinb00Commission2500 :: String -> String -> Double -> Double
-getBinb00Commission2500 "" "" = 0.0
+getBinb00Commission2500 :: String -> String -> Double
 getBinb00Commission2500 market _
     | isEuronextBrussels market = 7.25        
-    | isEuronextOther market = 9.75
-    | isUS market = 9.75
+    | isEuronextOther market    = 9.75
+    | isUS market               = 9.75
 
-getBinb00Commission5000 :: String -> String -> Double -> Double
-getBinb00Commission5000 "" "" = 0.0
+getBinb00Commission5000 :: String -> String -> Double
 getBinb00Commission5000 market _
     | isEuronextBrussels market = 9.75        
-    | isEuronextOther market = 9.25
-    | otherwise = 0.0
+    | isEuronextOther market    = 9.25
+    | otherwise                 = 0.0
 
-getBinb00Commission25000 :: String -> String -> Double -> Double
-getBinb00Commission25000 "" "" = 0.0
+getBinb00Commission25000 :: String -> String -> Double
 getBinb00Commission25000 market _
     | isEuronextBrussels market = 13.75        
-    | isEuronextOther market = 9.25
-    | otherwise = 0.0
+    | isEuronextOther market    = 9.25
+    | otherwise                 = 0.0
 
-getBinb00Commission50000 :: String -> String -> Double -> Double
-getBinb00Commission50000 "" "" = 0.0
+getBinb00Commission50000 :: String -> String -> Double
 getBinb00Commission50000 market _
     | isEuronextBrussels market = 19.75        
-    | isEuronextOther market = 9.25
-    | otherwise = 0.0
+    | isEuronextOther market    = 9.25
+    | otherwise                 = 0.0
 
-getBinb00Commission50000Plus :: String -> String -> Double -> Double
-getBinb00Commission50000Plus "" "" = 0.0
+getBinb00Commission50000Plus :: String -> String -> Double
 getBinb00Commission50000Plus market _
     | isEuronextBrussels market = 19.75        
     | isEuronextOther market = 9.25
     | otherwise = 0.0
 
-getWhsi00Commission :: String -> String -> Double -> Double -> Double
-getWhsi00Commission _ _ 0.0 _ = 0.0
-getWhsi00Commission _ _ _ 0 = 0.0
-getWhsi00Commission "" "" _ _ = 0.0
+getWhsi00Commission :: String -> String -> Double -> Int -> Double
 getWhsi00Commission market stockname price shares
     | isNonShareCfd market = 3.0
     | isShareCfd market = 4.50 + (calcPercentageOf 0.054 amount_simple)
@@ -347,40 +333,43 @@ getWhsi00Commission market stockname price shares
     | isShareCfdUS market = 4.50 + 0.023 * fromIntegral shares
     | otherwise = 0.0
     where
-        amount_simple = price * fromIntegral shares
+        amount_simple = calcAmountSimple price shares
 
 isNonShareCfd :: String -> Bool
-isNonShareCfd "" = False
 isNonShareCfd market
-    | market = "cfd .gold" = True
-    | market = "cfd .silver" = True
-    | market = "cfd oil" = True
+    | market == "cfd .gold"     = True
+    | market == "cfd .silver"   = True
+    | market == "cfd oil"       = True
     -- TODO: check if there are others
-    | market = "cfd index" = True
-    | otherwise = False
+    | market == "cfd index"     = True
+    | otherwise                 = False
+
+isShareCfd :: String -> Bool
+isShareCfd market
+    | market == "cfd Belgium" = True
+    | market == "cfd France"   = True
+    -- TODO: complete this
+    | otherwise                 = False
 
 isShareCfdDev1 :: String -> Bool
-isShareCfdDev1 "" = False
 isShareCfdDev1 market
-    | market = "cfd Australia"
-    | market = "cfd Austria"
-    | otherwise = False
+    | market == "cfd Australia" = True
+    | market == "cfd Austria"   = True
+    | otherwise                 = False
 
 isShareCfdDev2 :: String -> Bool
-isShareCfdDev2 "" = False
 isShareCfdDev2 market
-    | market = "cfd China"
-    | market = "cfd Poland"
-    | market = "cfd Singapore"
-    | otherwise = False
+    | market == "cfd China"     = True
+    | market == "cfd Poland"    = True
+    | market == "cfd Singapore" = True
+    | otherwise                 = False
 
 isShareCfdUS :: String -> Bool
-isShareCfdUS "" = False
 isShareCfdUS market
     -- TODO: figure out whats in here
     -- TODO: sync this file with lisa
-    | market = "cfd US"
-    | otherwise = False
+    | market == "cfd US"        = True
+    | otherwise                 = False
 
 getPool :: Double
 getPool = 100000.0
