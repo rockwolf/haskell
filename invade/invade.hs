@@ -81,6 +81,25 @@ data Output = Output {
             }
             deriving (Show) --, Eq, Ord)
 
+startOptions :: Input
+defaultInput = Input { i_verbose = False
+                       , i_account = "whsi00"
+                       , i_pool = getPool
+                       , i_money_to_use = getPool / 10.0 -- use 1 tenth of our total pool by default
+                       , i_long_short = 'L'
+                       , i_price = 0.0
+                       , i_shares = 0
+                       , i_commission = 7.50
+                       , i_tax = 0.25
+                       , i_risk = 2.0
+                       , i_market = "cfd .gold"
+                       , i_stockname = ".goldo2" -- TODO: add sane name from whsi
+                       , i_spread = 0.0
+                       , i_currency_from = "EUR"
+                       , i_currency_to = "EUR"
+                       , i_exchange_rate = 1.0
+                       }
+
 setOutput :: Input -> Output
 setOutput varInput = 
     Output {
@@ -333,25 +352,26 @@ getWhsi00Commission market stockname price shares
 isNonShareCfd :: String -> Bool
 isNonShareCfd "" = False
 isNonShareCfd market
-    | market = ".gold" = True
-    | market = ".silver" = True
-    -- TODO: add oil, indices and look up what else
-    | market = "oil, indices" = True
+    | market = "cfd .gold" = True
+    | market = "cfd .silver" = True
+    | market = "cfd oil" = True
+    -- TODO: check if there are others
+    | market = "cfd index" = True
     | otherwise = False
 
 isShareCfdDev1 :: String -> Bool
 isShareCfdDev1 "" = False
 isShareCfdDev1 market
-    | market = ".cfd Australia"
-    | market = ".cfd Austria"
+    | market = "cfd Australia"
+    | market = "cfd Austria"
     | otherwise = False
 
 isShareCfdDev2 :: String -> Bool
 isShareCfdDev2 "" = False
 isShareCfdDev2 market
-    | market = ".cfd China"
-    | market = ".cfd Poland"
-    | market = ".cfd Singapore"
+    | market = "cfd China"
+    | market = "cfd Poland"
+    | market = "cfd Singapore"
     | otherwise = False
 
 isShareCfdUS :: String -> Bool
@@ -359,7 +379,7 @@ isShareCfdUS "" = False
 isShareCfdUS market
     -- TODO: figure out whats in here
     -- TODO: sync this file with lisa
-    | market = ".cfd US"
+    | market = "cfd US"
     | otherwise = False
 
 getPool :: Double
