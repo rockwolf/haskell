@@ -11,12 +11,14 @@ Portability : portable
 Command line interface to invade.
 -}
 
-module CInvade where
+--module CInvade where
 
 import Invade
 import System.Console.GetOpt
 import System.Environment (getArgs, getProgName)
-import System.IO (stdin, stdout, hSetEcho, hSetBuffering, BufferMode(..))
+import System.IO (stdin, stderr, stdout, hSetEcho, hPutStrLn, hSetBuffering, BufferMode(..))
+import System.Exit
+import Control.Monad
 
 {- CLI interfacing -}
 

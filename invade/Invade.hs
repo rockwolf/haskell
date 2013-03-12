@@ -11,14 +11,13 @@ Portability :  portable
 Makes the necessary calculations with regards to trading, investing and money management/risk management.
 -}
 
-module Invade (Input
-               ,Output
+module Invade (Input(..)
+               ,Output(..)
+               ,setOutput
+               ,defaultInput
                ) where
 
-import Control.Monad
 import Data.List
-import System.IO
-import System.Exit
 import Data.Char
 import Data.Time.Clock
 import Data.Time.Calendar
