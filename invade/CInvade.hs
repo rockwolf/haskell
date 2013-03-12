@@ -161,7 +161,4 @@ main = do
     }
     
     putStrLn $ show (varInput)  
-    putStrLn $ show (setOutput varInput)  
-    putStrLn $ show (getBinb00Commission "" "" 1000)
-    putStrLn $ show (getBinb00Commission "test2" "test2" 2600)
-    putStrLn $ show (getBinb00Commission "test3" "test3" 60000)
+    putStrLn $ show (setOutput varInput)
