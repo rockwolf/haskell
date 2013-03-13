@@ -92,7 +92,7 @@ defaultInput = Input { i_verbose = False
                        , i_tax = 0.25
                        , i_risk = 2.0
                        , i_market = "cfd .gold"
-                       , i_stockname = ".goldo2" -- TODO: add sane name from whsi
+                       , i_stockname = ""
                        , i_spread = 0.0
                        , i_currency_from = "EUR"
                        , i_currency_to = "EUR"
@@ -249,7 +249,7 @@ calcCommission  account market stockname price shares =
 
 getBinb00Commission :: String -> String -> Double -> Double
 getBinb00Commission _ _ 0.0 = 0.0
-getBinb00Commission "" "" _ = 0.0
+getBinb00Commission "" _ _ = 0.0
 getBinb00Commission market stockname amount_simple 
     | amount_simple <= 2500.0 = getBinb00Commission2500 market stockname
     | amount_simple > 2500.0 && amount_simple <= 5000.0 = getBinb00Commission5000 market stockname
