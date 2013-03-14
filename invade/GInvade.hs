@@ -17,14 +17,21 @@ import Invade
 import System.IO (stdin, stderr, stdout, hSetEcho, hPutStrLn, hSetBuffering, BufferMode(..))
 import System.Exit
 import Control.Monad
-import Graphics.UI.WX hiding (Event)
-import Reactive.Banana
-import Reactive.Banana.WX
+import Graphics.UI.Gtk
+import Graphics.UI.Gtk.Glade
 
 {- GUI interfacing -}
 
 main :: IO ()
 main = do
+    -- Create the gui
+    initGUI
+       Just xml <- xmlNew "GInvade.glade"
+       window   <- xmlGetWidget xml castToWindow "window1"
+       onDestroy window mainQuit
+       widgetShowAll window
+       mainGUI
+    
     --opts <- foldl (>>=) (return defaultInput) actions
    
     let varInput = Input {
