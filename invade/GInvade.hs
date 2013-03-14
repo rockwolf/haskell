@@ -26,32 +26,18 @@ main :: IO ()
 main = do
     -- Create the gui
     initGUI
-       Just xml <- xmlNew "GInvade.glade"
-       window   <- xmlGetWidget xml castToWindow "window1"
-       onDestroy window mainQuit
-       widgetShowAll window
-       mainGUI
-    
-    --opts <- foldl (>>=) (return defaultInput) actions
-   
-    let varInput = Input {
-            i_verbose = verbose
-            ,i_account = account
-            ,i_pool = pool 
-            ,i_money_to_use = money_to_use
-            ,i_long_short = long_short
-            ,i_price = price
-            ,i_shares = shares
-            ,i_commission = commission
-            ,i_tax = tax
-            ,i_risk = risk
-            ,i_market = market
-            ,i_stockname = stockname
-            ,i_spread = spread
-            ,i_currency_from = currency_from
-            ,i_currency_to = currency_to
-            ,i_exchange_rate = exchange_rate
-    }
-    
-    putStrLn $ show (varInput)  
-    putStrLn $ show (setOutput varInput)
+        Just xml <- xmlNew "GInvade.glade"
+        window   <- xmlGetWidget xml castToWindow "window1"
+        onDestroy window mainQuit
+
+        -- signals
+        -- TODO: put signals here
+        -- TODO: add close button to the gui
+        closeButton <- xmlGetWidget xml castToButton "button2"
+        onClicked closeButton $ do
+        putStrLn "Close Button Clicked"
+       
+        --opts <- foldl (>>=) (return defaultInput) actions
+
+        widgetShowAll window
+        mainGUI -- should always be last
