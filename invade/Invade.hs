@@ -34,7 +34,6 @@ data Input = Input {i_verbose           :: Bool
                     ,i_risk             :: Double
                     ,i_market           :: String --Needed for calculating with the correct tax/commission
                     ,i_stockname        :: String
-                    ,i_spread           :: Double
                     ,i_currency_from    :: String
                     ,i_currency_to      :: String
                     ,i_exchange_rate    :: Double
@@ -93,7 +92,6 @@ defaultInput = Input { i_verbose = False
                        , i_risk = 2.0
                        , i_market = "cfd .gold"
                        , i_stockname = ""
-                       , i_spread = 0.0
                        , i_currency_from = "EUR"
                        , i_currency_to = "EUR"
                        , i_exchange_rate = 1.0
