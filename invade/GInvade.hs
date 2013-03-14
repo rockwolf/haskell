@@ -35,7 +35,8 @@ main = do
         -- TODO: add close button to the gui
         closeButton <- xmlGetWidget xml castToButton "button2"
         onClicked closeButton $ do
-        putStrLn "Close Button Clicked"
+            widgetDestroy window
+            putStrLn "Close Button Clicked"
        
         --opts <- foldl (>>=) (return defaultInput) actions
 
