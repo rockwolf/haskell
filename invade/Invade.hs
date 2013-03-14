@@ -63,8 +63,6 @@ data Output = Output {
                 {- risk taken, when minimum stoploss is reached -}
                 ,o_risk_initial             :: Double
                 ,o_risk_initial_percentage  :: Double
-                -- extra info at buying
-                --,o_date_buy :: IO (Integer, Int, Int)-- extra, not really necessary
                 ,o_pool_at_start            :: Double
                 ,o_pool_new                 :: Double
                 ,o_long_short               :: Char
@@ -115,13 +113,11 @@ setOutput varInput =
         ,o_stoploss                = varStoploss
         ,o_shares_sell             = varSharesSell
         ,o_amount_sell_simple      = varAmountSellSimple
-        ,o_commission_sell         = varCommissionSell --calc later
-        ,o_tax_sell                = varTaxSell --calc later
+        ,o_commission_sell         = varCommissionSell
+        ,o_tax_sell                = varTaxSell
         ,o_cost_sell               = costTransaction "sell" varStoploss varSharesSell varTaxSell varCommissionSell
-        ,o_risk_initial            = defaultDecimal--calcRiskInitial
-        ,o_risk_initial_percentage = defaultDecimal--calcRiskInitialPercentage
-        -- extra info at buying
-        --,oDateBuy                = currentDate
+        ,o_risk_initial            = calcRiskInitial
+        ,o_risk_initial_percentage = calcRiskInitialPercentage
         ,o_pool_at_start           = varPoolAtStart
         ,o_pool_new                = varPoolNew
         ,o_long_short              = i_long_short varInput
@@ -129,10 +125,10 @@ setOutput varInput =
         ,o_currency_to             = i_currency_to varInput
         ,o_exchange_rate           = i_exchange_rate varInput
         -- extra info for close at stoploss
-        ,o_profit_loss             = defaultDecimal--calcProfitLoss
-        ,o_profit_loss_percent     = defaultDecimal--calcProfitLossPercentage
+        ,o_profit_loss             = calcProfitLoss
+        ,o_profit_loss_percent     = calcProfitLossPercentage
         ,o_cost_total              = varCostTotal
-        ,o_cost_other              = defaultDecimal--calcCostOther
+        ,o_cost_other              = calcCostOther
     }
     where
         defaultDecimal = 0.0
