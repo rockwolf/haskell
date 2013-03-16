@@ -15,6 +15,7 @@ module Invade (Input(..)
                ,Output(..)
                ,setOutput
                ,defaultInput
+               ,markets
                ) where
 
 import Data.List
@@ -74,8 +75,34 @@ data Output = Output {
                 ,o_profit_loss_percent      :: Double
                 ,o_cost_total               :: Double
                 ,o_cost_other               :: Double
+                ,o_shares_recommended       :: Int
             }
             deriving (Show) --, Eq, Ord)
+
+markets = [ "ams"
+           ,"ebr"
+           ,"etr"
+           ,"epa"
+           ,"other"
+           ,"eli"
+           ,"lse"
+           ,"ise"
+           ,"mil"
+           ,"bma"
+           ,"vse"
+           ,"cfd .gold"
+           ,"cfd .silver"
+           ,"cfd oil"
+           ,"cfd Australia"
+           ,"cfd Austria"
+           ,"cfd China"
+           ,"cfd Poland"
+           ,"cfd Singapore"
+           ,"cfd US"
+           ,"cfd Belgium"
+           ,"cfd France"
+           ,"cfd index" 
+            ]
 
 defaultInput :: Input
 defaultInput = Input { i_verbose = False
@@ -116,8 +143,8 @@ setOutput varInput =
         ,o_commission_sell         = varCommissionSell
         ,o_tax_sell                = varTaxSell
         ,o_cost_sell               = costTransaction "sell" varStoploss varSharesSell varTaxSell varCommissionSell
-        ,o_risk_initial            = calcRiskInitial
-        ,o_risk_initial_percentage = calcRiskInitialPercentage
+        ,o_risk_initial            = varRiskInitial
+        ,o_risk_initial_percentage = calcPercentageOf varRiskInitial varPoolAtStart
         ,o_pool_at_start           = varPoolAtStart
         ,o_pool_new                = varPoolNew
         ,o_long_short              = i_long_short varInput
@@ -125,10 +152,11 @@ setOutput varInput =
         ,o_currency_to             = i_currency_to varInput
         ,o_exchange_rate           = i_exchange_rate varInput
         -- extra info for close at stoploss
-        ,o_profit_loss             = calcProfitLoss
-        ,o_profit_loss_percent     = calcProfitLossPercentage
+        ,o_profit_loss             = varProfitLoss
+        ,o_profit_loss_percent     = varProfitLossPercentage
         ,o_cost_total              = varCostTotal
-        ,o_cost_other              = calcCostOther
+        ,o_cost_other              = varCostOther
+        ,o_shares_recommended      = varSharesRecommended
     }
     where
         defaultDecimal = 0.0
@@ -137,16 +165,33 @@ setOutput varInput =
         varAmountBuySimple = calcAmountSimple varPriceBuy varSharesBuy
         varCommissionBuy = i_commission varInput
         varTaxBuy = i_tax varInput
-        varStoploss = defaultDecimal -- o_stoploss from Output
+        varStoploss = calcStoploss varAmountBuySimple varSharesBuy varTaxBuy varCommissionBuy (i_risk varInput) (i_pool varInput)
         varSharesSell = varSharesBuy
         varAmountSellSimple = calcAmountSimple varStoploss varSharesSell
         varCommissionSell = varCommissionBuy
         varTaxSell = varTaxBuy
-        varCostTotal = defaultDecimal --calcCostTotal
+        varCostTotal = calcCostTotal varTaxBuy varCommissionBuy varTaxSell varCommissionSell
         varPoolAtStart = i_pool varInput
         varPoolNew = varPoolAtStart - varAmountSellSimple - varCostTotal
+        varProfitLoss = calcProfitLoss varAmountSellSimple varAmountBuySimple varCostTotal
+        varProfitLossPercentage = calcPercentage varProfitLoss
+        varRiskInitial = calcRiskInitial varPriceBuy varSharesBuy varStoploss
+        varCostOther = varCostTotal - varProfitLoss
+        varSharesRecommended = calcSharesRecommended -- TODO: finish + write func
 
 {-- Helper functions --}
+calcSharesRecommended :: Int
+calcSharesRecommended = 0
+
+calcCostOther :: Double -> Double -> Double
+calcCostOther totalCost profitLoss =
+    if diffCostProfit > defaultDecimal
+    then diffCostProfit
+    else defaultDecimal
+    where
+        diffCostProfit = totalCost - profitLoss
+        defaultDecimal = 0.0
+
 calcPercentage :: Double -> Double
 calcPercentage value = value / 100.0
 
@@ -213,6 +258,10 @@ costTransaction transaction price shares tax commission =
         "sell"  -> (price * (fromIntegral shares) * (1 - tax)) - commission
     where
         errorMsgEmpty = "Error in costTransaction: buy or sell not specified!"
+
+calcProfitLoss :: Double -> Double -> Double -> Double
+calcProfitLoss amount_sell_simple amount_buy_simple totalcost =
+    amount_sell_simple - amount_buy_simple - totalcost
 
 upperCase, lowerCase :: String -> String
 upperCase = map toUpper
@@ -330,19 +379,31 @@ getWhsi00Commission market stockname price shares
 
 isNonShareCfd :: String -> Bool
 isNonShareCfd market
-    | market == "cfd .gold"     = True
-    | market == "cfd .silver"   = True
-    | market == "cfd oil"       = True
-    -- TODO: check if there are others
-    | market == "cfd index"     = True
-    | otherwise                 = False
+    | market == "cfd .gold"             = True
+    | market == "cfd .silver"           = True
+    | market == "cfd oil"               = True
+    | market == "cfd other non-share"   = True
+    | otherwise                         = False
 
+-- NOTE: see list of country codes at:
+-- http://www.iso.org/iso/country_codes/iso_3166_code_lists/country_names_and_code_elements.htm
 isShareCfd :: String -> Bool
 isShareCfd market
-    | market == "cfd Belgium" = True
-    | market == "cfd France"   = True
-    -- TODO: complete this
-    | otherwise                 = False
+    | market == "cfd BE"       = True
+    | market == "cfd FR"        = True
+    | market == "cfd DE"       = True
+    | market == "cfd UK"            = True
+    | market == "cfd DK"       = True
+    | market == "cfd FI"       = True
+    | market == "cfd IT"         = True
+    | market == "cfd NL"   = True
+    | market == "cfd NO"        = True
+    | market == "cfd PT"      = True
+    | market == "cfd SE"        = True
+    | market == "cfd CH"   = True
+    | market == "cfd ES"         = True
+    | market == "cfd other share"   = True
+    | otherwise                     = False
 
 isShareCfdDev1 :: String -> Bool
 isShareCfdDev1 market
@@ -359,8 +420,6 @@ isShareCfdDev2 market
 
 isShareCfdUS :: String -> Bool
 isShareCfdUS market
-    -- TODO: figure out whats in here
-    -- TODO: sync this file with lisa
     | market == "cfd US"        = True
     | otherwise                 = False
 

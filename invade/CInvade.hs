@@ -68,10 +68,6 @@ options =
         (ReqArg (\arg opt -> return opt { i_stockname = arg }) "<stock name>")
         "stock name"
  
-    , Option "d" ["spread"]
-        (ReqArg (\arg opt -> return opt { i_spread = read arg }) "<spread>")
-        "spread"
-
     , Option "x" ["currency_from"]
         (ReqArg (\arg opt -> return opt { i_currency_from = arg }) "<currency from>")
         "currency from"
@@ -128,7 +124,6 @@ main = do
                 , i_risk = risk
                 , i_market = market
                 , i_stockname = stockname
-                , i_spread = spread
                 , i_currency_from = currency_from
                 , i_currency_to = currency_to
                 , i_exchange_rate = exchange_rate } = opts
@@ -156,7 +151,6 @@ main = do
             ,i_risk = risk
             ,i_market = market
             ,i_stockname = stockname
-            ,i_spread = spread
             ,i_currency_from = currency_from
             ,i_currency_to = currency_to
             ,i_exchange_rate = exchange_rate
@@ -164,3 +158,5 @@ main = do
     
     putStrLn $ show (varInput)  
     putStrLn $ show (setOutput varInput)
+    putStrLn $ show (markets)
+    putStrLn $ show (markets !! 2)
