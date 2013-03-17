@@ -108,10 +108,10 @@ defaultInput :: Input
 defaultInput = Input { i_verbose = False
                        , i_account = "whsi00"
                        , i_pool = getPool
-                       , i_money_to_use = getPool / 10.0 -- use 1 tenth of our total pool by default
+                       , i_money_to_use = (getPool * (1 - getMargin)) / 10.0  -- use 1 tenth of our total pool by default
                        , i_long_short = 'L'
-                       , i_price = 0.0
-                       , i_shares = 0
+                       , i_price = 25.0
+                       , i_shares = 99
                        , i_commission = 7.50
                        , i_tax = 0.25
                        , i_risk = 2.0
@@ -134,8 +134,8 @@ setOutput varInput =
         ,o_commission_buy          = varCommissionBuy--calc later
         ,o_tax_buy                 = varTaxBuy -- calc later
         ,o_cost_buy                = costTransaction "buy" varPriceBuy varSharesBuy varTaxBuy varCommissionBuy
-        ,o_risk_input              = defaultDecimal--calcRiskInput (i_risk varInput)
-        ,o_risk_input_percentage   = defaultDecimal--calcPercentageOf oRiskInput (i_pool varInput)
+        ,o_risk_input              = varRiskInput
+        ,o_risk_input_percentage   = calcPercentageOf varRiskInput (i_pool varInput)
         -- selling at stoploss
         ,o_stoploss                = varStoploss
         ,o_shares_sell             = varSharesSell
@@ -178,6 +178,7 @@ setOutput varInput =
         varRiskInitial = calcRiskInitial varPriceBuy varSharesBuy varStoploss
         varCostOther = varCostTotal - varProfitLoss
         varSharesRecommended = calcSharesRecommended -- TODO: finish + write func
+        varRiskInput = calcRiskInput (i_risk varInput) (i_pool varInput)
 
 {-- Helper functions --}
 calcSharesRecommended :: Int
@@ -425,3 +426,6 @@ isShareCfdUS market
 
 getPool :: Double
 getPool = 100000.0
+
+getMargin :: Double
+getMargin = 25.0
