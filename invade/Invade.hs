@@ -108,7 +108,7 @@ defaultInput :: Input
 defaultInput = Input { i_verbose = False
                        , i_account = "whsi00"
                        , i_pool = getPool
-                       , i_money_to_use = (getPool * (1 - getMargin)) / 10.0  -- use 1 tenth of our total pool by default
+                       , i_money_to_use = (getPool * (1.0 - calcPercentage getMargin)) / 10.0  -- use 1 tenth of our total pool by default
                        , i_long_short = 'L'
                        , i_price = 25.0
                        , i_shares = 99
