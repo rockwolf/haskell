@@ -93,16 +93,19 @@ markets = [ "ams"
            ,"cfd .gold"
            ,"cfd .silver"
            ,"cfd oil"
-           ,"cfd Australia"
-           ,"cfd Austria"
-           ,"cfd China"
-           ,"cfd Poland"
-           ,"cfd Singapore"
+           ,"cfd AU"
+           ,"cfd AT"
+           ,"cfd CN"
+           ,"cfd PL"
+           ,"cfd SI"
            ,"cfd US"
-           ,"cfd Belgium"
-           ,"cfd France"
+           ,"cfd BE"
+           ,"cfd FR"
+           ,""
            ,"cfd index" 
             ]
+-- TODO: markets_cfd_nonshare = [ .. ]
+-- and below in the functions: and market in ... (check if possible in haskell)
 
 defaultInput :: Input
 defaultInput = Input { i_verbose = False
