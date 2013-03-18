@@ -79,7 +79,10 @@ data Output = Output {
             }
             deriving (Show) --, Eq, Ord)
 
-markets = [ "ams"
+markets = merge markets_share $ merge markets_cfd_share markets_cfd_non_share 
+
+markets_share = [
+           "ams"
            ,"ebr"
            ,"etr"
            ,"epa"
@@ -90,26 +93,35 @@ markets = [ "ams"
            ,"mil"
            ,"bma"
            ,"vse"
-           ,"cfd AU"
-           ,"cfd AT"
-           ,"cfd CN"
-           ,"cfd PL"
-           ,"cfd SI"
-           ,"cfd US"
-           ,"cfd BE"
-           ,"cfd FR"
-           ,""
-           ,"cfd index" 
-            ]
+        ]
 
-markets_cfd_nonshare = [
+-- TODO: complete this
+markets_cfd_share = [
+           "cfd BE"
+           ,"cfd FR"
+           ,"cfd DE"
+           ,"cfd UK"
+           ,"cfd DK"
+           ,"cfd FI"
+           ,"cfd IT"
+           ,"cfd NL"
+           ,"cfd NO"
+           ,"cfd PT"
+           ,"cfd SE"
+           ,"cfd CH"
+           ,"cfd ES"
+           ,"cfd other share"
+        ]
+-- TODO: add china, australia etc.
+
+markets_cfd_non_share = [
            "cfd .gold"
            ,"cfd .silver"
            ,"cfd oil"
+           ,"cfd index"
            ,"cfd other non-share"
            ]
 
--- TODO: use merge to join the above defined lists to assemble the complete markets list.
 merge :: [a] -> [a] -> [a]
 merge xs     []     = xs
 merge []     ys     = ys
@@ -318,6 +330,7 @@ getBinb00Commission market stockname amount_simple
     where
         perDiscNumber = fromIntegral (ceiling $ amount_simple / 50000.0)
 
+-- TODO: also use the elem trick with the above defined lists
 isEuronextBrussels :: String -> Bool
 isEuronextBrussels market
     | market == "ebr"   = True
@@ -394,11 +407,8 @@ getWhsi00Commission market stockname price shares
 
 isNonShareCfd :: String -> Bool
 isNonShareCfd market
-    | market == "cfd .gold"             = True
-    | market == "cfd .silver"           = True
-    | market == "cfd oil"               = True
-    | market == "cfd other non-share"   = True
-    | otherwise                         = False
+    | market `elem` markets_cfd_non_share        = True
+    | otherwise                                  = False
 
 -- NOTE: see list of country codes at:
 -- http://www.iso.org/iso/country_codes/iso_3166_code_lists/country_names_and_code_elements.htm
