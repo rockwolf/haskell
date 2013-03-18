@@ -122,7 +122,7 @@ markets_cfd_dev1 = [
 markets_cfd_dev2 = [
            "cfd PL"
            ,"cfd CN"
-           ,"cfd SI"
+           ,"cfd SG"
            ]
 
 markets_cfd_non_share = [
