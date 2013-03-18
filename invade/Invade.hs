@@ -90,9 +90,6 @@ markets = [ "ams"
            ,"mil"
            ,"bma"
            ,"vse"
-           ,"cfd .gold"
-           ,"cfd .silver"
-           ,"cfd oil"
            ,"cfd AU"
            ,"cfd AT"
            ,"cfd CN"
@@ -104,8 +101,22 @@ markets = [ "ams"
            ,""
            ,"cfd index" 
             ]
+
+markets_cfd_nonshare = [
+           "cfd .gold"
+           ,"cfd .silver"
+           ,"cfd oil"
+           ,"cfd other non-share"
+           ]
+
+-- TODO: use merge to join the above defined lists to assemble the complete markets list.
+merge :: [a] -> [a] -> [a]
+merge xs     []     = xs
+merge []     ys     = ys
+merge (x:xs) (y:ys) = x : y : merge xs ys
+
 -- TODO: markets_cfd_nonshare = [ .. ]
--- and below in the functions: and market in ... (check if possible in haskell)
+-- and below in the functions: and market in ... (use elem)
 
 defaultInput :: Input
 defaultInput = Input { i_verbose = False
