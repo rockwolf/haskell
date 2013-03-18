@@ -112,7 +112,18 @@ markets_cfd_share = [
            ,"cfd ES"
            ,"cfd other share"
         ]
--- TODO: add china, australia etc.
+
+-- NOTE: read "first deviation: Australia/Austria"
+markets_cfd_dev1 = [
+           "cfd AU"
+           ,"cfd AT"
+           ]
+
+markets_cfd_dev2 = [
+           "cfd PL"
+           ,"cfd CN"
+           ,"cfd SI"
+           ]
 
 markets_cfd_non_share = [
            "cfd .gold"
@@ -414,34 +425,18 @@ isNonShareCfd market
 -- http://www.iso.org/iso/country_codes/iso_3166_code_lists/country_names_and_code_elements.htm
 isShareCfd :: String -> Bool
 isShareCfd market
-    | market == "cfd BE"       = True
-    | market == "cfd FR"        = True
-    | market == "cfd DE"       = True
-    | market == "cfd UK"            = True
-    | market == "cfd DK"       = True
-    | market == "cfd FI"       = True
-    | market == "cfd IT"         = True
-    | market == "cfd NL"   = True
-    | market == "cfd NO"        = True
-    | market == "cfd PT"      = True
-    | market == "cfd SE"        = True
-    | market == "cfd CH"   = True
-    | market == "cfd ES"         = True
-    | market == "cfd other share"   = True
-    | otherwise                     = False
+    | market `elem` markets_cfd_share   = True
+    | otherwise                         = False
 
 isShareCfdDev1 :: String -> Bool
 isShareCfdDev1 market
-    | market == "cfd Australia" = True
-    | market == "cfd Austria"   = True
-    | otherwise                 = False
+    | market `elem` markets_cfd_dev1 = True
+    | otherwise                      = False
 
 isShareCfdDev2 :: String -> Bool
 isShareCfdDev2 market
-    | market == "cfd China"     = True
-    | market == "cfd Poland"    = True
-    | market == "cfd Singapore" = True
-    | otherwise                 = False
+    | market `elem` markets_cfd_dev2    = True
+    | otherwise                         = False
 
 isShareCfdUS :: String -> Bool
 isShareCfdUS market
