@@ -79,11 +79,21 @@ data Output = Output {
             }
             deriving (Show) --, Eq, Ord)
 
-markets = merge markets_share $ merge markets_cfd_share markets_cfd_non_share 
+markets = merge markets_euronext_brussels $
+          merge markets_euronext_other $
+          merge markets_us $
+          merge markets_cfd_share $
+          merge markets_cfd_dev1 $
+          merge markets_cfd_dev2 $
+          merge markets_cfd_non_share markets_cfd_us
 
-markets_share = [
+-- binb00
+markets_euronext_brussels = [
+        "ebr"
+    ]
+
+markets_euronext_other = [
            "ams"
-           ,"ebr"
            ,"etr"
            ,"epa"
            ,"other"
@@ -93,9 +103,15 @@ markets_share = [
            ,"mil"
            ,"bma"
            ,"vse"
+           ,"other"
         ]
 
--- TODO: complete this
+markets_us = [
+        "us"
+    ]
+-- /binb00
+
+-- whsi00
 markets_cfd_share = [
            "cfd BE"
            ,"cfd FR"
@@ -133,13 +149,15 @@ markets_cfd_non_share = [
            ,"cfd other non-share"
            ]
 
+markets_cfd_us = [
+           "cfd US"
+           ]
+-- /whsi00
+
 merge :: [a] -> [a] -> [a]
 merge xs     []     = xs
 merge []     ys     = ys
 merge (x:xs) (y:ys) = x : y : merge xs ys
-
--- TODO: markets_cfd_nonshare = [ .. ]
--- and below in the functions: and market in ... (use elem)
 
 defaultInput :: Input
 defaultInput = Input { i_verbose = False
@@ -344,15 +362,13 @@ getBinb00Commission market stockname amount_simple
 -- TODO: also use the elem trick with the above defined lists
 isEuronextBrussels :: String -> Bool
 isEuronextBrussels market
-    | market == "ebr"   = True
+    | market `elem` markets_euronext_brussels   = True
     | otherwise         = False
 
 isEuronextOther :: String -> Bool
 isEuronextOther market
-    | market == "ams"   = True
-    | market == "epa"   = True
-    | market == "eli"   = True
-    | otherwise         = False
+    | market `elem` markets_euronext_other  = True
+    | otherwise                             = False
 
 isUS :: String -> Bool
 isUS market
@@ -440,8 +456,8 @@ isShareCfdDev2 market
 
 isShareCfdUS :: String -> Bool
 isShareCfdUS market
-    | market == "cfd US"        = True
-    | otherwise                 = False
+    | market `elem` markets_cfd_us       = True
+    | otherwise                          = False
 
 getPool :: Double
 getPool = 100000.0
