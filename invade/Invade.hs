@@ -107,14 +107,20 @@ markets_euronext_other = [
            ,"vse"
            ,"other"
         ]
--- TODO: check this with the binb website
--- and sync this with lisa.
+-- TODO: sync this with lisa.
 markets_us = [
         "nyse"
         ,"nasdaq"
         ,"otc bb & pinksheets"
         ,"amex"
         ,"other us"
+    ]
+
+-- TODO: incorporate this into the calculations
+-- but only when we plan on doing options trading.
+markets_options_euronext = [
+        "options ams"
+        ,"options ebr"
     ]
 -- /binb00
 
@@ -437,6 +443,24 @@ getBinb00Commission50000Plus market _
     | isCanadaExchange market            = 29.75
     | isSwissScandinavianExchange market = 29.75
     | otherwise                          = 0.0
+
+getBinb00CommissionOptions :: String -> String -> Int -> Double
+getBinb00Commission market _ contracts
+    | isOptionsEuronext market         = varOptEur contracts
+    | otherwise                        = 0.0
+    where
+        -- TODO: 2.50 is valid for the number of contracts above 10,
+        -- so do a mod div, when not dividable by 10,
+        -- the rest at division has a price of 3 eur per contract
+        -- So mod10val > 0 => (contracts - mod10val) * 2.50 + (mod10val * 3.0)
+        varOptEur c = if c <= 10
+                      then 3.0
+                      else 2.50
+
+isOptionsEuronext :: String -> Bool
+isOptionsEuronext market
+    | market `elem` markets_options_euronext = True
+    | otherwise                              = False
 
 getWhsi00Commission :: String -> String -> Double -> Int -> Double
 getWhsi00Commission market stockname price shares
