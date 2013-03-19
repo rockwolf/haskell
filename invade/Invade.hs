@@ -88,6 +88,8 @@ markets = merge markets_euronext_brussels $
           merge markets_cfd_non_share markets_cfd_us
 
 -- binb00
+-- NOTE: see list of country codes at:
+-- http://www.iso.org/iso/country_codes/iso_3166_code_lists/country_names_and_code_elements.htm
 markets_euronext_brussels = [
         "ebr"
     ]
@@ -105,9 +107,13 @@ markets_euronext_other = [
            ,"vse"
            ,"other"
         ]
-
+-- TODO: check this with the binb website
+-- and sync this with lisa.
 markets_us = [
-        "us"
+        "nyse"
+        ,"nasdaq"
+        ,"pinksheets"
+        ,"otc"
     ]
 -- /binb00
 
@@ -334,18 +340,8 @@ calcCommission  account market stockname price shares =
         _ -> 0.0
     where
         amount_simple = calcAmountSimple price shares
-        -- WHSI00 SHARE CFDs and ETFs - GB, FR, DE, BE, DK, F, IT, NL, N, P, S, CH, ES
-        -- TODO: use function to convert currency? Might nod be needed, usd is entered as usd!
-        --4.50 + calcPercentageOf 0.054 amount_simple
-        -- WHSI00 SHARE CFDs and ETFs - AU, AUS
-        --4.50 + calcPercentageOf 0.09 amount_simple
-        -- WHSI00 SHARE CFDs and ETFs - China, PL, Singapore
-        --4.50 + calcPercentageOf 0.19 amount_simple
-        -- WHSI00 SHARE CFDs and ETFs - US markets (incl. ADR and ETF)
-        -- NOTE: this is in USD and not in EUR!
-        -- WHSI00 SHARE CFDs and ETFs - non-share CFDs (oil, gold, indices...)
-        --3.00
 
+-- TODO: get 2500 etc values from T_PARAMETER
 getBinb00Commission :: String -> String -> Double -> Double
 getBinb00Commission _ _ 0.0 = 0.0
 getBinb00Commission "" _ _ = 0.0
@@ -359,11 +355,10 @@ getBinb00Commission market stockname amount_simple
     where
         perDiscNumber = fromIntegral (ceiling $ amount_simple / 50000.0)
 
--- TODO: also use the elem trick with the above defined lists
 isEuronextBrussels :: String -> Bool
 isEuronextBrussels market
     | market `elem` markets_euronext_brussels   = True
-    | otherwise         = False
+    | otherwise                                 = False
 
 isEuronextOther :: String -> Bool
 isEuronextOther market
@@ -372,9 +367,8 @@ isEuronextOther market
 
 isUS :: String -> Bool
 isUS market
-    -- TODO: add NYSE, nasdaq, amex, OTC BB en pink sheets to abbreviations
-    | market == "dummy" = True
-    | otherwise         = False
+    | market `elem` markets_us  = True
+    | otherwise                 = False
 
 isEuroExchange :: String -> Bool
 isEuroExchange market
@@ -391,73 +385,93 @@ isSwissScandinavianExchange market
     | market == "dummy" = True
     | otherwise         = False
 
+-- TODO: get these values from T_PARAMETER
 getBinb00Commission2500 :: String -> String -> Double
 getBinb00Commission2500 market _
-    | isEuronextBrussels market = 7.25        
-    | isEuronextOther market    = 9.75
-    | isUS market               = 9.75
+    | isEuronextBrussels market          = 7.25        
+    | isEuronextOther market             = 9.75
+    | isEuroExhange market               = 0.0
+    | isCanadaExchange market            = 0.0
+    | isSwissScandinavianExchange market = 0.0
+    | isUS market                        = 9.75
+    | otherwise                          = 0.0
 
+-- TODO: find the correct values for canada/scand/euroexch
 getBinb00Commission5000 :: String -> String -> Double
 getBinb00Commission5000 market _
-    | isEuronextBrussels market = 9.75        
-    | isEuronextOther market    = 9.25
-    | otherwise                 = 0.0
+    | isEuronextBrussels market          = 9.75        
+    | isEuronextOther market             = 9.25
+    | isEuroExhange market               = 0.0
+    | isCanadaExchange market            = 0.0
+    | isSwissScandinavianExchange market = 0.0
+    | isUs                               = 0.0
+    | otherwise                          = 0.0
 
 getBinb00Commission25000 :: String -> String -> Double
 getBinb00Commission25000 market _
-    | isEuronextBrussels market = 13.75        
-    | isEuronextOther market    = 9.25
-    | otherwise                 = 0.0
+    | isEuronextBrussels market          = 13.75        
+    | isEuronextOther market             = 9.25
+    | isEuroExhange market               = 0.0
+    | isCanadaExchange market            = 0.0
+    | isSwissScandinavianExchange market = 0.0
+    | isUs                               = 0.0
+    | otherwise                          = 0.0
 
 getBinb00Commission50000 :: String -> String -> Double
 getBinb00Commission50000 market _
-    | isEuronextBrussels market = 19.75        
-    | isEuronextOther market    = 9.25
-    | otherwise                 = 0.0
+    | isEuronextBrussels market          = 19.75        
+    | isEuronextOther market             = 9.25
+    | isEuroExhange market               = 0.0
+    | isCanadaExchange market            = 0.0
+    | isSwissScandinavianExchange market = 0.0
+    | isUs                               = 0.0
+    | otherwise                          = 0.0
 
 getBinb00Commission50000Plus :: String -> String -> Double
 getBinb00Commission50000Plus market _
-    | isEuronextBrussels market = 19.75        
-    | isEuronextOther market = 9.25
-    | otherwise = 0.0
+    | isEuronextBrussels market          = 19.75        
+    | isEuronextOther market             = 9.25
+    | isEuroExhange market               = 0.0
+    | isCanadaExchange market            = 0.0
+    | isSwissScandinavianExchange market = 0.0
+    | isUs                               = 0.0
+    | otherwise                          = 0.0
 
 getWhsi00Commission :: String -> String -> Double -> Int -> Double
 getWhsi00Commission market stockname price shares
-    | isNonShareCfd market = 3.0
-    | isShareCfd market = 4.50 + (calcPercentageOf 0.054 amount_simple)
-    | isShareCfdDev1 market = 4.50 + (calcPercentageOf 0.09 amount_simple)
-    | isShareCfdDev2 market = 4.50 + (calcPercentageOf 0.19 amount_simple)
-    | isShareCfdUS market = 4.50 + 0.023 * fromIntegral shares
-    | otherwise = 0.0
+    | isNonShareCfd market         = 3.0
+    | isShareCfd market            = 4.50 + (calcPercentageOf 0.054 amount_simple)
+    | isShareCfdDev1 market        = 4.50 + (calcPercentageOf 0.09 amount_simple)
+    | isShareCfdDev2 market        = 4.50 + (calcPercentageOf 0.19 amount_simple)
+    | isShareCfdUS market          = 4.50 + 0.023 * fromIntegral shares
+    | otherwise                    = 0.0
     where
         amount_simple = calcAmountSimple price shares
 
 isNonShareCfd :: String -> Bool
 isNonShareCfd market
-    | market `elem` markets_cfd_non_share        = True
-    | otherwise                                  = False
+    | market `elem` markets_cfd_non_share = True
+    | otherwise                           = False
 
--- NOTE: see list of country codes at:
--- http://www.iso.org/iso/country_codes/iso_3166_code_lists/country_names_and_code_elements.htm
 isShareCfd :: String -> Bool
 isShareCfd market
-    | market `elem` markets_cfd_share   = True
-    | otherwise                         = False
+    | market `elem` markets_cfd_share     = True
+    | otherwise                           = False
 
 isShareCfdDev1 :: String -> Bool
 isShareCfdDev1 market
-    | market `elem` markets_cfd_dev1 = True
-    | otherwise                      = False
+    | market `elem` markets_cfd_dev1      = True
+    | otherwise                           = False
 
 isShareCfdDev2 :: String -> Bool
 isShareCfdDev2 market
-    | market `elem` markets_cfd_dev2    = True
-    | otherwise                         = False
+    | market `elem` markets_cfd_dev2      = True
+    | otherwise                           = False
 
 isShareCfdUS :: String -> Bool
 isShareCfdUS market
-    | market `elem` markets_cfd_us       = True
-    | otherwise                          = False
+    | market `elem` markets_cfd_us        = True
+    | otherwise                           = False
 
 getPool :: Double
 getPool = 100000.0
