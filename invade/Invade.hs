@@ -397,7 +397,7 @@ getBinb00Commission2500 :: String -> String -> Double
 getBinb00Commission2500 market _
     | isEuronextBrussels market          = 7.25        
     | isEuronextOther market             = 9.75
-    | isEuroExchange market               = 12.75
+    | isEuroExchange market              = 12.75
     | isUS market                        = 12.75
     | isCanadaExchange market            = 19.75
     | isSwissScandinavianExchange market = 29.75
@@ -408,8 +408,8 @@ getBinb00Commission5000 :: String -> String -> Double
 getBinb00Commission5000 market _
     | isEuronextBrussels market          = 9.75        
     | isEuronextOther market             = 9.25
-    | isEuroExchange market               = 12.75
-    | isUS                               = 12.75
+    | isEuroExchange market              = 12.75
+    | isUS market                        = 12.75
     | isCanadaExchange market            = 19.75
     | isSwissScandinavianExchange market = 29.75
     | otherwise                          = 0.0
@@ -418,8 +418,8 @@ getBinb00Commission25000 :: String -> String -> Double
 getBinb00Commission25000 market _
     | isEuronextBrussels market          = 13.75        
     | isEuronextOther market             = 13.75
-    | isEuroExchange market               = 16.75
-    | isUS                               = 16.75
+    | isEuroExchange market              = 16.75
+    | isUS market                        = 16.75
     | isCanadaExchange market            = 24.75
     | isSwissScandinavianExchange market = 29.75
     | otherwise                          = 0.0
@@ -428,8 +428,8 @@ getBinb00Commission50000 :: String -> String -> Double
 getBinb00Commission50000 market _
     | isEuronextBrussels market          = 19.75        
     | isEuronextOther market             = 19.75
-    | isEuroExchange market               = 22.75
-    | isUS                               = 22.75
+    | isEuroExchange market              = 22.75
+    | isUS market                        = 22.75
     | isCanadaExchange market            = 29.75
     | isSwissScandinavianExchange market = 59.75
     | otherwise                          = 0.0
@@ -438,8 +438,8 @@ getBinb00Commission50000Plus :: String -> String -> Double
 getBinb00Commission50000Plus market _
     | isEuronextBrussels market          = 19.75        
     | isEuronextOther market             = 19.75
-    | isEuroExchange market               = 19.75
-    | isUS                               = 19.72
+    | isEuroExchange market              = 19.75
+    | isUS market                        = 19.72
     | isCanadaExchange market            = 29.75
     | isSwissScandinavianExchange market = 29.75
     | otherwise                          = 0.0
