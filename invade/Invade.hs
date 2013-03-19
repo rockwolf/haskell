@@ -112,8 +112,9 @@ markets_euronext_other = [
 markets_us = [
         "nyse"
         ,"nasdaq"
-        ,"pinksheets"
-        ,"otc"
+        ,"otc bb & pinksheets"
+        ,"amex"
+        ,"other us"
     ]
 -- /binb00
 
@@ -390,10 +391,10 @@ getBinb00Commission2500 :: String -> String -> Double
 getBinb00Commission2500 market _
     | isEuronextBrussels market          = 7.25        
     | isEuronextOther market             = 9.75
-    | isEuroExhange market               = 0.0
-    | isCanadaExchange market            = 0.0
-    | isSwissScandinavianExchange market = 0.0
-    | isUS market                        = 9.75
+    | isEuroExhange market               = 12.75
+    | isUS market                        = 12.75
+    | isCanadaExchange market            = 19.75
+    | isSwissScandinavianExchange market = 29.75
     | otherwise                          = 0.0
 
 -- TODO: find the correct values for canada/scand/euroexch
@@ -401,40 +402,40 @@ getBinb00Commission5000 :: String -> String -> Double
 getBinb00Commission5000 market _
     | isEuronextBrussels market          = 9.75        
     | isEuronextOther market             = 9.25
-    | isEuroExhange market               = 0.0
-    | isCanadaExchange market            = 0.0
-    | isSwissScandinavianExchange market = 0.0
-    | isUs                               = 0.0
+    | isEuroExhange market               = 12.75
+    | isUs                               = 12.75
+    | isCanadaExchange market            = 19.75
+    | isSwissScandinavianExchange market = 29.75
     | otherwise                          = 0.0
 
 getBinb00Commission25000 :: String -> String -> Double
 getBinb00Commission25000 market _
     | isEuronextBrussels market          = 13.75        
-    | isEuronextOther market             = 9.25
-    | isEuroExhange market               = 0.0
-    | isCanadaExchange market            = 0.0
-    | isSwissScandinavianExchange market = 0.0
-    | isUs                               = 0.0
+    | isEuronextOther market             = 13.75
+    | isEuroExhange market               = 16.75
+    | isUs                               = 16.75
+    | isCanadaExchange market            = 24.75
+    | isSwissScandinavianExchange market = 29.75
     | otherwise                          = 0.0
 
 getBinb00Commission50000 :: String -> String -> Double
 getBinb00Commission50000 market _
     | isEuronextBrussels market          = 19.75        
-    | isEuronextOther market             = 9.25
-    | isEuroExhange market               = 0.0
-    | isCanadaExchange market            = 0.0
-    | isSwissScandinavianExchange market = 0.0
-    | isUs                               = 0.0
+    | isEuronextOther market             = 19.75
+    | isEuroExhange market               = 22.75
+    | isUs                               = 22.75
+    | isCanadaExchange market            = 29.75
+    | isSwissScandinavianExchange market = 59.75
     | otherwise                          = 0.0
 
 getBinb00Commission50000Plus :: String -> String -> Double
 getBinb00Commission50000Plus market _
     | isEuronextBrussels market          = 19.75        
-    | isEuronextOther market             = 9.25
-    | isEuroExhange market               = 0.0
-    | isCanadaExchange market            = 0.0
-    | isSwissScandinavianExchange market = 0.0
-    | isUs                               = 0.0
+    | isEuronextOther market             = 19.75
+    | isEuroExhange market               = 19.75
+    | isUs                               = 19.72
+    | isCanadaExchange market            = 29.75
+    | isSwissScandinavianExchange market = 29.75
     | otherwise                          = 0.0
 
 getWhsi00Commission :: String -> String -> Double -> Int -> Double
