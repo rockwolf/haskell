@@ -266,7 +266,7 @@ calcPercentage :: Double -> Double
 calcPercentage value = value / 100.0
 
 calcPercentageOf :: Double -> Double -> Double
-calcPercentageOf value from_value = (value / 100.0) * from_value 
+calcPercentageOf value from_value = (value / from_value) * 100.0
 
 {-- CalculatorFinance --}
 -- NOTE: amount_buy = with tax and everything included, amount_buy_simple = without tax and commission!
