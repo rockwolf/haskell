@@ -125,6 +125,7 @@ markets_options_euronext = [
 -- /binb00
 
 -- whsi00
+-- TODO: where are commodities like OJ situated?
 markets_cfd_share = [
            "cfd BE"
            ,"cfd FR"
