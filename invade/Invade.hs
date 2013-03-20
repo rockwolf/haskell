@@ -107,7 +107,7 @@ markets_euronext_other = [
            ,"vse"
            ,"other"
         ]
--- TODO: sync this with lisa.
+
 markets_us = [
         "nyse"
         ,"nasdaq"
