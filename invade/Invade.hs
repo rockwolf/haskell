@@ -253,85 +253,11 @@ setOutput varInput =
 calcSharesRecommended :: Int
 calcSharesRecommended = 0
 
-calcCostOther :: Double -> Double -> Double
-calcCostOther totalCost profitLoss =
-    if diffCostProfit > defaultDecimal
-    then diffCostProfit
-    else defaultDecimal
-    where
-        diffCostProfit = totalCost - profitLoss
-        defaultDecimal = 0.0
-
 calcPercentage :: Double -> Double
 calcPercentage value = value / 100.0
 
 calcPercentageOf :: Double -> Double -> Double
 calcPercentageOf value from_value = (value / from_value) * 100.0
-
-{-- CalculatorFinance --}
--- NOTE: amount_buy = with tax and everything included, amount_buy_simple = without tax and commission!
--- NOTE: ((risk/100 * pool_at_start - amount_buy_simple) - commission_buy)/(shares_buy * (tax_buy/100 - 1))
--- NOTE: ((R * P - A) - C) / (S * (T - 1))
-calcStoploss :: Double -> Int -> Double -> Double -> Double -> Double -> Double 
-calcStoploss amount_buy_simple shares_buy tax_buy commission_buy i_risk pool_at_start =
-    (((var_R * var_P) - var_A) - var_C) / (var_S * (var_T - 1))
-    where
-        var_R = calcPercentage i_risk
-        var_P = pool_at_start
-        var_A = amount_buy_simple
-        var_S = fromIntegral shares_buy
-        var_T = tax_buy / 100.0
-        var_C = commission_buy
-
--- TODO: only allow positive numbers
-calcRiskInput :: Double -> Double -> Double
-calcRiskInput i_risk i_pool =
-    var_R * var_Po
-    where
-        var_R = calcPercentage i_risk
-        var_Po = i_pool
-
-calcRiskInitial :: Double -> Int -> Double -> Double
-calcRiskInitial price_buy shares_buy stoploss =
-    (price_buy * shares_buy_) - (stoploss * shares_buy_)
-    where
-        shares_buy_ = fromIntegral shares_buy
-
--- NOTE: price_sell > stoploss = max risk was the initial risk
-calcRiskActual :: Double -> Int -> Double -> Int -> Double -> Double -> Double
-calcRiskActual price_buy shares_buy price_sell shares_sell stoploss risk_initial =
-    if price_sell < stoploss
-    then (price_buy * shares_buy_) - (price_sell * shares_sell_)
-    else risk_initial
-    where
-        shares_buy_ = fromIntegral shares_buy
-        shares_sell_ = fromIntegral shares_sell
-
-calcRMultiple :: Double -> Double -> Double -> Double
-calcRMultiple price_buy price_sell stoploss =
-    (price_sell - price_buy) / (price_buy - stoploss)
-
-calcCostTotal :: Double -> Double -> Double -> Double -> Double
-calcCostTotal tax_buy commission_buy tax_sell commission_sell =
-    tax_buy + commission_buy + tax_sell + commission_sell
-
--- NOTE: commission + tax = seperate = costs
-calcAmountSimple :: Double -> Int -> Double
-calcAmountSimple price shares = price * fromIntegral shares
-
--- cost of transaction (tax and commission)
-costTransaction :: String -> Double -> Int -> Double -> Double -> Double
-costTransaction transaction price shares tax commission =
-    case lowerCase transaction of
-        []      -> error errorMsgEmpty
-        "buy"   -> (price * (fromIntegral shares) * (1 + tax)) + commission
-        "sell"  -> (price * (fromIntegral shares) * (1 - tax)) - commission
-    where
-        errorMsgEmpty = "Error in costTransaction: buy or sell not specified!"
-
-calcProfitLoss :: Double -> Double -> Double -> Double
-calcProfitLoss amount_sell_simple amount_buy_simple totalcost =
-    amount_sell_simple - amount_buy_simple - totalcost
 
 upperCase, lowerCase :: String -> String
 upperCase = map toUpper
