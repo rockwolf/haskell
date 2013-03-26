@@ -159,7 +159,7 @@ calcAmountSimple :: Double -> Int -> Double
 calcAmountSimple price shares = price * fromIntegral shares
 
 -- cost of transaction (tax and commission)
-costTransaction :: String -> Double -> Int -> Double -> Double -> Double
+{--costTransaction :: String -> Double -> Int -> Double -> Double -> Double
 costTransaction transaction price shares tax commission =
     case lowerCase transaction of
         [] -> error errorMsgEmpty
@@ -167,6 +167,7 @@ costTransaction transaction price shares tax commission =
         "sell" -> (price * (fromIntegral shares) * (1 - tax)) - commission
     where
         errorMsgEmpty = "Error in costTransaction: buy or sell not specified!"
+--}
 
 calcProfitLoss :: Double -> Double -> Double -> Double
 calcProfitLoss amount_sell_simple amount_buy_simple totalcost =
@@ -370,31 +371,40 @@ isShareCfdUS market
 -- Export functions
 --
 foreign export ccall
-    calcStoploss :: CDouble -> CInt -> CDouble -> CDouble -> CDouble -> CDouble -> CDouble
+    calcStoploss :: Double -> Int -> Double -> Double -> Double -> Double -> Double
 
 foreign export ccall
-  calcRiskInput :: CDouble -> CDouble -> CDouble
+  calcRiskInput :: Double -> Double -> Double
 
 foreign export ccall
-  calcRiskInitial :: CDouble -> CInt -> CDouble -> CDouble
+  calcRiskInitial :: Double -> Int -> Double -> Double
 
 foreign export ccall
-  calcRiskActual :: CDouble -> CInt -> CDouble -> CInt -> CDouble -> CDouble -> CDouble
+  calcRiskActual :: Double -> Int -> Double -> Int -> Double -> Double -> Double
 
 foreign export ccall
-  calcRMultiple :: CDouble -> CDouble -> CDouble -> CDouble
+  calcRMultiple :: Double -> Double -> Double -> Double
 
 foreign export ccall
-  calcCostTotal :: CDouble -> CDouble -> CDouble -> CDouble -> CDouble
+  calcCostTotal :: Double -> Double -> Double -> Double -> Double
 
 foreign export ccall
-  calcAmountSimple :: CDouble -> CInt -> CDouble
+  calcAmountSimple :: Double -> Int -> Double
+
+--foreign export ccall
+--  costTransaction :: String -> Double -> Int -> Double -> Double -> Double
 
 foreign export ccall
-  costTransaction :: CString -> CDouble -> CInt -> CDouble -> CDouble -> CDouble
+  calcProfitLoss :: Double -> Double -> Double -> Double
 
 foreign export ccall
-  calcProfitLoss :: CDouble -> CDouble -> CDouble -> CDouble
+  calcCostOther :: Double -> Double -> Double
+
+--
+-- TEST
+--
+test :: CDouble -> CDouble
+test ivar = ivar * 2.0
 
 foreign export ccall
-  calcCostOther :: CDouble -> CDouble -> CDouble
+    test :: CDouble -> CDouble

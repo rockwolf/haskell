@@ -5,17 +5,17 @@
  
 #include <HsFFI.h>
  
-extern void CAT(__stginit_, MODULE)(void);
+extern void CAT(__stginit_, CalculatorFinance)(void);
  
 static void library_init(void) __attribute__((constructor));
 static void library_init(void)
 {
     /* This seems to be a no-op, but it makes the GHCRTS envvar work. */
-    static char *argv[] = { STR(MODULE) ".so", 0 }, **argv_ = argv;
+    static char *argv[] = { STR(CalculatorFinance) ".so", 0 }, **argv_ = argv;
     static int argc = 1;
  
     hs_init(&argc, &argv_);
-    hs_add_root(CAT(__stginit_, MODULE));
+    hs_add_root(CAT(__stginit_, CalculatorFinance));
 }
  
 static void library_exit(void) __attribute__((destructor));
