@@ -10,7 +10,7 @@ print('Test...')
 api = {
 #    name               restype         argtypes    input  expected value
     'calcStoploss':     (c_double,      [c_double, c_int, c_double, c_double, c_double, c_double], ([2500.0, 99, 0.25, 7.50, 2.0, 100000.0], 0.0))
-    ,'test': (c_double, c_double)
+    ,'test': (c_double, [c_double], (1.0, 2.0))
 }
 
 for func in api:
