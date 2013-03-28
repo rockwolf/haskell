@@ -403,8 +403,9 @@ foreign export ccall
 --
 -- TEST
 --
-test :: CDouble -> CDouble
-test ivar = ivar * 2.0
+test :: CFloat -> IO CFloat
+test ivar = do
+    return (ivar * 2.0)
 
 foreign export ccall
-    test :: CDouble -> CDouble
+    test :: CFloat -> IO CFloat
