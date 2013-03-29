@@ -111,7 +111,7 @@ markets_cfd_us = [
 -- NOTE: amount_buy = with tax and everything included, amount_buy_simple = without tax and commission!
 -- NOTE: ((risk/100 * pool_at_start - amount_buy_simple) - commission_buy)/(shares_buy * (tax_buy/100 - 1))
 -- NOTE: ((R * P - A) - C) / (S * (T - 1))
-calcStoploss :: Double -> Int -> Double -> Double -> Double -> Double -> Double
+calcStoploss :: CDouble -> CInt -> CDouble -> CDouble -> CDouble -> CDouble -> CDouble
 calcStoploss amount_buy_simple shares_buy tax_buy commission_buy i_risk pool_at_start =
     (((var_R * var_P) - var_A) - var_C) / (var_S * (var_T - 1))
     where
@@ -123,21 +123,21 @@ calcStoploss amount_buy_simple shares_buy tax_buy commission_buy i_risk pool_at_
         var_C = commission_buy
 
 -- TODO: only allow positive numbers
-calcRiskInput :: Double -> Double -> Double
+calcRiskInput :: CDouble -> CDouble -> CDouble
 calcRiskInput i_risk i_pool =
     var_R * var_Po
     where
         var_R = calcPercentage i_risk
         var_Po = i_pool
 
-calcRiskInitial :: Double -> Int -> Double -> Double
+calcRiskInitial :: CDouble -> CInt -> CDouble -> CDouble
 calcRiskInitial price_buy shares_buy stoploss =
     (price_buy * shares_buy_) - (stoploss * shares_buy_)
     where
         shares_buy_ = fromIntegral shares_buy
 
 -- NOTE: price_sell > stoploss = max risk was the initial risk
-calcRiskActual :: Double -> Int -> Double -> Int -> Double -> Double -> Double
+calcRiskActual :: CDouble -> CInt -> CDouble -> CInt -> CDouble -> CDouble -> CDouble
 calcRiskActual price_buy shares_buy price_sell shares_sell stoploss risk_initial =
     if price_sell < stoploss
     then (price_buy * shares_buy_) - (price_sell * shares_sell_)
@@ -146,20 +146,20 @@ calcRiskActual price_buy shares_buy price_sell shares_sell stoploss risk_initial
         shares_buy_ = fromIntegral shares_buy
         shares_sell_ = fromIntegral shares_sell
 
-calcRMultiple :: Double -> Double -> Double -> Double
+calcRMultiple :: CDouble -> CDouble -> CDouble -> CDouble
 calcRMultiple price_buy price_sell stoploss =
     (price_sell - price_buy) / (price_buy - stoploss)
 
-calcCostTotal :: Double -> Double -> Double -> Double -> Double
+calcCostTotal :: CDouble -> CDouble -> CDouble -> CDouble -> CDouble
 calcCostTotal tax_buy commission_buy tax_sell commission_sell =
     tax_buy + commission_buy + tax_sell + commission_sell
 
 -- NOTE: commission + tax = seperate = costs
-calcAmountSimple :: Double -> Int -> Double
-calcAmountSimple price shares = price * fromIntegral shares
+calcAmountSimple :: CDouble -> CInt -> CDouble
+calcAmountSimple price shares = fromIntegral price * fromIntegral shares
 
 -- cost of transaction (tax and commission)
-{--costTransaction :: String -> Double -> Int -> Double -> Double -> Double
+{--costTransaction :: CString -> CDouble -> CInt -> CDouble -> CDouble -> CDouble
 costTransaction transaction price shares tax commission =
     case lowerCase transaction of
         [] -> error errorMsgEmpty
@@ -169,11 +169,11 @@ costTransaction transaction price shares tax commission =
         errorMsgEmpty = "Error in costTransaction: buy or sell not specified!"
 --}
 
-calcProfitLoss :: Double -> Double -> Double -> Double
+calcProfitLoss :: CDouble -> CDouble -> CDouble -> CDouble
 calcProfitLoss amount_sell_simple amount_buy_simple totalcost =
     amount_sell_simple - amount_buy_simple - totalcost
 
-calcCostOther :: Double -> Double -> Double
+calcCostOther :: CDouble -> CDouble -> CDouble
 calcCostOther totalCost profitLoss =
     if diffCostProfit > defaultDecimal
     then diffCostProfit
@@ -182,7 +182,7 @@ calcCostOther totalCost profitLoss =
         diffCostProfit = totalCost - profitLoss
         defaultDecimal = 0.0
 
-calcSharesRecommended :: Int
+calcSharesRecommended :: CInt
 calcSharesRecommended = 0
 
 -- 
@@ -215,7 +215,7 @@ calcCommission  account market stockname price shares =
         "whsi00" -> getWhsi00Commission market stockname price shares
         _ -> 0.0
     where
-        amount_simple = calcAmountSimple price shares
+        amount_simple = calcAmountSimple (fromIntegral price) (fromIntegral shares)
 
 -- TODO: get 2500 etc values from T_PARAMETER
 getBinb00Commission :: String -> String -> Double -> Double
@@ -371,41 +371,41 @@ isShareCfdUS market
 -- Export functions
 --
 foreign export ccall
-    calcStoploss :: Double -> Int -> Double -> Double -> Double -> Double -> Double
+    calcStoploss :: CDouble -> CInt -> CDouble -> CDouble -> CDouble -> CDouble -> CDouble
 
 foreign export ccall
-  calcRiskInput :: Double -> Double -> Double
+  calcRiskInput :: CDouble -> CDouble -> CDouble
 
 foreign export ccall
-  calcRiskInitial :: Double -> Int -> Double -> Double
+  calcRiskInitial :: CDouble -> CInt -> CDouble -> CDouble
 
 foreign export ccall
-  calcRiskActual :: Double -> Int -> Double -> Int -> Double -> Double -> Double
+  calcRiskActual :: CDouble -> CInt -> CDouble -> CInt -> CDouble -> CDouble -> CDouble
 
 foreign export ccall
-  calcRMultiple :: Double -> Double -> Double -> Double
+  calcRMultiple :: CDouble -> CDouble -> CDouble -> CDouble
 
 foreign export ccall
-  calcCostTotal :: Double -> Double -> Double -> Double -> Double
+  calcCostTotal :: CDouble -> CDouble -> CDouble -> CDouble -> CDouble
 
 foreign export ccall
-  calcAmountSimple :: Double -> Int -> Double
+  calcAmountSimple :: CDouble -> CInt -> CDouble
 
 --foreign export ccall
---  costTransaction :: String -> Double -> Int -> Double -> Double -> Double
+--  costTransaction :: CString -> CDouble -> CInt -> CDouble -> CDouble -> CDouble
 
 foreign export ccall
-  calcProfitLoss :: Double -> Double -> Double -> Double
+  calcProfitLoss :: CDouble -> CDouble -> CDouble -> CDouble
 
 foreign export ccall
-  calcCostOther :: Double -> Double -> Double
+  calcCostOther :: CDouble -> CDouble -> CDouble
 
 --
 -- TEST
 --
-test :: CFloat -> IO CFloat
+test :: CDouble -> IO CDouble
 test ivar = do
-    return (ivar * 2.0)
+    return(ivar * 2.0)
 
 foreign export ccall
-    test :: CFloat -> IO CFloat
+    test :: CDouble -> IO CDouble

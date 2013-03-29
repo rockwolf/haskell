@@ -17,8 +17,8 @@ for func in api:
     f = getattr(lib, func)
     f.restype, f.argtype, test = api[func]
     input, expected = test
-    assert f(input) == expected
-    print("test: func,input,expected =",func, ",", input, ",", expected)
+    #assert f(input) == expected
+print(lib.test(c_double(2.0)))
 
 #print("test input=", input)
 #print("test f.restype=", f.restype)
