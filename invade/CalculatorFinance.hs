@@ -160,7 +160,7 @@ calcAmountSimple price shares = do
     return (fromIntegral price * fromIntegral shares)
 
 -- cost of transaction (tax and commission)
-{--costTransaction :: CString -> CDouble -> CInt -> CDouble -> CDouble -> IO CDouble
+costTransaction :: CString -> CDouble -> CInt -> CDouble -> CDouble -> IO CDouble
 costTransaction transaction price shares tax commission = do
     case lowerCase transaction of
         [] -> return (error errorMsgEmpty)
@@ -168,7 +168,6 @@ costTransaction transaction price shares tax commission = do
         "sell" -> return ((price * (fromIntegral shares) * (1 - tax)) - commission)
     where
         errorMsgEmpty = "Error in costTransaction: buy or sell not specified!"
---}
 
 calcProfitLoss :: CDouble -> CDouble -> CDouble -> IO CDouble
 calcProfitLoss amount_sell_simple amount_buy_simple totalcost = do
@@ -393,8 +392,8 @@ foreign export ccall
 foreign export ccall
   calcAmountSimple :: CDouble -> CInt -> IO CDouble
 
---foreign export ccall
---  costTransaction :: CString -> CDouble -> CInt -> CDouble -> CDouble -> CDouble
+foreign export ccall
+  costTransaction :: CString -> CDouble -> CInt -> CDouble -> CDouble -> IO CDouble
 
 foreign export ccall
   calcProfitLoss :: CDouble -> CDouble -> CDouble -> IO CDouble
