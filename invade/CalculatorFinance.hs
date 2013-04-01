@@ -115,7 +115,7 @@ calcStoploss :: CDouble -> CInt -> CDouble -> CDouble -> CDouble -> CDouble -> I
 calcStoploss amount_buy_simple shares_buy tax_buy commission_buy i_risk pool_at_start = do
     return ((((var_R * var_P) - var_A) - var_C) / (var_S * (var_T - 1)))
     where
-        var_R = fromIntegral . calcPercentage $ fromIntegral i_risk
+        var_R = fromIntegral $ calcPercentage . fromIntegral i_risk
         var_P = pool_at_start
         var_A = amount_buy_simple
         var_S = fromIntegral shares_buy
@@ -127,7 +127,7 @@ calcRiskInput :: CDouble -> CDouble -> IO CDouble
 calcRiskInput i_risk i_pool = do
     return (var_R * var_Po)
     where
-        var_R = fromIntegral . calcPercentage $ fromIntegral i_risk
+        var_R = fromIntegral $ calcPercentage . fromIntegral i_risk
         var_Po = fromIntegral i_pool
 
 calcRiskInitial :: CDouble -> CInt -> CDouble -> IO CDouble
@@ -162,8 +162,9 @@ calcAmountSimple price shares = do
 -- cost of transaction (tax and commission)
 costTransaction :: CString -> CDouble -> CInt -> CDouble -> CDouble -> IO CDouble
 costTransaction transaction price shares tax commission = do
-    case lowerCase transaction of
-        [] -> return (error errorMsgEmpty)
+    var_transaction <- peekCString transaction
+    case lowerCase var_transaction of
+        --[] -> error errorMsgEmpty
         "buy" -> return ((price * (fromIntegral shares) * (1 + tax)) + commission)
         "sell" -> return ((price * (fromIntegral shares) * (1 - tax)) - commission)
     where
@@ -179,7 +180,7 @@ calcCostOther totalCost profitLoss = do
     then return diffCostProfit
     else return defaultDecimal
     where
-        diffCostProfit = (fromIntegral totalCost) - (fromIntegral profitLoss)
+        diffCostProfit = fromIntegral totalCost - fromIntegral profitLoss
         defaultDecimal = 0.0
 
 calcSharesRecommended :: IO CInt
@@ -211,9 +212,14 @@ merge (x:xs) (y:ys) = x : y : merge xs ys
 
 calcCommission :: CString -> CString -> CString -> CDouble -> CInt -> IO CDouble
 calcCommission  account market stockname price shares = do
-    case lowerCase account of
-        "binb00" -> return . fromIntegral . getBinb00Commission market stockname $ fromIntegral amount_simple
-        "whsi00" -> return . fromIntegral . getWhsi00Commission market stockname $ fromIntegral price $ fromIntegral shares
+    -- NOTE: peekCString makes the CString and IO String
+    -- NOTE: we 'pull' the market out of the IO monad
+    var_account <- peekCString account
+    var_market <- peekCString market
+    var_stockname <- peekCString stockname
+    case lowerCase var_account of
+        "binb00" -> return fromIntegral $ getBinb00Commission var_market var_stockname $ fromIntegral amount_simple
+        "whsi00" -> return fromIntegral $ getWhsi00Commission var_market var_stockname $ fromIntegral price $ fromIntegral shares
         _ -> return (fromIntegral 0.0)
     where
         amount_simple = calcAmountSimple $ fromIntegral price $ fromIntegral shares
@@ -341,7 +347,7 @@ getWhsi00Commission market stockname price shares
     | isShareCfdUS market          = 4.50 + 0.023 * fromIntegral shares
     | otherwise                    = 0.0
     where
-        amount_simple = fromIntegral . calcAmountSimple $ fromIntegral price $ fromIntegral shares
+        amount_simple = fromIntegral (calcAmountSimple $ fromIntegral price $ fromIntegral shares)
 
 isNonShareCfd :: String -> Bool
 isNonShareCfd market
