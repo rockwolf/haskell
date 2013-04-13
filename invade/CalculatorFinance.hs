@@ -115,11 +115,11 @@ calcStoploss :: CDouble -> CInt -> CDouble -> CDouble -> CDouble -> CDouble -> I
 calcStoploss amount_buy_simple shares_buy tax_buy commission_buy i_risk pool_at_start = do
     return ((((var_R * var_P) - var_A) - var_C) / (var_S * (var_T - 1)))
     where
-        var_R = fromIntegral $ calcPercentage . fromIntegral i_risk
+        var_R = fromIntegral $ calcPercentage (fromIntegral i_risk)
         var_P = pool_at_start
         var_A = amount_buy_simple
         var_S = fromIntegral shares_buy
-        var_T = (fromIntegral tax_buy) / 100.0
+        var_T = fromIntegral (tax_buy / 100.0)
         var_C = commission_buy
 
 -- TODO: only allow positive numbers
@@ -127,8 +127,8 @@ calcRiskInput :: CDouble -> CDouble -> IO CDouble
 calcRiskInput i_risk i_pool = do
     return (var_R * var_Po)
     where
-        var_R = fromIntegral $ calcPercentage . fromIntegral i_risk
-        var_Po = fromIntegral i_pool
+        var_R = fromIntegral $ calcPercentage . i_risk
+        var_Po = i_pool
 
 calcRiskInitial :: CDouble -> CInt -> CDouble -> IO CDouble
 calcRiskInitial price_buy shares_buy stoploss = do
@@ -157,7 +157,7 @@ calcCostTotal tax_buy commission_buy tax_sell commission_sell = do
 -- NOTE: commission + tax = seperate = costs
 calcAmountSimple :: CDouble -> CInt -> IO CDouble
 calcAmountSimple price shares = do
-    return (fromIntegral price * fromIntegral shares)
+    return (price * fromIntegral shares)
 
 -- cost of transaction (tax and commission)
 costTransaction :: CString -> CDouble -> CInt -> CDouble -> CDouble -> IO CDouble
@@ -180,7 +180,7 @@ calcCostOther totalCost profitLoss = do
     then return diffCostProfit
     else return defaultDecimal
     where
-        diffCostProfit = fromIntegral totalCost - fromIntegral profitLoss
+        diffCostProfit = totalCost - profitLoss
         defaultDecimal = 0.0
 
 calcSharesRecommended :: IO CInt
@@ -218,8 +218,8 @@ calcCommission  account market stockname price shares = do
     var_market <- peekCString market
     var_stockname <- peekCString stockname
     case lowerCase var_account of
-        "binb00" -> return fromIntegral $ getBinb00Commission var_market var_stockname $ fromIntegral amount_simple
-        "whsi00" -> return fromIntegral $ getWhsi00Commission var_market var_stockname $ fromIntegral price $ fromIntegral shares
+        "binb00" -> return (fromIntegral $ getBinb00Commission var_market var_stockname $ fromIntegral amount_simple)
+        "whsi00" -> return (fromIntegral $ getWhsi00Commission var_market var_stockname $ fromIntegral price $ fromIntegral shares)
         _ -> return (fromIntegral 0.0)
     where
         amount_simple = calcAmountSimple $ fromIntegral price $ fromIntegral shares
