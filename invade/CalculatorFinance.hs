@@ -115,19 +115,19 @@ calcStoploss :: CDouble -> CInt -> CDouble -> CDouble -> CDouble -> CDouble -> I
 calcStoploss amount_buy_simple shares_buy tax_buy commission_buy i_risk pool_at_start = do
     return ((((var_R * var_P) - var_A) - var_C) / (var_S * (var_T - 1)))
     where
-        var_R = fromIntegral $ calcPercentage (fromIntegral i_risk)
+        var_R = realToFrac $ calcPercentage $ realToFrac i_risk
         var_P = pool_at_start
         var_A = amount_buy_simple
         var_S = fromIntegral shares_buy
-        var_T = fromIntegral (tax_buy / 100.0)
+        var_T = realToFrac (tax_buy / 100.0)
         var_C = commission_buy
 
 -- TODO: only allow positive numbers
 calcRiskInput :: CDouble -> CDouble -> IO CDouble
 calcRiskInput i_risk i_pool = do
-    return (var_R * var_Po)
+    return (realToFrac $ var_R * var_Po)
     where
-        var_R = fromIntegral $ calcPercentage . i_risk
+        var_R = realToFrac $ calcPercentage $ realToFrac i_risk
         var_Po = i_pool
 
 calcRiskInitial :: CDouble -> CInt -> CDouble -> IO CDouble
@@ -218,11 +218,11 @@ calcCommission  account market stockname price shares = do
     var_market <- peekCString market
     var_stockname <- peekCString stockname
     case lowerCase var_account of
-        "binb00" -> return (fromIntegral $ getBinb00Commission var_market var_stockname $ fromIntegral amount_simple)
-        "whsi00" -> return (fromIntegral $ getWhsi00Commission var_market var_stockname $ fromIntegral price $ fromIntegral shares)
+        "binb00" -> return (realToFrac $ getBinb00Commission var_market var_stockname $ realToFrac amount_simple)
+        "whsi00" -> return (realToFrac $ getWhsi00Commission var_market var_stockname (realToFrac price) (fromIntegral shares))
         _ -> return (fromIntegral 0.0)
     where
-        amount_simple = calcAmountSimple $ fromIntegral price $ fromIntegral shares
+        amount_simple = realToFrac (calcAmountSimple (realToFrac price) (fromIntegral shares))
 
 -- TODO: get 2500 etc values from T_PARAMETER
 getBinb00Commission :: String -> String -> Double -> Double
@@ -347,7 +347,8 @@ getWhsi00Commission market stockname price shares
     | isShareCfdUS market          = 4.50 + 0.023 * fromIntegral shares
     | otherwise                    = 0.0
     where
-        amount_simple = fromIntegral (calcAmountSimple $ fromIntegral price $ fromIntegral shares)
+        amount_simple = realToFrac (calcAmountSimple (realToFrac price)  (fromIntegral shares))
+        
 
 isNonShareCfd :: String -> Bool
 isNonShareCfd market
