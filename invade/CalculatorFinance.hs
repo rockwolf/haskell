@@ -227,10 +227,11 @@ calcCommission  account market stockname price shares = do
         -- Test if it works this way and/or find the correct way to do it.
         amount_simple = do
             -- TODO: the below is good, it makes the IO CDouble a CDouble.
-            -- but this does not get appionted to amount_simple, so how do
+            -- but this does not get appointed to amount_simple, so how do
             -- we do that?
             temp <- calcAmountSimple price shares
-            
+            -- this is what I need...
+            amount_simple = temp
 
 -- TODO: get 2500 etc values from T_PARAMETER
 getBinb00Commission :: String -> String -> Double -> Double
