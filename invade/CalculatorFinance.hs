@@ -226,7 +226,11 @@ calcCommission  account market stockname price shares = do
         -- of an IO CDouble, to realToFrac it to a Double.
         -- Test if it works this way and/or find the correct way to do it.
         amount_simple = do
-            realToFrac . foldl . calcAmountSimple price shares
+            -- TODO: the below is good, it makes the IO CDouble a CDouble.
+            -- but this does not get appionted to amount_simple, so how do
+            -- we do that?
+            temp <- calcAmountSimple price shares
+            
 
 -- TODO: get 2500 etc values from T_PARAMETER
 getBinb00Commission :: String -> String -> Double -> Double
