@@ -222,7 +222,8 @@ calcCommission  account market stockname price shares = do
         "whsi00" -> return (realToFrac $ getWhsi00Commission var_market var_stockname (realToFrac price) (fromIntegral shares))
         _ -> return (fromIntegral 0.0)
     where
-        amount_simple = realToFrac . foldl . calcAmountSimple (realToFrac price) (fromIntegral shares)
+        amount_simple = do
+            realToFrac . foldl . calcAmountSimple (realToFrac price) (fromIntegral shares)
 
 -- TODO: get 2500 etc values from T_PARAMETER
 getBinb00Commission :: String -> String -> Double -> Double
