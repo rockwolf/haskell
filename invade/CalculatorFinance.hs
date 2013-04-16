@@ -221,7 +221,7 @@ calcCommission  account market stockname price shares = do
     case lowerCase var_account of
         "binb00" -> return (realToFrac $ getBinb00Commission var_market var_stockname $ var_amount_simple)
         "whsi00" -> return (realToFrac $ getWhsi00Commission var_market var_stockname (realToFrac price) (fromIntegral shares))
-        _ -> return (fromIntegral 0.0)
+        _ -> return (realToFrac 0.0)
 
 -- TODO: get 2500 etc values from T_PARAMETER
 getBinb00Commission :: String -> String -> Double -> Double
@@ -235,7 +235,7 @@ getBinb00Commission market stockname amount_simple
     | amount_simple > 50000.0 = perDiscNumber * getBinb00Commission50000Plus market stockname
     | otherwise = 0.0
     where
-        perDiscNumber = fromIntegral (ceiling $ amount_simple / 50000.0)
+        perDiscNumber = realToFrac (ceiling $ amount_simple / 50000.0)
 
 isEuronextBrussels :: String -> Bool
 isEuronextBrussels market
@@ -346,6 +346,9 @@ getWhsi00Commission market stockname price shares
     | isShareCfdUS market          = 4.50 + 0.023 * fromIntegral shares
     | otherwise                    = 0.0
     where
+        -- TODO: gonna have the same problem here... it is not so simple here
+        -- can you combine pattern guards with code above? Nowp.
+        -- Create a more general function, of which calcAmountSimple is a wrapper!
         amount_simple = realToFrac (calcAmountSimple (realToFrac price)  (fromIntegral shares))
         
 
