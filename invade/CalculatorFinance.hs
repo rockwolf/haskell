@@ -217,21 +217,11 @@ calcCommission  account market stockname price shares = do
     var_account <- peekCString account
     var_market <- peekCString market
     var_stockname <- peekCString stockname
+    var_amount_simple <- calcAmountSimple price shares
     case lowerCase var_account of
-        "binb00" -> return (realToFrac $ getBinb00Commission var_market var_stockname $ amount_simple)
+        "binb00" -> return (realToFrac $ getBinb00Commission var_market var_stockname $ var_amount_simple)
         "whsi00" -> return (realToFrac $ getWhsi00Commission var_market var_stockname (realToFrac price) (fromIntegral shares))
         _ -> return (fromIntegral 0.0)
-    where
-        -- TODO: calcAmountSimple: we try to take a CDouble out
-        -- of an IO CDouble, to realToFrac it to a Double.
-        -- Test if it works this way and/or find the correct way to do it.
-        amount_simple = do
-            -- TODO: the below is good, it makes the IO CDouble a CDouble.
-            -- but this does not get appointed to amount_simple, so how do
-            -- we do that?
-            temp <- calcAmountSimple price shares
-            -- this is what I need...
-            amount_simple = temp
 
 -- TODO: get 2500 etc values from T_PARAMETER
 getBinb00Commission :: String -> String -> Double -> Double
