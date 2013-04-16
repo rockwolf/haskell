@@ -157,7 +157,11 @@ calcCostTotal tax_buy commission_buy tax_sell commission_sell = do
 -- NOTE: commission + tax = seperate = costs
 calcAmountSimple :: CDouble -> CInt -> IO CDouble
 calcAmountSimple price shares = do
-    return (price * fromIntegral shares)
+    return (computeAmountSimple  (realToFrac price) (fromIntegral shares))
+
+--- internal function that does not return an IO monad
+calcAmountSimple' :: Double -> Int -> Double
+calcAmountSimple' price shares = price * shares
 
 -- cost of transaction (tax and commission)
 costTransaction :: CString -> CDouble -> CInt -> CDouble -> CDouble -> IO CDouble
@@ -346,10 +350,7 @@ getWhsi00Commission market stockname price shares
     | isShareCfdUS market          = 4.50 + 0.023 * fromIntegral shares
     | otherwise                    = 0.0
     where
-        -- TODO: gonna have the same problem here... it is not so simple here
-        -- can you combine pattern guards with code above? Nowp.
-        -- Create a more general function, of which calcAmountSimple is a wrapper!
-        amount_simple = realToFrac (calcAmountSimple (realToFrac price)  (fromIntegral shares))
+        amount_simple = calcAmountSimple' (realToFrac price) (fromIntegral shares)
         
 
 isNonShareCfd :: String -> Bool
