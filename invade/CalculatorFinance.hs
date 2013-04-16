@@ -157,11 +157,11 @@ calcCostTotal tax_buy commission_buy tax_sell commission_sell = do
 -- NOTE: commission + tax = seperate = costs
 calcAmountSimple :: CDouble -> CInt -> IO CDouble
 calcAmountSimple price shares = do
-    return (computeAmountSimple  (realToFrac price) (fromIntegral shares))
+    return $ realToFrac (calcAmountSimple' (realToFrac price) (fromIntegral shares))
 
 --- internal function that does not return an IO monad
 calcAmountSimple' :: Double -> Int -> Double
-calcAmountSimple' price shares = price * shares
+calcAmountSimple' price shares = price * (fromIntegral shares)
 
 -- cost of transaction (tax and commission)
 costTransaction :: CString -> CDouble -> CInt -> CDouble -> CDouble -> IO CDouble
@@ -223,7 +223,7 @@ calcCommission  account market stockname price shares = do
     var_stockname <- peekCString stockname
     var_amount_simple <- calcAmountSimple price shares
     case lowerCase var_account of
-        "binb00" -> return (realToFrac $ getBinb00Commission var_market var_stockname $ var_amount_simple)
+        "binb00" -> return (realToFrac (getBinb00Commission var_market var_stockname (realToFrac var_amount_simple)))
         "whsi00" -> return (realToFrac $ getWhsi00Commission var_market var_stockname (realToFrac price) (fromIntegral shares))
         _ -> return (realToFrac 0.0)
 
