@@ -9,14 +9,15 @@ print('Test...')
 
 api = {
 #    name               restype         argtypes    input  expected value
-    'calcStoploss':     (c_double,      [c_double, c_int, c_double, c_double, c_double, c_double], ([2500.0, 99, 0.25, 7.50, 2.0, 100000.0], 0.0))
-    ,'test': (c_double, [c_double], (1.0, 2.0))
+#    'calcStoploss':     (c_double,      [c_double, c_int, c_double, c_double, c_double, c_double], ([2500.0, 99, 0.25, 7.50, 2.0, 100000.0], 0.0))
+#    ,'test': (c_double, [c_double], (9.0, 9.0))
+    'test': (c_double, [c_double], ())
 }
 
 for func in api:
     f = getattr(lib, func)
     f.restype, f.argtype, test = api[func]
-    input, expected = test
+    #input, expected = test
     #assert f(input) == expected
 print(lib.test(c_double(2.0)))
 

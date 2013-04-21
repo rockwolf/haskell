@@ -112,12 +112,12 @@ markets_cfd_us = [
 -- NOTE: ((risk/100 * pool_at_start - amount_buy_simple) - commission_buy)/(shares_buy * (tax_buy/100 - 1))
 -- NOTE: ((R * P - A) - C) / (S * (T - 1))
 calcStoploss :: CDouble -> CInt -> CDouble -> CDouble -> CDouble -> CDouble -> IO CDouble
-calcStoploss amount_buy_simple shares_buy tax_buy commission_buy i_risk pool_at_start = do
+calcStoploss price_buy shares_buy tax_buy commission_buy i_risk pool_at_start = do
     return ((((var_R * var_P) - var_A) - var_C) / (var_S * (var_T - 1)))
     where
         var_R = realToFrac $ calcPercentage $ realToFrac i_risk
         var_P = pool_at_start
-        var_A = amount_buy_simple
+        var_A = realToFrac $ calcAmountSimple' (realToFrac price_buy) (fromIntegral shares_buy)
         var_S = fromIntegral shares_buy
         var_T = realToFrac (tax_buy / 100.0)
         var_C = commission_buy
@@ -164,15 +164,21 @@ calcAmountSimple' :: Double -> Int -> Double
 calcAmountSimple' price shares = price * (fromIntegral shares)
 
 -- cost of transaction (tax and commission)
-costTransaction :: CString -> CDouble -> CInt -> CDouble -> CDouble -> IO CDouble
-costTransaction transaction price shares tax commission = do
-    var_transaction <- peekCString transaction
-    case lowerCase var_transaction of
+costTransaction :: CInt -> CDouble -> CInt -> CDouble -> CDouble -> IO CDouble
+costTransaction transactionid price shares tax commission = do
+    -- Note: transactionid = 
+    -- 0: buy
+    -- 1: sell
+    --var_transaction <- peekCString transaction
+    --case lowerCase var_transaction of
+    case transactionid of
         --[] -> error errorMsgEmpty
-        "buy" -> return ((price * (fromIntegral shares) * (1 + tax)) + commission)
-        "sell" -> return ((price * (fromIntegral shares) * (1 - tax)) - commission)
-    where
-        errorMsgEmpty = "Error in costTransaction: buy or sell not specified!"
+        0 -> return ((price * (fromIntegral shares) * (1 + tax)) + commission)
+        1 -> return ((price * (fromIntegral shares) * (1 - tax)) - commission)
+        --"buy" -> return ((price * (fromIntegral shares) * (1 + tax)) + commission)
+        --"sell" -> return ((price * (fromIntegral shares) * (1 - tax)) - commission)
+    --where
+    --    errorMsgEmpty = "Error in costTransaction: buy or sell not specified!"
 
 calcProfitLoss :: CDouble -> CDouble -> CDouble -> IO CDouble
 calcProfitLoss amount_sell_simple amount_buy_simple totalcost = do
@@ -403,7 +409,7 @@ foreign export ccall
   calcAmountSimple :: CDouble -> CInt -> IO CDouble
 
 foreign export ccall
-  costTransaction :: CString -> CDouble -> CInt -> CDouble -> CDouble -> IO CDouble
+  costTransaction :: CInt -> CDouble -> CInt -> CDouble -> CDouble -> IO CDouble
 
 foreign export ccall
   calcProfitLoss :: CDouble -> CDouble -> CDouble -> IO CDouble
