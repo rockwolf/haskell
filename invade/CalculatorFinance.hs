@@ -248,34 +248,22 @@ getBinb00Commission market stockname amount_simple
         perDiscNumber = realToFrac (ceiling $ amount_simple / 50000.0)
 
 isEuronextBrussels :: String -> Bool
-isEuronextBrussels market
-    | market `elem` markets_euronext_brussels   = True
-    | otherwise                                 = False
+isEuronextBrussels market = market `elem` markets_euronext_brussels
 
 isEuronextOther :: String -> Bool
-isEuronextOther market
-    | market `elem` markets_euronext_other  = True
-    | otherwise                             = False
+isEuronextOther market = market `elem` markets_euronext_other
 
 isUS :: String -> Bool
-isUS market
-    | market `elem` markets_us  = True
-    | otherwise                 = False
+isUS market = market `elem` markets_us
 
 isEuroExchange :: String -> Bool
-isEuroExchange market
-    | market == "dummy" = True
-    | otherwise         = False
+isEuroExchange market = market == "dummy"
 
 isCanadaExchange :: String -> Bool
-isCanadaExchange market
-    | market == "dummy" = True
-    | otherwise         = False
+isCanadaExchange market = market == "dummy"
 
 isSwissScandinavianExchange :: String -> Bool
-isSwissScandinavianExchange market
-    | market == "dummy" = True
-    | otherwise         = False
+isSwissScandinavianExchange market = market == "dummy"
 
 -- TODO: get these values from T_PARAMETER
 getBinb00Commission2500 :: String -> String -> Double
@@ -343,9 +331,7 @@ getBinb00CommissionOptions market _ contracts
                       else 2.50
 
 isOptionsEuronext :: String -> Bool
-isOptionsEuronext market
-    | market `elem` markets_options_euronext = True
-    | otherwise                              = False
+isOptionsEuronext market = market `elem` markets_options_euronext
 
 getWhsi00Commission :: String -> String -> Double -> Int -> Double
 getWhsi00Commission market stockname price shares
@@ -360,29 +346,19 @@ getWhsi00Commission market stockname price shares
         
 
 isNonShareCfd :: String -> Bool
-isNonShareCfd market
-    | market `elem` markets_cfd_non_share = True
-    | otherwise                           = False
+isNonShareCfd market = market `elem` markets_cfd_non_share
 
 isShareCfd :: String -> Bool
-isShareCfd market
-    | market `elem` markets_cfd_share     = True
-    | otherwise                           = False
+isShareCfd market = market `elem` markets_cfd_share
 
 isShareCfdDev1 :: String -> Bool
-isShareCfdDev1 market
-    | market `elem` markets_cfd_dev1      = True
-    | otherwise                           = False
+isShareCfdDev1 market = market `elem` markets_cfd_dev1
 
 isShareCfdDev2 :: String -> Bool
-isShareCfdDev2 market
-    | market `elem` markets_cfd_dev2      = True
-    | otherwise                           = False
+isShareCfdDev2 market = market `elem` markets_cfd_dev2
 
 isShareCfdUS :: String -> Bool
-isShareCfdUS market
-    | market `elem` markets_cfd_us        = True
-    | otherwise                           = False
+isShareCfdUS market = market `elem` markets_cfd_us
 
 --
 -- Export functions
