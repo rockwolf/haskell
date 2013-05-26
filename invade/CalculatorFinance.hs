@@ -197,6 +197,12 @@ calcSharesRecommended :: IO CInt
 calcSharesRecommended = do
     return 0
 
+calcPrice :: CDouble -> CDouble -> CDouble -> CInt -> IO CDouble
+calcPrice amount commission tax shares = do
+    return (amount - commission) / ((1.0 + tax) * var_shares)
+    where
+        var_shares = fromIntegral shares
+
 -- 
 -- Helper functions
 -- 
@@ -392,6 +398,9 @@ foreign export ccall
 
 foreign export ccall
   calcCostOther :: CDouble -> CDouble -> IO CDouble
+
+foreign export ccall
+    calcPrice :: CDouble -> CDouble -> CDouble -> CInt -> IO CDouble
 
 --
 -- TEST
