@@ -16,11 +16,29 @@ type TransitionProbabilityFunction = Int -> Int -> Float -> Float
 type MotionFunction a              = StdGen -> a -> (StdGen,a)
 
 main = do 
-  putStr "Hello World! Let's have a picnic! \n"
-  people_text <- readFile "people.txt"
+    putStr "Hello World! Let's have a picnic! \n"
+    people_text <- readFile "people.txt"
 
-  let people :: [Person]
-      people = read people_text
+    let people :: [Person]
+        people = read people_text
 
-  putStr "Number of people coming: "
-  print (length people)
+    putStr "Number of people coming: "
+    print (length people)
+
+    -- SVG-writer
+    let writePoint :: Point -> String 
+        writePoint (x,y) = (show x)++","++(show y)++" "
+
+    let writePolygon :: (Color,Polygon) -> String 
+        writePolygon ((r,g,b),p) = "<polygon points=\""++(concatMap writePoint p)++"\" style=\"fill:#cccccc;stroke:rgb("++(show r)++","++(show g)++","++(show b)++");stroke-width:2\"/>"
+
+    let writePolygons :: [(Color,Polygon)] -> String 
+        writePolygons p = "<svg xmlns=\"http://www.w3.org/2000/svg\">"++(concatMap writePolygon p)++"</svg>"
+
+    let colorize :: Color -> [Polygon] -> [(Color,Polygon)] 
+        colorize = zip.repeat
+
+    let rainbow@[red,green,blue,yellow,purple,teal] = map colorize [(255,0,0),(0,255,0),(0,0,255),(255,255,0),(255,0,255),(0,255,255)]
+
+    writeFile "tut0.svg" $ writePolygons (blue [[(100,100),(200,100),(200,200),(100,200)],[(200,200),(300,200),(300,300),(200,300)]])
+    -- /SVG-writer
