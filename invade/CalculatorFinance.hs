@@ -199,7 +199,7 @@ calcSharesRecommended = do
 
 calcPrice :: CDouble -> CDouble -> CDouble -> CInt -> IO CDouble
 calcPrice amount commission tax shares = do
-    return (amount - commission) / ((1.0 + tax) * var_shares)
+    return ((amount - commission) / ((1 + tax) * var_shares))
     where
         var_shares = fromIntegral shares
 
@@ -369,6 +369,7 @@ isShareCfdUS market = market `elem` markets_cfd_us
 --
 -- Export functions
 --
+{-
 foreign export ccall
     calcStoploss :: CDouble -> CInt -> CDouble -> CDouble -> CDouble -> CDouble -> IO CDouble
 
@@ -401,13 +402,15 @@ foreign export ccall
 
 foreign export ccall
     calcPrice :: CDouble -> CDouble -> CDouble -> CInt -> IO CDouble
-
+-}
 --
 -- TEST
 --
+{-
 test :: CDouble -> IO CDouble
 test ivar = do
     return(ivar * 2.0)
 
 foreign export ccall
     test :: CDouble -> IO CDouble
+-}

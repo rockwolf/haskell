@@ -10,7 +10,7 @@ GHC=ghc
 GHC_OPT=-O2 --make -no-hs-main -optl '-shared' -optc '-DMODULE=CalculatorFinance'
 
 lib-calculator_finance.so: CalculatorFinance.o module_init.o
-	$(GHC) -o $@ $(GHC_OPT) -dynamic -shared -lHSrts-ghc7.6.3 $^
+	$(GHC) -o $@ $(GHC_OPT) -dynamic -shared -lHSrts-ghc7.8.3 $^
 
 #$(GHC) -o $@ $(GHC_OPT) -lHSrts-ghc7.6.2 $^
 
