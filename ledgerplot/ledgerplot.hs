@@ -22,13 +22,13 @@ chart title borders = toRenderable layout
       $ def :: Layout PlotIndex Double
 
   bars2 = plot_bars_titles .~ ["Expenses","Income"]
-      $ plot_bars_values .~ addIndexes [[20,45],[45,30],[30,20],[70,25]]
+      $ plot_bars_values .~ addIndexes loadData
       $ plot_bars_style .~ BarsClustered
       $ plot_bars_spacing .~ BarsFixGap 30 5
       $ plot_bars_item_styles .~ map mkstyle (cycle customColorSeq)
       $ def
 
-  alabels = [ "Jun", "Jul", "Aug", "Sep", "Oct" ]
+  alabels = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ]
 
   customColorSeq = [ toAlphaColour (sRGB 255 0 0)
                      , toAlphaColour (sRGB 0 255 0)
@@ -36,6 +36,9 @@ chart title borders = toRenderable layout
   btitle = if borders then "" else " (no borders)"
   bstyle = if borders then Just (solidLine 1.0 $ opaque black) else Nothing
   mkstyle c = (solidFillStyle c, bstyle)
+
+loadData =
+    [[20,45],[45,30],[30,20],[70,25],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45]]
 
 main :: IO (PickFn ())
 main = do
