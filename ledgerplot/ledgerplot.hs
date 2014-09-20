@@ -9,6 +9,8 @@ import Data.Default.Class
 import Control.Lens
 import System.Environment(getArgs)
 
+data PlotType = IncomeVsExpenses | Networth
+
 chart :: String -> Bool -> Renderable ()
 chart title borders = toRenderable layout
  where
@@ -18,11 +20,11 @@ chart title borders = toRenderable layout
       $ layout_x_axis . laxis_generate .~ autoIndexAxis alabels
       $ layout_y_axis . laxis_override .~ axisGridHide
       $ layout_left_axis_visibility . axis_show_ticks .~ False
-      $ layout_plots .~ [ plotBars bars2 ]
+      $ layout_plots .~ [ plotBars plotData ]
       $ def :: Layout PlotIndex Double
 
-  bars2 = plot_bars_titles .~ ["Expenses","Income"]
-      $ plot_bars_values .~ addIndexes loadData
+  plotData = plot_bars_titles .~ ["Expenses","Income","P/L"]
+      $ plot_bars_values .~ addIndexes (loadData IncomeVsExpenses)
       $ plot_bars_style .~ BarsClustered
       $ plot_bars_spacing .~ BarsFixGap 30 5
       $ plot_bars_item_styles .~ map mkstyle (cycle customColorSeq)
@@ -37,8 +39,10 @@ chart title borders = toRenderable layout
   bstyle = if borders then Just (solidLine 1.0 $ opaque black) else Nothing
   mkstyle c = (solidFillStyle c, bstyle)
 
-loadData =
-    [[20,45],[45,30],[30,20],[70,25],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45]]
+loadData :: PlotType -> [[Double]]
+loadData plotType
+   | plotType == IncomeVsExpenses = 
+        [[20,45],[45,30],[30,20],[70,25],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45]]
 
 main :: IO (PickFn ())
 main = do
