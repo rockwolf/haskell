@@ -34,12 +34,13 @@ chart title borders = toRenderable layout
 
   customColorSeq = [ toAlphaColour (sRGB 255 0 0)
                      , toAlphaColour (sRGB 0 255 0)
+                     , toAlphaColour (sRGB 0 0 255)
           ]
   btitle = if borders then "" else " (no borders)"
   bstyle = if borders then Just (solidLine 1.0 $ opaque black) else Nothing
   mkstyle c = (solidFillStyle c, bstyle)
 
---loadData :: PlotType -> [[Double]]
+loadData :: PlotType -> [[Double]]
 loadData pt
     | pt == IncomeVsExpenses = [[20,45,10],[45,30,10],[30,20,10],[70,25,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10]]
     | otherwise = [[0]]
