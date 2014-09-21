@@ -9,7 +9,7 @@ import Data.Default.Class
 import Control.Lens
 import System.Environment(getArgs)
 
-data PlotType = IncomeVsExpenses | Networth
+data PlotType = IncomeVsExpenses | Networth deriving (Show, Eq)
 
 chart :: String -> Bool -> Renderable ()
 chart title borders = toRenderable layout
@@ -39,10 +39,11 @@ chart title borders = toRenderable layout
   bstyle = if borders then Just (solidLine 1.0 $ opaque black) else Nothing
   mkstyle c = (solidFillStyle c, bstyle)
 
-loadData :: PlotType -> [[Double]]
-loadData plotType
-   | plotType == IncomeVsExpenses = 
-        [[20,45],[45,30],[30,20],[70,25],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45]]
+--loadData :: PlotType -> [[Double]]
+loadData pt
+    | pt == IncomeVsExpenses = [[20,45,10],[45,30,10],[30,20,10],[70,25,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10]]
+    | otherwise = [[0]]
+
 
 main :: IO (PickFn ())
 main = do
