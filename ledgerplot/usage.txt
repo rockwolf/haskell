@@ -1,0 +1,10 @@
+Usage:
+  ledgerplot --ledger <FILE> [--income_vs_expenses] [--start-date <STARTDATE>] [--end-date <ENDDATE>] --detail -V --version
+  
+Options:
+  --ledger <FILE>
+  --income_vs_expenses [YEAR]
+  --start-date <STARTDATE>
+  --end-date <ENDDATE>
+  --detail
+  -V, --version
