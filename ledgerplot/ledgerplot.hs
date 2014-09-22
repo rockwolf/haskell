@@ -7,7 +7,8 @@ import Diagrams.Attributes
 import Data.Colour.Names
 import Data.Default.Class
 import Control.Lens
-import System.Environment(getArgs)
+import System.Console.Docopt (optionsWithUsageFile, getArg, isPresent, command,
+    argument, longOption)
 
 data PlotType = IncomeVsExpenses | Networth deriving (Show, Eq)
 
