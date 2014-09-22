@@ -1,4 +1,3 @@
-
 import Graphics.Rendering.Chart
 import Graphics.Rendering.Chart.Backend.Cairo
 import Data.Colour
@@ -7,6 +6,7 @@ import Diagrams.Attributes
 import Data.Colour.Names
 import Data.Default.Class
 import Control.Lens
+import Data.List.Split
 import System.Console.Docopt (optionsWithUsageFile, getArg, isPresent, command,
     argument, longOption)
 
@@ -46,6 +46,22 @@ loadData pt
     | pt == IncomeVsExpenses = [[20,45,10],[45,30,10],[30,20,10],[70,25,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10]]
     | otherwise = [[0]]
 
+loadAmounts :: FilePath -> IO [[Char]]
+loadAmounts fileName = do
+    lines <- readFile fileName
+    let amounts = splitOn ";" lines
+    --return $ map (filter (/= '"')) lines -- removes quotes
+    return amounts
+
+--addAmount :: IO [[Char]] -> IO [[Char]]
+--addAmount amountList = do
+--    fmap (sum 
+--    return 
+
+--TODO: write function to add the difference
+--See above... how the heck do you do this?
+--addDifference amountList = do
+--   amountList <-  
 
 main :: IO (PickFn ())
 main = do
