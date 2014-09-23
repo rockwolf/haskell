@@ -60,10 +60,9 @@ loadAmounts fileName = do
 
 --TODO: write function to add the difference
 --See above... how the heck do you do this?
-addDifference amountList [x:y:xs] = amountList [x:y:(x-y):xs]
-addDifference amountList [x:y] = amountList [x:y:(x-y)]
-addDiferenc amountList [x] = [x]
-addDifference amountList _ = []
+addDifference (x:y:xs) = [x] ++ [y] ++ [x-y] ++ (addDifference xs)
+addDifference (x:y) = (x:y)
+addDifference [] = []
 
 main :: IO (PickFn ())
 main = do

@@ -22,5 +22,5 @@ foldingFunction (x:xs) "ln" = return (log x:xs)
 foldingFunction xs "sum" = return ([sum xs])
 foldingFunction xs numberString = liftM (:xs) (readMaybe numberString) 
 
---main = do
---    putStrLn $ show (solveRPN "19 7 4 - 2 ^ -")
+main = do
+    putStrLn $ show (solveRPN "19 7 4 - 2 ^ -")
