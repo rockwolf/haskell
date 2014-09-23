@@ -43,7 +43,7 @@ chart title borders = toRenderable layout
 
 loadData :: PlotType -> [[Double]]
 loadData pt
-    | pt == IncomeVsExpenses = map addDifference $ [[20,45],[45,30],[30,20],[70,25],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45]]
+    | pt == IncomeVsExpenses = map addDifferenceToList [[20,45],[45,30],[30,20],[70,25],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45]]
     | otherwise = [[0]]
 
 loadAmounts :: FilePath -> IO [[Char]]
@@ -63,10 +63,6 @@ addDifferenceToList [] = []
 addDifferenceToList [x] = [x]
 addDifferenceToList (x:y:[]) = [x] ++ [y] ++ [x-y]
 addDifferenceToList (x:y:xs) = [x] ++ [y] ++ [x-y] ++ (addDifferenceToList xs)
-
--- | Call addDifferenceToList for each list in the given list
-addDifference (x:xs) = [x] ++ (addDifference xs)
-addDifference [] = []
 
 main :: IO (PickFn ())
 main = do
