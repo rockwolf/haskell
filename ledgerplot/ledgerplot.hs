@@ -43,7 +43,7 @@ chart title borders = toRenderable layout
 
 loadData :: PlotType -> [[Double]]
 loadData pt
-    | pt == IncomeVsExpenses = [[20,45,10],[45,30,10],[30,20,10],[70,25,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10],[20,45,10]]
+    | pt == IncomeVsExpenses = map addDifference $ [[20,45],[45,30],[30,20],[70,25],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45]]
     | otherwise = [[0]]
 
 loadAmounts :: FilePath -> IO [[Char]]
@@ -58,10 +58,14 @@ loadAmounts fileName = do
 --    fmap (sum 
 --    return 
 
---TODO: write function to add the difference
---See above... how the heck do you do this?
-addDifference (x:y:xs) = [x] ++ [y] ++ [x-y] ++ (addDifference xs)
-addDifference (x:y) = (x:y)
+-- | Add difference to list
+addDifferenceToList [] = []
+addDifferenceToList [x] = [x]
+addDifferenceToList (x:y:[]) = [x] ++ [y] ++ [x-y]
+addDifferenceToList (x:y:xs) = [x] ++ [y] ++ [x-y] ++ (addDifferenceToList xs)
+
+-- | Call addDifferenceToList for each list in the given list
+addDifference (x:xs) = [x] ++ (addDifference xs)
 addDifference [] = []
 
 main :: IO (PickFn ())
