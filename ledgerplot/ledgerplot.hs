@@ -60,8 +60,10 @@ loadAmounts fileName = do
 
 --TODO: write function to add the difference
 --See above... how the heck do you do this?
---addDifference amountList = do
---   amountList <-  
+addDifference amountList [x:y:xs] = amountList [x:y:(x-y):xs]
+addDifference amountList [x:y] = amountList [x:y:(x-y)]
+addDiferenc amountList [x] = [x]
+addDifference amountList _ = []
 
 main :: IO (PickFn ())
 main = do
