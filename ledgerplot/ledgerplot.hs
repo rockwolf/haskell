@@ -48,8 +48,8 @@ loadData pt
 
 loadAmounts :: FilePath -> IO [[Char]]
 loadAmounts fileName = do
-    lines <- readFile fileName
-    let amounts = splitOn ";" lines
+    linesRetrieved <- lines . readFile fileName
+    let amounts = splitOn ";" linesRetrieved
     --return $ map (filter (/= '"')) lines -- removes quotes
     return amounts
 
