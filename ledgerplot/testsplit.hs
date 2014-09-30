@@ -17,5 +17,13 @@ parseFileToStringList filename = do
   my_data <- readFile filename
   return (lines my_data)
 
+-- | Add difference to list
+addDifferenceToList [] = []
+addDifferenceToList [x] = [x]
+addDifferenceToList (x:y:[]) = [x] ++ [y] ++ [x-y]
+addDifferenceToList (x:y:xs) = [x] ++ [y] ++ [x-y] ++ (addDifferenceToList xs)
+
 main = do
-    parseFileToStringList "testdata.dat"
+    addDifferenceToList $ parseFileToStringList "testdata.dat"
+
+--TODO: need to make the result a list of Double, so I can add it to addDifferenceToList
