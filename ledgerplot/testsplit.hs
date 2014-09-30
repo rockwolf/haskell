@@ -11,7 +11,7 @@ parseLinesToStringList (x:xs) = (parseLinesToStringList $ parseCurrent x) ++ par
 parseCurrent :: String -> [String]
 parseCurrent c = splitOn ";" c
 
-parseFileToStringList :: FilePath -> IO [String]
+--parseFileToStringList :: FilePath -> IO [String]
 --parseFile :: FilePath -> IO [Double]
 parseFileToStringList filename = do
   my_data <- readFile filename

@@ -12,6 +12,7 @@ import System.Console.Docopt (optionsWithUsageFile, getArg, isPresent, command,
 
 data PlotType = IncomeVsExpenses | Networth deriving (Show, Eq)
 
+-- | Plotting related functions
 chart :: String -> Bool -> Renderable ()
 chart title borders = toRenderable layout
  where
@@ -41,22 +42,25 @@ chart title borders = toRenderable layout
   bstyle = if borders then Just (solidLine 1.0 $ opaque black) else Nothing
   mkstyle c = (solidFillStyle c, bstyle)
 
+-- | Data loading functions
 loadData :: PlotType -> [[Double]]
 loadData pt
     | pt == IncomeVsExpenses = map addDifferenceToList [[20,45],[45,30],[30,20],[70,25],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45]]
     | otherwise = [[0]]
 
---loadAmounts :: FilePath -> IO [[Char]]
-loadAmounts fileName = do
-    linesRetrieved <- lines . readFile fileName
-    let amounts = splitOn ";" linesRetrieved
-    --return $ map (filter (/= '"')) lines -- removes quotes
-    return amounts
+-- | Data parsing functions
+parseLinesToStringList :: [String] -> [String]
+parseLinesToStringList [] = []
+parseLinesToStringList [x] = parseCurrent x
+parseLinesToStringList (x:xs) = (parseLinesToStringList $ parseCurrent x) ++ parseLinesToStringList xs
 
---addAmount :: IO [[Char]] -> IO [[Char]]
---addAmount amountList = do
---    fmap (sum 
---    return 
+parseCurrent :: String -> [String]
+parseCurrent c = splitOn ";" c
+
+parseFileToStringList :: FilePath -> IO [String]
+parseFileToStringList filename = do
+  my_data <- readFile filename
+  return (lines my_data)
 
 -- | Add difference to list
 addDifferenceToList [] = []
@@ -64,6 +68,7 @@ addDifferenceToList [x] = [x]
 addDifferenceToList (x:y:[]) = [x] ++ [y] ++ [x-y]
 addDifferenceToList (x:y:xs) = [x] ++ [y] ++ [x-y] ++ (addDifferenceToList xs)
 
+-- | Main function
 main :: IO (PickFn ())
 main = do
     renderableToFile def "income_vs_expenses.png" $ chart "Income vs expenses" True
