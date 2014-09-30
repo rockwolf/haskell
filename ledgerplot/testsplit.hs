@@ -3,17 +3,19 @@ module Main (main) where
 import Control.Monad (liftM)
 import Data.List.Split
 
-parseLines [] = []
-parseLines [x] = parseCurrent [x]
-parseLines (x:xs) = parseCurrent [x] ++ parseLines xs
-        
+parseLinesToStringList :: [String] -> [String]
+parseLinesToStringList [] = []
+parseLinesToStringList [x] = parseCurrent x
+parseLinesToStringList (x:xs) = (parseLinesToStringList $ parseCurrent x) ++ parseLinesToStringList xs
+
+parseCurrent :: String -> [String]
 parseCurrent c = splitOn ";" c
 
+parseFileToStringList :: FilePath -> IO [String]
 --parseFile :: FilePath -> IO [Double]
-parseFile filename = do
-   myData <- liftM lines . readFile $ filename
-   --return myData
-   return parseLines myData
+parseFileToStringList filename = do
+  my_data <- readFile filename
+  return (lines my_data)
 
 main = do
-   parseFile "test.dat"
+    parseFileToStringList "testdata.dat"

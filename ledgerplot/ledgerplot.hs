@@ -46,7 +46,7 @@ loadData pt
     | pt == IncomeVsExpenses = map addDifferenceToList [[20,45],[45,30],[30,20],[70,25],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45]]
     | otherwise = [[0]]
 
-loadAmounts :: FilePath -> IO [[Char]]
+--loadAmounts :: FilePath -> IO [[Char]]
 loadAmounts fileName = do
     linesRetrieved <- lines . readFile fileName
     let amounts = splitOn ";" linesRetrieved
