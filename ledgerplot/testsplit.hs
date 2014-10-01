@@ -27,7 +27,7 @@ addDifferenceToList (x:y:xs) = [x] ++ [y] ++ [x-y] ++ (addDifferenceToList xs)
 convertListToListOfList [] = []
 convertListToListOfList [x] = []
 convertListToListOfList (x:y:[]) = [[x] ++ [y]]
-convertListToListOfList (x:y:xs) = [[x] ++ [y]] ++ (convertListOfLists [xs])
+convertListToListOfList (x:y:xs) = [[x] ++ [y]] ++ (convertListOfLists xs)
 
 main = do
     addDifferenceToList $ parseFileToStringList "testdata.dat"
