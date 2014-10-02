@@ -14,9 +14,9 @@ import System.Console.Docopt (optionsWithUsageFile, getArg, isPresent, command,
 
 data PlotType = IncomeVsExpenses | Networth deriving (Show, Eq)
 
--- | Plotting related functions
-chart :: PlotType -> String -> Bool -> Renderable ()
-chart plot_type title borders = toRenderable layout
+-- ||| Plotting
+chart :: PlotType -> [[Double]] -> String -> Bool -> Renderable ()
+chart plot_type plot_data title borders = toRenderable layout
  where
   layout = 
         layout_title .~ "Plot " ++ btitle
@@ -28,7 +28,7 @@ chart plot_type title borders = toRenderable layout
       $ def :: Layout PlotIndex Double
 
   plotData = plot_bars_titles .~ ["Expenses","Income","P/L"]
-      $ plot_bars_values .~ addIndexes (loadData plot_type)
+      $ plot_bars_values .~ addIndexes plot_data
       $ plot_bars_style .~ BarsClustered
       $ plot_bars_spacing .~ BarsFixGap 30 5
       $ plot_bars_item_styles .~ map mkstyle (cycle customColorSeq)
@@ -44,20 +44,26 @@ chart plot_type title borders = toRenderable layout
   bstyle = if borders then Just (solidLine 1.0 $ opaque black) else Nothing
   mkstyle c = (solidFillStyle c, bstyle)
 
--- | Data loading functions
+-- ||| Data loading for plot
 loadData :: PlotType -> [[Double]]
 loadData plot_type
 --    | pt == IncomeVsExpenses = map addDifferenceToList [[20,45],[45,30],[30,20],[70,25],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45]]
     | plot_type == IncomeVsExpenses = map addDifferenceToList $ loadDataFromFile plot_type "testdata.dat"
     | otherwise = [[0]]
 
-loadDataFromFile :: PlotType -> FilePath -> [[Double]]
-loadDataFromFile plot_type file_name = do
+-- ||| IO related functions
+loadDataFromFile :: FilePath -> IO [Double]
+loadDataFromFile file_name = do
     file_data <- parseFileToStringList file_name
-    let chart_data = convertListStringToDouble file_data 
+    let chart_data = convertListStringToDouble $ parseLinesToStringList file_data
     return chart_data
 
--- | Data parsing functions
+parseFileToStringList :: FilePath -> IO [String]
+parseFileToStringList filename = do
+  my_data <- readFile filename
+  return (lines my_data)
+
+-- ||| Data parsing functions
 parseLinesToStringList :: [String] -> [String]
 parseLinesToStringList [] = []
 parseLinesToStringList [x] = parseCurrent x
@@ -66,12 +72,6 @@ parseLinesToStringList (x:xs) = (parseLinesToStringList $ parseCurrent x) ++ par
 parseCurrent :: String -> [String]
 parseCurrent c = splitOn ";" c
 
-parseFileToStringList :: FilePath -> IO [String]
-parseFileToStringList filename = do
-  my_data <- readFile filename
-  return (lines my_data)
-
--- | Conversion functions
 convertListStringToDouble = map convertToDouble
 
 -- TODO: use reads?
@@ -89,7 +89,9 @@ convertListToListOfLists [x] = []
 convertListToListOfLists (x:y:[]) = [[x] ++ [y]]
 convertListToListOfLists (x:y:xs) = [[x] ++ [y]] ++ (convertListToListOfLists xs)
 
--- | Main function
+-- ||| Main
 ledgerplot :: IO (PickFn ())
 ledgerplot = do
-    renderableToFile def "income_vs_expenses.png" $ chart IncomeVsExpenses "Income vs expenses" True
+    file_data <- loadDataFromFile IncomeVsExpenses
+    let plot_data = convertListToListOfLists file_data
+    renderableToFile def "income_vs_expenses.png" $ chart IncomeVsExpenses plot_data "Income vs expenses" True
