@@ -45,11 +45,11 @@ chart plot_type plot_data title borders = toRenderable layout
   mkstyle c = (solidFillStyle c, bstyle)
 
 -- ||| Data loading for plot
-loadData :: PlotType -> [[Double]]
-loadData plot_type
---    | pt == IncomeVsExpenses = map addDifferenceToList [[20,45],[45,30],[30,20],[70,25],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45]]
-    | plot_type == IncomeVsExpenses = map addDifferenceToList $ loadDataFromFile plot_type "testdata.dat"
-    | otherwise = [[0]]
+--loadData :: PlotType -> [[Double]]
+--loadData plot_type
+----    | pt == IncomeVsExpenses = map addDifferenceToList [[20,45],[45,30],[30,20],[70,25],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45]]
+--    | plot_type == IncomeVsExpenses = map addDifferenceToList $ loadDataFromFile "testdata.dat"
+--    | otherwise = [[0]]
 
 -- ||| IO related functions
 loadDataFromFile :: FilePath -> IO [Double]
@@ -64,11 +64,17 @@ parseFileToStringList filename = do
   return (lines my_data)
 
 -- ||| Data parsing functions
+-- | Parses a list of ;-separated string to a list of strings
+-- | Example: ["12;10", "15;5"]
+-- | gives ["12", "10", "15", "5"]
 parseLinesToStringList :: [String] -> [String]
 parseLinesToStringList [] = []
 parseLinesToStringList [x] = parseCurrent x
 parseLinesToStringList (x:xs) = (parseLinesToStringList $ parseCurrent x) ++ parseLinesToStringList xs
 
+-- | Splits a ;-separated string into a list
+-- | Example: "12;10"
+-- | gives ["12", "10"]
 parseCurrent :: String -> [String]
 parseCurrent c = splitOn ";" c
 
@@ -78,20 +84,33 @@ convertListStringToDouble = map convertToDouble
 convertToDouble aString = read aString :: Double
 
 -- | Add difference to list
+-- | Example: [12, 10]
+-- | gives [12, 10, 2]
 addDifferenceToList [] = []
 addDifferenceToList [x] = [x]
 addDifferenceToList (x:y:[]) = [x] ++ [y] ++ [x-y]
 addDifferenceToList (x:y:xs) = [x] ++ [y] ++ [x-y] ++ (addDifferenceToList xs)
 
 -- | Turn list into list of lists (2 pairs)
+-- | Example: ["12", "10", "15", 5"]
+-- | gives [["12", "10"], ["15", 5"]]
 convertListToListOfLists [] = []
 convertListToListOfLists [x] = []
 convertListToListOfLists (x:y:[]) = [[x] ++ [y]]
 convertListToListOfLists (x:y:xs) = [[x] ++ [y]] ++ (convertListToListOfLists xs)
 
+-- | Add missing months
+-- | Example: [[12, 10, 2], [15, 5, 10]]
+-- | gives [[12, 10, 2], [15, 5, 10], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
+addMissingMonths [] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+addMissingMonths [x] = [x] ++ [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+addMissingMonths (x:y:[]) = [x] ++ addMissingMonths [y]
+addMissingMonths (x:y:xs) = [x] ++ [y] ++ addMissingMonths xs
+
 -- ||| Main
 ledgerplot :: IO (PickFn ())
 ledgerplot = do
-    file_data <- loadDataFromFile IncomeVsExpenses
-    let plot_data = convertListToListOfLists file_data
+    file_data <- loadDataFromFile "testdata.dat" -- IncomeVsExpenses
+    let minimal_plot_data = map addDifferenceToList $ convertListToListOfLists file_data
+    let plot_data = map addMissingMonths minimal_plot_data
     renderableToFile def "income_vs_expenses.png" $ chart IncomeVsExpenses plot_data "Income vs expenses" True
