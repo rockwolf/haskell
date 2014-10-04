@@ -58,6 +58,20 @@ loadDataFromFile file_name = do
     let chart_data = convertListStringToDouble $ parseLinesToStringList file_data
     return chart_data
 
+-- | Load, transform and plot the data for the given PlotType
+loadData :: t -> IO (PickFn ())
+loadData plot_type = do
+    file_data <- loadDataFromFile $ fromFileName IncomeVsExpenses
+    let minimal_plot_data = map addDifferenceToList $ convertListToListOfLists file_data
+    let plot_data = addMissingMonths minimal_plot_data
+    renderableToFile def "income_vs_expenses.png" $ chart IncomeVsExpenses plot_data "Income vs expenses" True
+
+-- | Get the correct filename for the given PlotType
+fromFileName :: PlotType -> String
+fromFileName plot_type
+    | plot_type == IncomeVsExpenses = "testdata.dat" 
+    | otherwise = "testdata.dat"
+
 parseFileToStringList :: FilePath -> IO [String]
 parseFileToStringList filename = do
   my_data <- readFile filename
@@ -115,7 +129,5 @@ getMissingMonthsEmpty missing_months = take missing_months $ repeat [0,0,0]
 -- ||| Main
 main :: IO (PickFn ())
 main = do
-    file_data <- loadDataFromFile "testdata.dat" -- IncomeVsExpenses
-    let minimal_plot_data = map addDifferenceToList $ convertListToListOfLists file_data
-    let plot_data = addMissingMonths minimal_plot_data
-    renderableToFile def "income_vs_expenses.png" $ chart IncomeVsExpenses plot_data "Income vs expenses" True
+    let plot_type = IncomeVsExpenses
+    loadData plot_type
