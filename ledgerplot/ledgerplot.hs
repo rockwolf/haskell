@@ -15,8 +15,8 @@ import System.Console.Docopt (optionsWithUsageFile, getArg, isPresent, command,
 data PlotType = IncomeVsExpenses | Networth deriving (Show, Eq)
 
 -- ||| Plotting
-chart :: PlotType -> [[Double]] -> String -> Bool -> Renderable ()
-chart plot_type plot_data title_main borders = toRenderable layout
+chart :: PlotType -> [[Double]] -> String -> [String] -> Bool -> Renderable ()
+chart plot_type plot_data title_main titles_series borders = toRenderable layout
  where
   layout = 
         layout_title .~ title_main ++ " " ++ btitle
@@ -27,7 +27,7 @@ chart plot_type plot_data title_main borders = toRenderable layout
       $ layout_plots .~ [ plotBars plotData ]
       $ def :: Layout PlotIndex Double
 
-  plotData = plot_bars_titles .~ ["Expenses","Income","P/L"]
+  plotData = plot_bars_titles .~ titles_series
       $ plot_bars_values .~ addIndexes plot_data
       $ plot_bars_style .~ BarsClustered
       $ plot_bars_spacing .~ BarsFixGap 30 5
@@ -59,18 +59,40 @@ loadDataFromFile file_name = do
     return chart_data
 
 -- | Load, transform and plot the data for the given PlotType
-loadData :: t -> IO (PickFn ())
+loadData :: PlotType -> IO (PickFn ())
 loadData plot_type = do
-    file_data <- loadDataFromFile $ fromFileName IncomeVsExpenses
+    file_data <- loadDataFromFile $ fromFileName plot_type
     let minimal_plot_data = map addDifferenceToList $ convertListToListOfLists file_data
     let plot_data = addMissingMonths minimal_plot_data
-    renderableToFile def "income_vs_expenses.png" $ chart IncomeVsExpenses plot_data "Income vs expenses" True
+    renderableToFile def to_file $ chart plot_type plot_data title_main titles_series True
+  where
+    to_file = toFileName plot_type
+    title_main = getTitleMain plot_type
+    titles_series = getTitlesSeries plot_type
 
 -- | Get the correct filename for the given PlotType
 fromFileName :: PlotType -> String
 fromFileName plot_type
     | plot_type == IncomeVsExpenses = "testdata.dat" 
     | otherwise = "testdata.dat"
+
+-- | Get the correct output filename for the given PlotType
+toFileName :: PlotType -> String
+toFileName plot_type
+    | plot_type == IncomeVsExpenses = "income_vs_expenses.png"
+    | otherwise = "income_vs_expenses.png"
+
+-- | Get the correct main title for the given PlotType
+getTitleMain :: PlotType -> String
+getTitleMain plot_type
+    | plot_type == IncomeVsExpenses = "Income vs expenses"
+    | otherwise = "Income vs expenses"
+
+-- | Get the correct names for the series in the given PlotType
+getTitlesSeries :: PlotType -> [String]
+getTitlesSeries plot_type
+    | plot_type == IncomeVsExpenses = ["Expenses","Income","P/L"]
+    | otherwise = ["Expenses","Income","P/L"]
 
 parseFileToStringList :: FilePath -> IO [String]
 parseFileToStringList filename = do
