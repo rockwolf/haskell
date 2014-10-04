@@ -12,6 +12,7 @@ import Data.List.Split
 import System.Console.Docopt (optionsWithUsageFile, getArg, isPresent, command,
     argument, longOption)
 
+-- ||| Declaration of datatypes
 data PlotType = IncomeVsExpenses | Networth deriving (Show, Eq)
 
 -- ||| Plotting
@@ -34,7 +35,7 @@ chart plot_type plot_data title_main titles_series borders = toRenderable layout
       $ plot_bars_item_styles .~ map mkstyle (cycle customColorSeq)
       $ def
 
-  alabels = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ]
+  alabels = getLabelsSeries plot_type
 
   customColorSeq = [ toAlphaColour (sRGB 255 0 0)
                      , toAlphaColour (sRGB 0 255 0)
@@ -45,13 +46,6 @@ chart plot_type plot_data title_main titles_series borders = toRenderable layout
   mkstyle c = (solidFillStyle c, bstyle)
 
 -- ||| Data loading for plot
---loadData :: PlotType -> [[Double]]
---loadData plot_type
-----    | pt == IncomeVsExpenses = map addDifferenceToList [[20,45],[45,30],[30,20],[70,25],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45],[20,45]]
---    | plot_type == IncomeVsExpenses = map addDifferenceToList $ loadDataFromFile "testdata.dat"
---    | otherwise = [[0]]
-
--- ||| IO related functions
 loadDataFromFile :: FilePath -> IO [Double]
 loadDataFromFile file_name = do
     file_data <- parseFileToStringList file_name
@@ -94,6 +88,13 @@ getTitlesSeries plot_type
     | plot_type == IncomeVsExpenses = ["Expenses","Income","P/L"]
     | otherwise = ["Expenses","Income","P/L"]
 
+-- | Get the labels for the series of the given PlotType
+getLabelsSeries :: PlotType -> [String]
+getLabelsSeries plot_type
+    | plot_type == IncomeVsExpenses = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ]
+    | otherwise = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ]
+
+-- | Return file content as a list of (IO) strings.
 parseFileToStringList :: FilePath -> IO [String]
 parseFileToStringList filename = do
   my_data <- readFile filename
@@ -114,9 +115,11 @@ parseLinesToStringList (x:xs) = (parseLinesToStringList $ parseCurrent x) ++ par
 parseCurrent :: String -> [String]
 parseCurrent c = splitOn ";" c
 
+-- | Converst list of strings to list of double values
 convertListStringToDouble :: [String] -> [Double]
 convertListStringToDouble = map convertToDouble
 
+-- | Convert String to Double datatype
 -- TODO: use reads?
 convertToDouble :: String -> Double
 convertToDouble aString = read aString :: Double
