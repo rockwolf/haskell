@@ -78,9 +78,11 @@ parseLinesToStringList (x:xs) = (parseLinesToStringList $ parseCurrent x) ++ par
 parseCurrent :: String -> [String]
 parseCurrent c = splitOn ";" c
 
+convertListStringToDouble :: [String] -> [Double]
 convertListStringToDouble = map convertToDouble
 
 -- TODO: use reads?
+convertToDouble :: String -> Double
 convertToDouble aString = read aString :: Double
 
 -- | Add difference to list
@@ -102,15 +104,18 @@ convertListToListOfLists (x:y:xs) = [[x] ++ [y]] ++ (convertListToListOfLists xs
 -- | Add missing months
 -- | Example: [[12, 10, 2], [15, 5, 10]]
 -- | gives [[12, 10, 2], [15, 5, 10], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
-addMissingMonths [] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-addMissingMonths [x] = [x] ++ [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-addMissingMonths (x:y:[]) = [x] ++ addMissingMonths [y]
-addMissingMonths (x:y:xs) = [x] ++ [y] ++ addMissingMonths xs
+addMissingMonths [] = getMissingMonthsEmpty 12
+addMissingMonths [x] = [x] ++ getMissingMonthsEmpty 11
+addMissingMonths (x:y:[]) = [x] ++ [y] ++ getMissingMonthsEmpty 10
+addMissingMonths (x:y:xs) = [x] ++ [y] ++ xs ++ getMissingMonthsEmpty (10 - length xs)
+
+-- | Returns a list of [0,0,0] elements for <missing_months> elements
+getMissingMonthsEmpty missing_months = take missing_months $ repeat [0,0,0]
 
 -- ||| Main
 ledgerplot :: IO (PickFn ())
 ledgerplot = do
     file_data <- loadDataFromFile "testdata.dat" -- IncomeVsExpenses
     let minimal_plot_data = map addDifferenceToList $ convertListToListOfLists file_data
-    let plot_data = map addMissingMonths minimal_plot_data
+    let plot_data = addMissingMonths minimal_plot_data
     renderableToFile def "income_vs_expenses.png" $ chart IncomeVsExpenses plot_data "Income vs expenses" True
