@@ -1,4 +1,4 @@
-module Ledgerplot (ledgerplot) where
+module Main (main) where
 
 import Graphics.Rendering.Chart
 import Graphics.Rendering.Chart.Backend.Cairo
@@ -16,10 +16,10 @@ data PlotType = IncomeVsExpenses | Networth deriving (Show, Eq)
 
 -- ||| Plotting
 chart :: PlotType -> [[Double]] -> String -> Bool -> Renderable ()
-chart plot_type plot_data title borders = toRenderable layout
+chart plot_type plot_data title_main borders = toRenderable layout
  where
   layout = 
-        layout_title .~ "Plot " ++ btitle
+        layout_title .~ title_main ++ " " ++ btitle
       $ layout_title_style . font_size .~ 10
       $ layout_x_axis . laxis_generate .~ autoIndexAxis alabels
       $ layout_y_axis . laxis_override .~ axisGridHide
@@ -113,8 +113,8 @@ addMissingMonths (x:y:xs) = [x] ++ [y] ++ xs ++ getMissingMonthsEmpty (10 - leng
 getMissingMonthsEmpty missing_months = take missing_months $ repeat [0,0,0]
 
 -- ||| Main
-ledgerplot :: IO (PickFn ())
-ledgerplot = do
+main :: IO (PickFn ())
+main = do
     file_data <- loadDataFromFile "testdata.dat" -- IncomeVsExpenses
     let minimal_plot_data = map addDifferenceToList $ convertListToListOfLists file_data
     let plot_data = addMissingMonths minimal_plot_data
