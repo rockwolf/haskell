@@ -14,6 +14,7 @@ import System.Console.Docopt (optionsWithUsageFile, getArg, isPresent, command,
 
 -- ||| Declaration of datatypes
 data PlotType = IncomeVsExpenses | Networth deriving (Show, Eq)
+data PlotPeriod = All | Year | Period | PeriodDetail deriving (Show, Eq)
 
 -- ||| Plotting
 chart :: PlotType -> [[Double]] -> String -> [String] -> Bool -> Renderable ()
@@ -52,34 +53,35 @@ loadDataFromFile file_name = do
     let chart_data = convertListStringToDouble $ parseLinesToStringList file_data
     return chart_data
 
--- | Load, transform and plot the data for the given PlotType
-loadData :: PlotType -> IO (PickFn ())
-loadData plot_type = do
-    file_data <- loadDataFromFile $ fromFileName plot_type
+-- | Load, transform and plot the data for the given PlotType and PlotPeriod
+loadData :: PlotType -> PlotPeriod -> IO (PickFn ())
+loadData plot_type plot_period = do
+    file_data <- loadDataFromFile from_file
     let minimal_plot_data = map addDifferenceToList $ convertListToListOfLists file_data
     let plot_data = addMissingMonths minimal_plot_data
     renderableToFile def to_file $ chart plot_type plot_data title_main titles_series True
   where
-    to_file = toFileName plot_type
-    title_main = getTitleMain plot_type
+    from_file = fromFileName plot_type plot_period
+    to_file = toFileName plot_type plot_period
+    title_main = getTitleMain plot_type plot_period
     titles_series = getTitlesSeries plot_type
 
--- | Get the correct filename for the given PlotType
-fromFileName :: PlotType -> String
-fromFileName plot_type
-    | plot_type == IncomeVsExpenses = "testdata.dat" 
+-- | Get the correct filename for the given PlotType and PlotPeriod
+fromFileName :: PlotType -> PlotPeriod -> String
+fromFileName plot_type plot_period
+    | (plot_type == IncomeVsExpenses) && (plot_period == All) = "testdata.dat" 
     | otherwise = "testdata.dat"
 
--- | Get the correct output filename for the given PlotType
-toFileName :: PlotType -> String
-toFileName plot_type
-    | plot_type == IncomeVsExpenses = "income_vs_expenses.png"
+-- | Get the correct output filename for the given PlotType and PlotPeriod
+toFileName :: PlotType -> PlotPeriod -> String
+toFileName plot_type plot_period
+    | (plot_type == IncomeVsExpenses) && (plot_period == All) = "income_vs_expenses.png"
     | otherwise = "income_vs_expenses.png"
 
--- | Get the correct main title for the given PlotType
-getTitleMain :: PlotType -> String
-getTitleMain plot_type
-    | plot_type == IncomeVsExpenses = "Income vs expenses"
+-- | Get the correct main title for the given PlotType and PlotPeriod
+getTitleMain :: PlotType -> PlotPeriod -> String
+getTitleMain plot_type plot_period
+    | (plot_type == IncomeVsExpenses) && (plot_period == All) = "Income vs expenses"
     | otherwise = "Income vs expenses"
 
 -- | Get the correct names for the series in the given PlotType
@@ -91,6 +93,7 @@ getTitlesSeries plot_type
 -- | Get the labels for the series of the given PlotType
 getLabelsSeries :: PlotType -> [String]
 getLabelsSeries plot_type
+    -- TODO: add period/yearly/monthly destinction
     | plot_type == IncomeVsExpenses = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ]
     | otherwise = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ]
 
@@ -154,5 +157,7 @@ getMissingMonthsEmpty missing_months = take missing_months $ repeat [0,0,0]
 -- ||| Main
 main :: IO (PickFn ())
 main = do
+    -- TODO: implement command line parameter parsing with docopt
     let plot_type = IncomeVsExpenses
-    loadData plot_type
+    let plot_period = All
+    loadData plot_type plot_period
