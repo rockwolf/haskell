@@ -99,7 +99,8 @@ getLabelsSeries plot_type
 parseFileToStringList :: FilePath -> IO [String]
 parseFileToStringList filename = do
   my_data <- readFile filename
-  return (lines my_data)
+  -- TODO: what if there is no summary at the end?
+  return $ dropLastN 2 (lines my_data)
 
 -- ||| Data parsing functions
 -- | Parses a list of ;-separated string to a list of strings
@@ -151,6 +152,11 @@ addMissingMonths (x:y:xs) = [x] ++ [y] ++ xs ++ getMissingMonthsEmpty (10 - leng
 
 -- | Returns a list of [0,0,0] elements for <missing_months> elements
 getMissingMonthsEmpty missing_months = take missing_months $ repeat [0,0,0]
+
+-- ||| General functions
+-- | Drop the last n elements from a list
+dropLastN :: Int -> [a] -> [a]
+droplastN n xs = foldl' (const . drop 1) xs (drop n xs)
 
 -- ||| Main
 main :: IO (PickFn ())
