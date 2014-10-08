@@ -9,6 +9,7 @@ import Data.Colour.Names
 import Data.Default.Class
 import Control.Lens
 import Data.List.Split
+import Data.Text (strip)
 import System.Console.Docopt (optionsWithUsageFile, getArg, isPresent, command,
     argument, longOption)
 
@@ -113,7 +114,7 @@ parseLinesToStringList (x:xs) = (parseLinesToStringList $ parseCurrent x) ++ par
 -- | Example: "12;10"
 -- | gives ["12", "10"]
 parseCurrent :: String -> [String]
-parseCurrent c = splitOn ";" c
+parseCurrent c = splitOn ";" (strip c)
 
 -- | Converst list of strings to list of double values
 convertListStringToDouble :: [String] -> [Double]
