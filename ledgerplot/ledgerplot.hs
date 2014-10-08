@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Main (main) where
 
 import Graphics.Rendering.Chart
@@ -9,7 +10,7 @@ import Data.Colour.Names
 import Data.Default.Class
 import Control.Lens
 import Data.List.Split
-import Data.Text (strip)
+import Data.List
 import System.Console.Docopt (optionsWithUsageFile, getArg, isPresent, command,
     argument, longOption)
 
@@ -118,7 +119,7 @@ parseLinesToStringList (x:xs) = (parseLinesToStringList $ parseCurrent x) ++ par
 -- | Example: "12;10"
 -- | gives ["12", "10"]
 parseCurrent :: String -> [String]
-parseCurrent c = splitOn ";" (strip c)
+parseCurrent c = splitOn ";" $ filter (/=' ') c
 
 -- | Converst list of strings to list of double values
 convertListStringToDouble :: [String] -> [Double]
@@ -159,7 +160,7 @@ getMissingMonthsEmpty missing_months = take missing_months $ repeat [0,0,0]
 -- ||| General functions
 -- | Drop the last n elements from a list
 dropLastN :: Int -> [a] -> [a]
-droplastN n xs = foldl' (const . drop 1) xs (drop n xs)
+dropLastN n xs = foldl' (const . drop 1) xs (drop n xs)
 
 -- ||| Main
 main :: IO (PickFn ())
