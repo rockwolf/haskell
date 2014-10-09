@@ -16,7 +16,7 @@ import System.Console.Docopt (optionsWithUsageFile, getArg, isPresent, command,
 
 -- ||| Declaration of datatypes
 data PlotType = IncomeVsExpenses | Networth deriving (Show, Eq)
-data PlotPeriod = All | Year | Period | PeriodDetail deriving (Show, Eq)
+data PlotPeriod = All | AllMonthly | Year | YearMonthly | Period | PeriodMonthly deriving (Show, Eq)
 
 -- ||| Plotting
 chart :: PlotType -> [[Double]] -> String -> [String] -> Bool -> Renderable ()
@@ -162,6 +162,13 @@ getMissingMonthsEmpty missing_months = take missing_months $ repeat [0,0,0]
 dropLastN :: Int -> [a] -> [a]
 dropLastN n xs = foldl' (const . drop 1) xs (drop n xs)
 
+-- | Option parsing functions
+getPlotPeriodFromOptions :: PlotType -> Boolean -> PlotPeriod
+getPlotPeriodFromOptions plot_type plot_detail plot_year 
+  | (PlotType == IncomeVsExpenses) = if plot_detail then
+-- TODO: find a good way to determine the plotPeriod, based on the input options.  
+
+
 -- ||| Main
 main :: IO (PickFn ())
 main = do
@@ -170,16 +177,26 @@ main = do
     print opts
     putStrLn ""
     when (opts `isPresent` (longOption "income-vs-expenses")) $ do
-        putStrLn " --income-vs-expenses"
+        let plot_type = IncomeVsExpenses
+    --when (opts `isPresent` (longOption "networth")) $ do
+    --    let plot_type = Networth
+    when (opts `isPresent` (longOption "year")) $ do
+        plot_year <- opts `getArg` (argument "year")
+        putStrLn " --year="
     when (opts `isPresent` (longOption "start-date")) $ do
-        start_date <- opts `getArg` (argument "start-date")
+        plot_start_date <- opts `getArg` (argument "start-date")
         putStrLn " --start-date"
     when (opts `isPresent` (longOption "end-date")) $ do
-        end_date <- opts `getArg` (argument "end-date")
+        plot_end_date <- opts `getArg` (argument "end-date")
         putStrLn " --end-date"
+    when (opts `isPresent` (longOption "detail")) $ do
+        let plot_detail = True
+        putStrLn " --detail"
     
-    putStrLn $ " --start-date=" ++ show start_date
-    putStrLn $ " --end-date=" ++ show end_date
+    putStrLn $ " --start-date=" ++ show plot_start_date
+    putStrLn $ " --end-date=" ++ show plot_end_date
+    putStrLn $ " --year=" ++ show plot_year
+    
     
     let plot_type = IncomeVsExpenses
     let plot_period = All
