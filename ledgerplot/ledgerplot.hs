@@ -166,6 +166,22 @@ dropLastN n xs = foldl' (const . drop 1) xs (drop n xs)
 main :: IO (PickFn ())
 main = do
     -- TODO: implement command line parameter parsing with docopt
+    opts <- optionsWithUsageFileDebug "USAGE.txt"
+    print opts
+    putStrLn ""
+    when (opts `isPresent` (longOption "income-vs-expenses")) $ do
+        putStrLn " --income-vs-expenses"
+    when (opts `isPresent` (longOption "start-date")) $ do
+        start_date <- opts `getArg` (argument "start-date")
+        putStrLn " --start-date"
+    when (opts `isPresent` (longOption "end-date")) $ do
+        end_date <- opts `getArg` (argument "end-date")
+        putStrLn " --end-date"
+    
+    putStrLn $ " --start-date=" ++ show start_date
+    putStrLn $ " --end-date=" ++ show end_date
+    
     let plot_type = IncomeVsExpenses
     let plot_period = All
     loadData plot_type plot_period
+    exitSuccess
