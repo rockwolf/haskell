@@ -160,7 +160,11 @@ getMissingMonthsEmpty missing_months = take missing_months $ repeat [0,0,0]
 -- ||| General functions
 -- | Drop the last n elements from a list
 dropLastN :: Int -> [a] -> [a]
-dropLastN n xs = foldl' (const . drop 1) xs (drop n xs)
+dropLastN n xs = reverse $ foldl' (const . drop 1) (reverse xs) (drop n xs)
+
+-- | Get the last n elements from a list
+getLastN :: Int -> [a] -> [a]
+getLastN n xs = foldl' (const . drop 1) xs (drop n xs)
 
 -- | Option parsing functions
 getPlotPeriodFromOptions :: PlotType -> Boolean -> PlotPeriod
