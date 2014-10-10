@@ -49,16 +49,16 @@ chart plot_type plot_data title_main titles_series borders = toRenderable layout
   mkstyle c = (solidFillStyle c, bstyle)
 
 -- ||| Data loading for plot
-loadDataFromFile :: FilePath -> IO [Double]
-loadDataFromFile file_name = do
-    file_data <- parseFileToStringList file_name
+loadDataFromFile :: FilePath -> PlotType -> IO [Double]
+loadDataFromFile file_name plot_type = do
+    file_data <- parseFileToStringList file_name plot_type
     let chart_data = convertListStringToDouble $ parseLinesToStringList file_data
     return chart_data
 
 -- | Load, transform and plot the data for the given PlotType and PlotPeriod
 loadData :: PlotType -> PlotPeriod -> IO (PickFn ())
 loadData plot_type plot_period = do
-    file_data <- loadDataFromFile from_file
+    file_data <- loadDataFromFile from_file plot_type
     let minimal_plot_data = map addDifferenceToList $ convertListToListOfLists file_data
     let plot_data = addMissingMonths minimal_plot_data
     renderableToFile def to_file $ chart plot_type plot_data title_main titles_series True
@@ -100,11 +100,16 @@ getLabelsSeries plot_type
     | otherwise = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ]
 
 -- | Return file content as a list of (IO) strings.
-parseFileToStringList :: FilePath -> IO [String]
-parseFileToStringList filename = do
+parseFileToStringList :: FilePath -> PlotType -> IO [String]
+parseFileToStringList filename plot_type = do
   my_data <- readFile filename
-  -- TODO: what if there is no summary at the end?
-  return $ dropLastN 2 (lines my_data)
+  return $ if hasSummary plot_type then dropLastN 2 (lines my_data) else (lines my_data)
+
+-- | Returns boolean that's true if the PlotType has a summary of totals as the last 2 lines
+hasSummary :: PlotType -> Boolean
+hasSummary plot_type
+    | IncomeVsExpenses = True
+    | otherwise = False
 
 -- ||| Data parsing functions
 -- | Parses a list of ;-separated string to a list of strings
@@ -141,6 +146,7 @@ addDifferenceToList (x:y:xs) = [x] ++ [y] ++ [x-y] ++ (addDifferenceToList xs)
 -- | Turn list into list of lists (2 pairs)
 -- | Example: ["12", "10", "15", 5"]
 -- | gives [["12", "10"], ["15", 5"]]
+convertListToListOfLists :: [a] -> [[a]]
 convertListToListOfLists [] = []
 convertListToListOfLists [x] = []
 convertListToListOfLists (x:y:[]) = [[x] ++ [y]]
@@ -149,12 +155,14 @@ convertListToListOfLists (x:y:xs) = [[x] ++ [y]] ++ (convertListToListOfLists xs
 -- | Add missing months
 -- | Example: [[12, 10, 2], [15, 5, 10]]
 -- | gives [[12, 10, 2], [15, 5, 10], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
+addMissingMonths :: [[Double]] -> [[Double]]
 addMissingMonths [] = getMissingMonthsEmpty 12
 addMissingMonths [x] = [x] ++ getMissingMonthsEmpty 11
 addMissingMonths (x:y:[]) = [x] ++ [y] ++ getMissingMonthsEmpty 10
 addMissingMonths (x:y:xs) = [x] ++ [y] ++ xs ++ getMissingMonthsEmpty (10 - length xs)
 
 -- | Returns a list of [0,0,0] elements for <missing_months> elements
+getMissingMonthsEmpty :: Int -> [Double]
 getMissingMonthsEmpty missing_months = take missing_months $ repeat [0,0,0]
 
 -- ||| General functions
