@@ -8,9 +8,11 @@ import Data.Colour.SRGB
 import Diagrams.Attributes
 import Data.Colour.Names
 import Data.Default.Class
-import Control.Lens
+import Control.Lens hiding (argument)
 import Data.List.Split
 import Data.List
+import Control.Monad (when)
+import System.Exit (exitSuccess)
 import System.Console.Docopt (optionsWithUsageFile, getArg, isPresent, command,
     argument, longOption)
 
@@ -52,16 +54,15 @@ chart plot_type plot_data title_main titles_series borders = toRenderable layout
 loadDataFromFile :: FilePath -> PlotType -> IO [Double]
 loadDataFromFile file_name plot_type = do
     file_data <- parseFileToStringList file_name plot_type
-    let chart_data = convertListStringToDouble $ parseLinesToStringList file_data
-    return chart_data
+    return $ convertListStringToDouble $ parseLinesToStringList file_data
 
 -- | Load, transform and plot the data for the given PlotType and PlotPeriod
 loadData :: PlotType -> PlotPeriod -> IO (PickFn ())
 loadData plot_type plot_period = do
     file_data <- loadDataFromFile from_file plot_type
     let minimal_plot_data = map addDifferenceToList $ convertListToListOfLists file_data
-    let plot_data = addMissingMonths minimal_plot_data
-    renderableToFile def to_file $ chart plot_type plot_data title_main titles_series True
+    --let plot_data = map addMissingMonths $ minimal_plot_data
+    renderableToFile def to_file $ chart plot_type minimal_plot_data title_main titles_series True
   where
     from_file = fromFileName plot_type plot_period
     to_file = toFileName plot_type plot_period
@@ -106,9 +107,9 @@ parseFileToStringList filename plot_type = do
   return $ if hasSummary plot_type then dropLastN 2 (lines my_data) else (lines my_data)
 
 -- | Returns boolean that's true if the PlotType has a summary of totals as the last 2 lines
-hasSummary :: PlotType -> Boolean
+hasSummary :: PlotType -> Bool
 hasSummary plot_type
-    | IncomeVsExpenses = True
+    | plot_type == IncomeVsExpenses = True
     | otherwise = False
 
 -- ||| Data parsing functions
@@ -146,7 +147,7 @@ addDifferenceToList (x:y:xs) = [x] ++ [y] ++ [x-y] ++ (addDifferenceToList xs)
 -- | Turn list into list of lists (2 pairs)
 -- | Example: ["12", "10", "15", 5"]
 -- | gives [["12", "10"], ["15", 5"]]
-convertListToListOfLists :: [a] -> [[a]]
+--convertListToListOfLists :: [a] -> [[a]]
 convertListToListOfLists [] = []
 convertListToListOfLists [x] = []
 convertListToListOfLists (x:y:[]) = [[x] ++ [y]]
@@ -155,14 +156,14 @@ convertListToListOfLists (x:y:xs) = [[x] ++ [y]] ++ (convertListToListOfLists xs
 -- | Add missing months
 -- | Example: [[12, 10, 2], [15, 5, 10]]
 -- | gives [[12, 10, 2], [15, 5, 10], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
-addMissingMonths :: [[Double]] -> [[Double]]
+--addMissingMonths :: [[Double]] -> [[Double]]
 addMissingMonths [] = getMissingMonthsEmpty 12
 addMissingMonths [x] = [x] ++ getMissingMonthsEmpty 11
 addMissingMonths (x:y:[]) = [x] ++ [y] ++ getMissingMonthsEmpty 10
 addMissingMonths (x:y:xs) = [x] ++ [y] ++ xs ++ getMissingMonthsEmpty (10 - length xs)
 
 -- | Returns a list of [0,0,0] elements for <missing_months> elements
-getMissingMonthsEmpty :: Int -> [Double]
+--getMissingMonthsEmpty :: Int -> [Double]
 getMissingMonthsEmpty missing_months = take missing_months $ repeat [0,0,0]
 
 -- ||| General functions
@@ -175,40 +176,38 @@ getLastN :: Int -> [a] -> [a]
 getLastN n xs = foldl' (const . drop 1) xs (drop n xs)
 
 -- | Option parsing functions
-getPlotPeriodFromOptions :: PlotType -> Boolean -> PlotPeriod
-getPlotPeriodFromOptions plot_type plot_detail plot_year 
-  | (PlotType == IncomeVsExpenses) = if plot_detail then
+--getPlotPeriodFromOptions :: PlotType -> Boolean -> PlotPeriod
+--getPlotPeriodFromOptions plot_type plot_detail plot_year 
+--  | (PlotType == IncomeVsExpenses) = if plot_detail then 
 -- TODO: find a good way to determine the plotPeriod, based on the input options.  
-
 
 -- ||| Main
 main :: IO (PickFn ())
 main = do
     -- TODO: implement command line parameter parsing with docopt
-    opts <- optionsWithUsageFileDebug "USAGE.txt"
+    opts <- optionsWithUsageFile "USAGE.txt"
+    
     print opts
     putStrLn ""
+
     when (opts `isPresent` (longOption "income-vs-expenses")) $ do
         let plot_type = IncomeVsExpenses
-    --when (opts `isPresent` (longOption "networth")) $ do
-    --    let plot_type = Networth
+        putStrLn "--income-vs-expenses"
+    when (opts `isPresent` (longOption "networth")) $ do
+        let plot_type = Networth
+        putStrLn "--networth"
     when (opts `isPresent` (longOption "year")) $ do
         plot_year <- opts `getArg` (argument "year")
-        putStrLn " --year="
+        putStrLn $ " --year=" ++ show plot_year
     when (opts `isPresent` (longOption "start-date")) $ do
         plot_start_date <- opts `getArg` (argument "start-date")
-        putStrLn " --start-date"
+        putStrLn $ " --start-date=" ++ show plot_start_date
     when (opts `isPresent` (longOption "end-date")) $ do
         plot_end_date <- opts `getArg` (argument "end-date")
-        putStrLn " --end-date"
+        putStrLn $ " --end-date=" ++ show plot_end_date
     when (opts `isPresent` (longOption "detail")) $ do
         let plot_detail = True
         putStrLn " --detail"
-    
-    putStrLn $ " --start-date=" ++ show plot_start_date
-    putStrLn $ " --end-date=" ++ show plot_end_date
-    putStrLn $ " --year=" ++ show plot_year
-    
     
     let plot_type = IncomeVsExpenses
     let plot_period = All
