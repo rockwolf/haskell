@@ -1,11 +1,9 @@
 Usage:
-  ledgerplot --ledger <FILE> [--income_vs_expenses] [--start-date=<STARTDATE> --end-date=<ENDDATE> | --year=<year>] --detail -V --version
+  ledgerplot --ledger=<FILE> [--income_vs_expenses|--networth] [--start-date=<STARTDATE> --end-date=<ENDDATE> | --year=<year>] [--detail] [-V] [--version]
   
 Options:
   --ledger=<FILE>
-  --income_vs_expenses
-  --year=[YEAR]
-  --start-date=<STARTDATE>
-  --end-date=<ENDDATE>
-  --detail
-  -V, --version
+  [--income_vs_expenses|--networth]
+  [--start-date=<STARTDATE> --end-date=<ENDDATE>|--year=<YEAR>]
+  [--detail]
+  [-V], [--version]

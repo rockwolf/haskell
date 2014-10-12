@@ -185,7 +185,7 @@ getLastN n xs = foldl' (const . drop 1) xs (drop n xs)
 main :: IO (PickFn ())
 main = do
     -- TODO: implement command line parameter parsing with docopt
-    opts <- optionsWithUsageFile "USAGE.txt"
+    opts <- optionsWithUsageFile "usage.txt"
     
     print opts
     putStrLn ""
