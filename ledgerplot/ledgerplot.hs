@@ -61,8 +61,8 @@ loadData :: PlotType -> PlotPeriod -> IO (PickFn ())
 loadData plot_type plot_period = do
     file_data <- loadDataFromFile from_file plot_type
     let minimal_plot_data = map addDifferenceToList $ convertListToListOfLists file_data
-    --let plot_data = map addMissingMonths $ minimal_plot_data
-    renderableToFile def to_file $ chart plot_type minimal_plot_data title_main titles_series True
+    let plot_data = addMissingMonths minimal_plot_data
+    renderableToFile def to_file $ chart plot_type plot_data title_main titles_series True
   where
     from_file = fromFileName plot_type plot_period
     to_file = toFileName plot_type plot_period
