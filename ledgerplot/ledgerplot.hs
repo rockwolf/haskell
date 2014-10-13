@@ -139,6 +139,7 @@ convertToDouble aString = read aString :: Double
 -- | Add difference to list
 -- | Example: [12, 10]
 -- | gives [12, 10, 2]
+addDifferenceToList :: Num t => [t] -> [t]
 addDifferenceToList [] = []
 addDifferenceToList [x] = [x]
 addDifferenceToList (x:y:[]) = [x] ++ [y] ++ [x-y]
@@ -147,7 +148,7 @@ addDifferenceToList (x:y:xs) = [x] ++ [y] ++ [x-y] ++ (addDifferenceToList xs)
 -- | Turn list into list of lists (2 pairs)
 -- | Example: ["12", "10", "15", 5"]
 -- | gives [["12", "10"], ["15", 5"]]
---convertListToListOfLists :: [a] -> [[a]]
+convertListToListOfLists :: [a] -> [[a]]
 convertListToListOfLists [] = []
 convertListToListOfLists [x] = []
 convertListToListOfLists (x:y:[]) = [[x] ++ [y]]
@@ -156,14 +157,14 @@ convertListToListOfLists (x:y:xs) = [[x] ++ [y]] ++ (convertListToListOfLists xs
 -- | Add missing months
 -- | Example: [[12, 10, 2], [15, 5, 10]]
 -- | gives [[12, 10, 2], [15, 5, 10], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
---addMissingMonths :: [[Double]] -> [[Double]]
+addMissingMonths :: Num t => [[t]] -> [[t]]
 addMissingMonths [] = getMissingMonthsEmpty 12
 addMissingMonths [x] = [x] ++ getMissingMonthsEmpty 11
 addMissingMonths (x:y:[]) = [x] ++ [y] ++ getMissingMonthsEmpty 10
 addMissingMonths (x:y:xs) = [x] ++ [y] ++ xs ++ getMissingMonthsEmpty (10 - length xs)
 
 -- | Returns a list of [0,0,0] elements for <missing_months> elements
---getMissingMonthsEmpty :: Int -> [Double]
+getMissingMonthsEmpty :: Num t => Int -> [[t]]
 getMissingMonthsEmpty missing_months = take missing_months $ repeat [0,0,0]
 
 -- ||| General functions
@@ -190,6 +191,7 @@ main = do
     print opts
     putStrLn ""
 
+    -- plot_type is gone after this... there is no state!
     when (opts `isPresent` (longOption "income-vs-expenses")) $ do
         let plot_type = IncomeVsExpenses
         putStrLn "--income-vs-expenses"
