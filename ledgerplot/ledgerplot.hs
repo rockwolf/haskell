@@ -195,21 +195,31 @@ main = do
     when (opts `isPresent` (longOption "income-vs-expenses")) $ do
         let plot_type = IncomeVsExpenses
         putStrLn "--income-vs-expenses"
+        when (opts `isPresent` (longOption "year")) $ do
+            plot_year <- opts `getArg` (argument "year")
+            putStrLn $ " --year=" ++ show plot_year
+        when ((opts `isPresent` (longOption "start-date")) && (opts `isPresent` (longOption "end-date"))) $ do
+            plot_start_date <- opts `getArg` (argument "start-date")
+            putStrLn $ " --start-date=" ++ show plot_start_date
+            plot_end_date <- opts `getArg` (argument "end-date")
+            putStrLn $ " --end-date=" ++ show plot_end_date
+        when (opts `isPresent` (longOption "detail")) $ do
+            let plot_detail = True
+            putStrLn " --detail"
     when (opts `isPresent` (longOption "networth")) $ do
         let plot_type = Networth
         putStrLn "--networth"
-    when (opts `isPresent` (longOption "year")) $ do
-        plot_year <- opts `getArg` (argument "year")
-        putStrLn $ " --year=" ++ show plot_year
-    when (opts `isPresent` (longOption "start-date")) $ do
-        plot_start_date <- opts `getArg` (argument "start-date")
-        putStrLn $ " --start-date=" ++ show plot_start_date
-    when (opts `isPresent` (longOption "end-date")) $ do
-        plot_end_date <- opts `getArg` (argument "end-date")
-        putStrLn $ " --end-date=" ++ show plot_end_date
-    when (opts `isPresent` (longOption "detail")) $ do
-        let plot_detail = True
-        putStrLn " --detail"
+        when (opts `isPresent` (longOption "year")) $ do
+            plot_year <- opts `getArg` (argument "year")
+            putStrLn $ " --year=" ++ show plot_year
+        when ((opts `isPresent` (longOption "start-date")) && (opts `isPresent` (longOption "end-date"))) $ do
+            plot_start_date <- opts `getArg` (argument "start-date")
+            putStrLn $ " --start-date=" ++ show plot_start_date
+            plot_end_date <- opts `getArg` (argument "end-date")
+            putStrLn $ " --end-date=" ++ show plot_end_date
+        when (opts `isPresent` (longOption "detail")) $ do
+            let plot_detail = True
+            putStrLn " --detail"
     
     let plot_type = IncomeVsExpenses
     let plot_period = All
