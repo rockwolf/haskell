@@ -194,7 +194,7 @@ main = do
     -- plot_type is gone after this... there is no state!
     when (opts `isPresent` (longOption "income-vs-expenses")) $ do
         let plot_type = IncomeVsExpenses
-        putStrLn "--income-vs-expenses"
+        putStrLn " --income-vs-expenses"
         when (opts `isPresent` (longOption "year")) $ do
             plot_year <- opts `getArg` (argument "year")
             putStrLn $ " --year=" ++ show plot_year
@@ -208,7 +208,7 @@ main = do
             putStrLn " --detail"
     when (opts `isPresent` (longOption "networth")) $ do
         let plot_type = Networth
-        putStrLn "--networth"
+        putStrLn " --networth"
         when (opts `isPresent` (longOption "year")) $ do
             plot_year <- opts `getArg` (argument "year")
             putStrLn $ " --year=" ++ show plot_year
@@ -220,8 +220,10 @@ main = do
         when (opts `isPresent` (longOption "detail")) $ do
             let plot_detail = True
             putStrLn " --detail"
-    
-    let plot_type = IncomeVsExpenses
-    let plot_period = All
-    loadData plot_type plot_period
+
+    -- NOTE: you can put the below 3 lines in the when statements, if you end that when with a putStrLn.
+    -- But this is too much repetition. A better way must be found.
+    --let plot_type = IncomeVsExpenses
+    --let plot_period = All
+    --loadData plot_type plot_period
     exitSuccess
