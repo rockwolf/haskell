@@ -1,3 +1,5 @@
 <apply template="base">
-  <apply template="_login"/>
+
+<apply template="_login"/>
+
 </apply>
