@@ -24,6 +24,9 @@
         </li>
         <ifLoggedIn>
         <li>
+            <a href="/reports" title="reports">reports</a>
+        </li>
+        <li>
             <a href="/new_user" title="new_user">new_user</a>
         </li>
         <li>
