@@ -24,7 +24,13 @@
         </li>
         <ifLoggedIn>
         <li>
+            <a href="/trading" title="trading">trading</a>
+        </li>
+        <li>
             <a href="/reports" title="reports">reports</a>
+        </li>
+        <li>
+            <a href="/links" title="links">links</a>
         </li>
         <li>
             <a href="/new_user" title="new_user">new_user</a>
