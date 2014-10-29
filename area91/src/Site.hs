@@ -65,6 +65,7 @@ routes :: [(ByteString, Handler App App ())]
 routes = [ ("/login",    with auth handleLoginSubmit)
          , ("/logout",   with auth handleLogout)
          , ("/new_user", with auth handleNewUser)
+         --, ("/reports", with auth handleReports)
          , ("",          serveDirectory "static")
          ]
 
