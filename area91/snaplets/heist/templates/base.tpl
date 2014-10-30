@@ -27,6 +27,9 @@
             <a href="/trading" title="trading">trading</a>
         </li>
         <li>
+            <a href="/leverage" title="leverage">leverage</a>
+        </li>
+        <li>
             <a href="/reports" title="reports">reports</a>
         </li>
         <li>
