@@ -84,12 +84,17 @@ handleNewUser = method GET handleForm <|> method POST handleFormSubmit
 --    err = Just "Unknown user or password"
 
 ------------------------------------------------------------------------------
+-- | Handle drawdown submit
+--TODO: invent this
+
+------------------------------------------------------------------------------
 -- | The application's routes.
 routes :: [(ByteString, Handler App App ())]
 routes = [ ("/login",    with auth handleLoginSubmit)
          , ("/logout",   with auth handleLogout)
          , ("/new_user", with auth handleNewUser)
          , ("/leverage", with auth handleLeverageSubmit)
+         , ("/drawdown", with auth handleDrawDownSubmit)
          --, ("/reports", with auth handleReports)
          , ("",          serveDirectory "static")
          ]
