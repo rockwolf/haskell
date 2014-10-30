@@ -21,10 +21,18 @@ import           Snap.Snaplet.Session.Backends.CookieSession
 import           Snap.Util.FileServe
 import           Heist
 import qualified Heist.Interpreted as I
+import Database.PostgreSQL.Simple.FromRow
 ------------------------------------------------------------------------------
 import           Application
 
-
+------------------------------------------------------------------------------
+-- | Database related functions
+instance FromRow Project where
+    fromRow = Project <$> field <*> field
+  
+instance Show Project where
+    show (Project title description) =
+      "Project { title: " ++ T.unpack title ++ ", description: " ++ T.unpack description ++ " }n"
 ------------------------------------------------------------------------------
 -- | Render login form
 handleLogin :: Maybe T.Text -> Handler App (AuthManager App) ()
