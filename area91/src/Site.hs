@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 ------------------------------------------------------------------------------
 -- | This module is where all the routes and handlers are defined for your
@@ -12,6 +13,7 @@ module Site
 import           Control.Applicative
 import           Data.ByteString (ByteString)
 import qualified Data.Text as T
+import           Snap (get)
 import           Snap.Core
 import           Snap.Snaplet
 import           Snap.Snaplet.Auth
@@ -22,17 +24,22 @@ import           Snap.Util.FileServe
 import           Heist
 import qualified Heist.Interpreted as I
 import Database.PostgreSQL.Simple.FromRow
+import Snap.Snaplet.PostgresqlSimple
 ------------------------------------------------------------------------------
 import           Application
 
 ------------------------------------------------------------------------------
 -- | Database related functions
-instance FromRow Project where
-    fromRow = Project <$> field <*> field
+
+instance HasPostgres (Handler b App) where
+    getPostgresState = with pg get
+
+--instance FromRow Project where
+--    fromRow = Project <$> field <*> field
   
-instance Show Project where
-    show (Project title description) =
-      "Project { title: " ++ T.unpack title ++ ", description: " ++ T.unpack description ++ " }n"
+--instance Show Project where
+--    show (Project title description) =
+--      "Project { title: " ++ T.unpack title ++ ", description: " ++ T.unpack description ++ " }n"
 ------------------------------------------------------------------------------
 -- | Render login form
 handleLogin :: Maybe T.Text -> Handler App (AuthManager App) ()
@@ -76,8 +83,8 @@ handleNewUser = method GET handleForm <|> method POST handleFormSubmit
 -- n - 3 = X -> round (Y / 3), Y TBD
 -- e.g. 0 -> 0
 -- 
---handleLoginSubmit :: Handler App (AuthManager App) ()
---handleLoginSubmit =
+--handleLeverageSubmit :: Handler App (AuthManager App) ()
+handleLeverageSubmit = Nothing
 --    loginUser "Number of contracts" "password" Nothing
 --              (\_ -> handleLogin err) (redirect "/")
 --  where
@@ -86,6 +93,8 @@ handleNewUser = method GET handleForm <|> method POST handleFormSubmit
 ------------------------------------------------------------------------------
 -- | Handle drawdown submit
 --TODO: invent this
+--handleDrawDownSubmit :: Handler App (AuthManager App) ()
+handleDrawDownSubmit = Nothing
 
 ------------------------------------------------------------------------------
 -- | The application's routes.
@@ -93,8 +102,8 @@ routes :: [(ByteString, Handler App App ())]
 routes = [ ("/login",    with auth handleLoginSubmit)
          , ("/logout",   with auth handleLogout)
          , ("/new_user", with auth handleNewUser)
-         , ("/leverage", with auth handleLeverageSubmit)
-         , ("/drawdown", with auth handleDrawDownSubmit)
+         --, ("/leverage", with auth handleLeverageSubmit)
+         --, ("/drawdown", with auth handleDrawDownSubmit)
          --, ("/reports", with auth handleReports)
          , ("",          serveDirectory "static")
          ]
