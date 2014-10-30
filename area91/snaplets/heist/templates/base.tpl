@@ -30,6 +30,9 @@
             <a href="/leverage" title="leverage">leverage</a>
         </li>
         <li>
+            <a href="/drawdown" title="drawdown">drawdown</a>
+        </li>
+        <li>
             <a href="/reports" title="reports">reports</a>
         </li>
         <li>
