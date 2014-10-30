@@ -68,11 +68,28 @@ handleNewUser = method GET handleForm <|> method POST handleFormSubmit
 
 
 ------------------------------------------------------------------------------
+-- | Handle leverage submit
+-- TODO: write function with accompanying form to calculate leverage contracts:
+-- Number of contracts = n
+-- Thus the leveraged number of contracts to use, becomes:
+-- n - 3 <= 0 -> round (0 / 3) 
+-- n - 3 = X -> round (Y / 3), Y TBD
+-- e.g. 0 -> 0
+-- 
+--handleLoginSubmit :: Handler App (AuthManager App) ()
+--handleLoginSubmit =
+--    loginUser "Number of contracts" "password" Nothing
+--              (\_ -> handleLogin err) (redirect "/")
+--  where
+--    err = Just "Unknown user or password"
+
+------------------------------------------------------------------------------
 -- | The application's routes.
 routes :: [(ByteString, Handler App App ())]
 routes = [ ("/login",    with auth handleLoginSubmit)
          , ("/logout",   with auth handleLogout)
          , ("/new_user", with auth handleNewUser)
+         , ("/leverage", with auth handleLeverageSubmit)
          --, ("/reports", with auth handleReports)
          , ("",          serveDirectory "static")
          ]
