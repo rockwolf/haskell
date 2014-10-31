@@ -29,17 +29,26 @@ import Snap.Snaplet.PostgresqlSimple
 import           Application
 
 ------------------------------------------------------------------------------
+-- | Database related data types
+
+data Project = Project
+  { title       :: T.Text
+  , description :: T.Text
+  }
+  
+  
+------------------------------------------------------------------------------
 -- | Database related functions
 
 instance HasPostgres (Handler b App) where
     getPostgresState = with pg get
 
---instance FromRow Project where
---    fromRow = Project <$> field <*> field
+instance FromRow Project where
+    fromRow = Project <$> field <*> field
   
---instance Show Project where
---    show (Project title description) =
---      "Project { title: " ++ T.unpack title ++ ", description: " ++ T.unpack description ++ " }n"
+instance Show Project where
+    show (Project title description) =
+      "Project { title: " ++ T.unpack title ++ ", description: " ++ T.unpack description ++ " }n"
 ------------------------------------------------------------------------------
 -- | Render login form
 handleLogin :: Maybe T.Text -> Handler App (AuthManager App) ()
