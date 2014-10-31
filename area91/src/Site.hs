@@ -101,7 +101,7 @@ handleLeverageSubmit = Nothing
 --    err = Just "Unknown user or password"
 
 -- Note: use show to transform an int to a string for display
-getLeveragedNumberOfContracts n = ceiling (n / 3.0) - 1
+getLeveragedNumberOfContracts n = ceiling (n / 3.0) - 1 + n
 
 ------------------------------------------------------------------------------
 -- | Handle drawdown submit
