@@ -82,7 +82,8 @@ handleNewUser = method GET handleForm <|> method POST handleFormSubmit
 -- n - 3 <= 0 -> round (0 / 3) 
 -- n - 3 = X -> round (Y / 3), Y TBD
 -- e.g. 0 -> 0
--- 
+-- NOTE: the correct algorithm is:
+-- res = ceiling(n/3) - 1
 --handleLeverageSubmit :: Handler App (AuthManager App) ()
 handleLeverageSubmit = Nothing
 --    loginUser "Number of contracts" "password" Nothing
