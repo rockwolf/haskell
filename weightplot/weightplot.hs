@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Main (main) where
+--module Main (main) where
 
 import Graphics.Rendering.Chart
 import Graphics.Rendering.Chart.Backend.Cairo
@@ -13,8 +13,6 @@ import Data.List.Split
 import Data.List
 import Control.Monad (when)
 import System.Exit (exitSuccess)
-import System.Console.Docopt (optionsWithUsageFile, getArg, isPresent, command,
-    argument, longOption)
 
 -- ||| Declaration of datatypes
 
@@ -28,7 +26,7 @@ chart plot_data title_main titles_series borders = toRenderable layout
       $ layout_x_axis . laxis_generate .~ autoIndexAxis alabels
       $ layout_y_axis . laxis_override .~ axisGridHide
       $ layout_left_axis_visibility . axis_show_ticks .~ False
-      $ layout_plots .~ [ plotLines plotData ]
+      $ layout_plots .~ [ plotBars plotData ]
       $ def :: Layout PlotIndex Double
 
   plotData = plot_bars_titles .~ titles_series
@@ -57,7 +55,7 @@ loadDataFromFile file_name = do
 -- | Load, transform and plot the data
 loadData :: IO (PickFn ())
 loadData = do
-    file_data <- loadDataFromFile fromFile
+    file_data <- loadDataFromFile from_file
     let minimal_plot_data = map removeDateFromList $ map addIdealWeightToList $ convertListToListOfLists file_data
     let plot_data = addMissingMonths minimal_plot_data
     renderableToFile def to_file $ chart plot_data title_main titles_series True
@@ -71,6 +69,11 @@ loadData = do
 getLabelsSeries :: [String]
 getLabelsSeries = 
     [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ]
+
+-- | Get the titles for the series
+getTitlesSeries :: [String]
+getTitlesSeries = 
+    [ "Weight", "Ideal" ]
 
 -- | Return file content as a list of (IO) strings.
 parseFileToStringList :: FilePath -> IO [String]
@@ -105,7 +108,7 @@ convertToDouble aString = read aString :: Double
 -- | Add difference to list
 -- | Example: [12, 10]
 -- | gives [12, 10, 2]
-addIdealWeightToList :: Num t => [t] -> [t]
+--addIdealWeightToList :: Num t => [t] -> [t]
 addIdealWeightToList [] = []
 addIdealWeightToList [x] = [x]
 addIdealWeightToList (x:y:[]) = [x] ++ [y] ++ [getIdealWeight]

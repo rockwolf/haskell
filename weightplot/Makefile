@@ -1,5 +1,5 @@
 GHC=ghc
-GHC_OPT=-O2 --make -no-hs-main -optl '-shared' -optc '-DMODULE=WeightPlot'
+GHC_OPT=-O2 --make -no-hs-main -optl '-shared' -optc '-DMODULE=Main'
 
 
 weightplot: weightplot.hs
