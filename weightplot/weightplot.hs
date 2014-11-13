@@ -24,12 +24,12 @@ chart :: [[Double]] -> String -> [String] -> Bool -> Renderable ()
 chart plot_data title_main titles_series borders = toRenderable layout
  where
    weight1 = plot_lines_style . line_color .~ customColorSeq!!2
-           $ plot_lines_values .~ [ [ (d,v) | (d,v,_) <- prices'] ]
+           $ plot_lines_values .~ [ [ (d,v) | (d,v,_) <- weightValues'] ]
            $ plot_lines_title .~ titles_series!!1
            $ def
 
     weight2 = plot_lines_style . line_color .~ customColorSeq!!3
-           $ plot_lines_values .~ [ [ (d,v) | (d,_,v) <- prices'] ]
+           $ plot_lines_values .~ [ [ (d,v) | (d,_,v) <- weightValues'] ]
            $ plot_lines_title .~ titles_series!!2
            $ def
 
