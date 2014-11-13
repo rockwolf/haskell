@@ -1,4 +1,4 @@
-module Prices where
+module WeightValues where
 
 import Data.Time.Calendar
 import Data.Time.LocalTime
@@ -301,7 +301,7 @@ rawValues = [
 weightValues :: [(LocalTime,Double,Double)]
 weightValues = [ (mkDate dd mm yyyy, p1, p2) | (dd,mm,yyyy,p1,p2) <- rawPrices ]
 
-filterPrices prices t1 t2 = [ v | v@(d,_,_) <- prices
+filterValues weight_values t1 t2 = [ v | v@(d,_,_) <- weight_values
                                 , let t = d in t >= t1 && t <= t2]
 
 mkDate dd mm yyyy =
