@@ -34,6 +34,7 @@ chart plot_data title_main titles_series borders = toRenderable layout
            $ def
 
     layout = layoutlr_title .~ title_main
+           $ layoutlr_plot_background .~ customColorSeq!!1
            $ layoutlr_left_axis . laxis_override .~ axisGridHide
            $ layoutlr_right_axis . laxis_override .~ axisGridHide
            $ layoutlr_x_axis . laxis_override .~ axisGridHide
@@ -41,7 +42,7 @@ chart plot_data title_main titles_series borders = toRenderable layout
                                 Right (toPlot weight2)]
            $ layoutlr_grid_last .~ False
 
-  customColorSeq = [ toAlphaColour (sRGB 255 0 0)
+  customColorSeq = [ toAlphaColour (sRGB 255 100 100)
                      , toAlphaColour (sRGB 0 255 0)
                      , toAlphaColour (sRGB 0 0 255)
           ]
