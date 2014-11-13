@@ -23,18 +23,18 @@ import WeightValues(weightValues,mkDate,filterValues)
 chart :: [[Double]] -> String -> [String] -> Bool -> Renderable ()
 chart plot_data title_main titles_series borders = toRenderable layout
  where
-   {--weight1 = plot_lines_style . line_color .~ opaque blue --(customColorSeq!!2)
+    weight1 = plot_lines_style . line_color .~ (customColorSeq!!1)
            $ plot_lines_values .~ [ [ (d,v) | (d,v,_) <- weightValues'] ]
-           $ plot_lines_title .~ "test1" --(titles_series!!1)
+           $ plot_lines_title .~ (titles_series!!0)
            $ def
 
-   weight2 = plot_lines_style . line_color .~ opaque green --(customColorSeq!!3)
+    weight2 = plot_lines_style . line_color .~ (customColorSeq!!2)
            $ plot_lines_values .~ [ [ (d,v) | (d,_,v) <- weightValues'] ]
-           $ plot_lines_title .~ "test2" --(titles_series!!2)
+           $ plot_lines_title .~ (titles_series!!1)
            $ def
- 
+
     layout = layoutlr_title .~ title_main
---           $ layoutlr_plot_background .~ (customColorSeq!!1)
+           $ layoutlr_plot_background .~ Just (solidFillStyle $ customColorSeq!!0)
            $ layoutlr_left_axis . laxis_override .~ axisGridHide
            $ layoutlr_right_axis . laxis_override .~ axisGridHide
            $ layoutlr_x_axis . laxis_override .~ axisGridHide
@@ -42,29 +42,10 @@ chart plot_data title_main titles_series borders = toRenderable layout
                                 Right (toPlot weight2)]
            $ layoutlr_grid_last .~ False
            $ def
-    --}
-    price1 = plot_lines_style . line_color .~ opaque blue
-           $ plot_lines_values .~ [ [ (d,v) | (d,v,_) <- weightValues'] ]
-           $ plot_lines_title .~ "price 1"
-           $ def
-
-    price2 = plot_lines_style . line_color .~ opaque green
-           $ plot_lines_values .~ [ [ (d,v) | (d,_,v) <- weightValues'] ]
-           $ plot_lines_title .~ "price 2"
-           $ def
-
-    layout = layoutlr_title .~"Price History"
-           $ layoutlr_left_axis . laxis_override .~ axisGridHide
-           $ layoutlr_right_axis . laxis_override .~ axisGridHide
-           $ layoutlr_x_axis . laxis_override .~ axisGridHide
-           $ layoutlr_plots .~ [Left (toPlot price1),
-                                Right (toPlot price2)]
-           $ layoutlr_grid_last .~ False
-           $ def
  
-    customColorSeq = [ toAlphaColour (sRGB 255 100 100)
-                     , toAlphaColour (sRGB 0 255 0)
-                     , toAlphaColour (sRGB 0 0 255)
+    customColorSeq = [ toAlphaColour (sRGB 253 246 227) -- background color
+                     , toAlphaColour (sRGB 0 255 0) -- weight 1
+                     , toAlphaColour (sRGB 0 0 255) -- weight 2
           ]
 
 -- ||| Data loading for plot
