@@ -111,8 +111,8 @@ convertToDouble aString = read aString :: Double
 --addIdealWeightToList :: Num t => [t] -> [t]
 addIdealWeightToList [] = []
 addIdealWeightToList [x] = [x]
-addIdealWeightToList (x:y:[]) = [x] ++ [y] ++ [getIdealWeight]
-addIdealWeightToList (x:y:xs) = [x] ++ [y] ++ [getIdealWeight] ++ (addIdealWeightToList xs)
+addIdealWeightToList (x:y:[]) = [x] ++ [y] ++ [74.0]
+addIdealWeightToList (x:y:xs) = [x] ++ [y] ++ [74.0] ++ (addIdealWeightToList xs)
 
 --getIdealWeight :: Num t
 getIdealWeight = 74.0
