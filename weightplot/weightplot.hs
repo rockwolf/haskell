@@ -13,6 +13,10 @@ import Data.List.Split
 import Data.List
 import Control.Monad (when)
 import System.Exit (exitSuccess)
+import Data.Time.LocalTime
+import Graphics.Rendering.Chart.Easy
+
+import Weights(prices,mkDate,filterPrices)
 
 -- ||| Declaration of datatypes
 
@@ -58,22 +62,22 @@ loadData = do
     file_data <- loadDataFromFile from_file
     let minimal_plot_data = map removeDateFromList $ map addIdealWeightToList $ convertListToListOfLists file_data
     let plot_data = addMissingMonths minimal_plot_data
-    renderableToFile def to_file $ chart plot_data title_main titles_series True
+    toFile def to_file $ do
+    layoutlr_title .= title_main
+    layoutlr_left_axis . laxis_override .= axisGridHide
+    layoutlr_right_axis . laxis_override .= axisGridHide
+    plotLeft (line title_1 [ [ (d,v) | (d,v,_) <- weightValues'] ])
+    plotRight (line title_2 [ [ (d,v) | (d,_,v) <- weightValues'] ])
   where
     from_file = "data.dat"
     to_file = "data.png"
     title_main = "Weight vs ideal weight"
-    titles_series = getTitlesSeries
+    title_1 = "weight"
+    title_2 = "ideal"
 
--- | Get the labels for the series
-getLabelsSeries :: [String]
-getLabelsSeries = 
-    [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ]
-
--- | Get the titles for the series
-getTitlesSeries :: [String]
-getTitlesSeries = 
-    [ "Weight", "Ideal" ]
+-- TODO: fix this, it's no longer prices.
+weightValues' :: [(LocalTime,Double,Double)]
+weightValues' = filterPrices prices (mkDate 1 1 2005) (mkDate 31 12 2006)
 
 -- | Return file content as a list of (IO) strings.
 parseFileToStringList :: FilePath -> IO [String]
