@@ -14,7 +14,6 @@ import Data.List
 import Control.Monad (when)
 import System.Exit (exitSuccess)
 import Data.Time.LocalTime
-import Graphics.Rendering.Chart.Easy
 
 import WeightValues(weight_values,mkDate,filterValues)
 
@@ -24,31 +23,28 @@ import WeightValues(weight_values,mkDate,filterValues)
 chart :: [[Double]] -> String -> [String] -> Bool -> Renderable ()
 chart plot_data title_main titles_series borders = toRenderable layout
  where
-  layout = 
-        layout_title .~ title_main ++ " " ++ btitle
-      $ layout_title_style . font_size .~ 10
-      $ layout_x_axis . laxis_generate .~ autoIndexAxis alabels
-      $ layout_y_axis . laxis_override .~ axisGridHide
-      $ layout_left_axis_visibility . axis_show_ticks .~ False
-      $ layout_plots .~ [ plotBars plotData ]
-      $ def :: Layout PlotIndex Double
+   weight1 = plot_lines_style . line_color .~ customColorSeq!!2
+           $ plot_lines_values .~ [ [ (d,v) | (d,v,_) <- prices'] ]
+           $ plot_lines_title .~ titles_series!!1
+           $ def
 
-  plotData = plot_bars_titles .~ titles_series
-      $ plot_bars_values .~ addIndexes plot_data
-      $ plot_bars_style .~ BarsClustered
-      $ plot_bars_spacing .~ BarsFixGap 30 5
-      $ plot_bars_item_styles .~ map mkstyle (cycle customColorSeq)
-      $ def
+    weight2 = plot_lines_style . line_color .~ customColorSeq!!3
+           $ plot_lines_values .~ [ [ (d,v) | (d,_,v) <- prices'] ]
+           $ plot_lines_title .~ titles_series!!2
+           $ def
 
-  alabels = getLabelsSeries
+    layout = layoutlr_title .~ title_main
+           $ layoutlr_left_axis . laxis_override .~ axisGridHide
+           $ layoutlr_right_axis . laxis_override .~ axisGridHide
+           $ layoutlr_x_axis . laxis_override .~ axisGridHide
+           $ layoutlr_plots .~ [Left (toPlot weight1),
+                                Right (toPlot weight2)]
+           $ layoutlr_grid_last .~ False
 
   customColorSeq = [ toAlphaColour (sRGB 255 0 0)
                      , toAlphaColour (sRGB 0 255 0)
                      , toAlphaColour (sRGB 0 0 255)
           ]
-  btitle = if borders then "" else " (no borders)"
-  bstyle = if borders then Just (solidLine 1.0 $ opaque black) else Nothing
-  mkstyle c = (solidFillStyle c, bstyle)
 
 -- ||| Data loading for plot
 loadDataFromFile :: FilePath -> IO [Double]
@@ -62,18 +58,12 @@ loadData = do
     file_data <- loadDataFromFile from_file
     let minimal_plot_data = map removeDateFromList $ map addIdealWeightToList $ convertListToListOfLists file_data
     let plot_data = addMissingMonths minimal_plot_data
-    toFile def to_file $ do
-    layoutlr_title .= title_main
-    layoutlr_left_axis . laxis_override .= axisGridHide
-    layoutlr_right_axis . laxis_override .= axisGridHide
-    plotLeft (line title_1 [ [ (d,v) | (d,v,_) <- weightValues'] ])
-    plotRight (line title_2 [ [ (d,v) | (d,_,v) <- weightValues'] ])
+    renderableToFile def to_file $ chart plot_data title_main titles_series True
   where
     from_file = "data.dat"
     to_file = "data.png"
     title_main = "Weight vs ideal weight"
-    title_1 = "weight"
-    title_2 = "ideal"
+    title_series = ["weight", "ideal"]
 
 -- TODO: fix this, it's no longer prices.
 weightValues' :: [(LocalTime,Double,Double)]
