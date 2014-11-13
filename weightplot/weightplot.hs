@@ -13,6 +13,9 @@ import Data.List.Split
 import Data.List
 import Control.Monad (when)
 import System.Exit (exitSuccess)
+import Data.Time.LocalTime
+
+import WeightValues(weight_values,mkDate,filterValues)
 
 -- ||| Declaration of datatypes
 
@@ -20,31 +23,29 @@ import System.Exit (exitSuccess)
 chart :: [[Double]] -> String -> [String] -> Bool -> Renderable ()
 chart plot_data title_main titles_series borders = toRenderable layout
  where
-  layout = 
-        layout_title .~ title_main ++ " " ++ btitle
-      $ layout_title_style . font_size .~ 10
-      $ layout_x_axis . laxis_generate .~ autoIndexAxis alabels
-      $ layout_y_axis . laxis_override .~ axisGridHide
-      $ layout_left_axis_visibility . axis_show_ticks .~ False
-      $ layout_plots .~ [ plotBars plotData ]
-      $ def :: Layout PlotIndex Double
+   weight1 = plot_lines_style . line_color .~ customColorSeq!!2
+           $ plot_lines_values .~ [ [ (d,v) | (d,v,_) <- weightValues'] ]
+           $ plot_lines_title .~ titles_series!!1
+           $ def
 
-  plotData = plot_bars_titles .~ titles_series
-      $ plot_bars_values .~ addIndexes plot_data
-      $ plot_bars_style .~ BarsClustered
-      $ plot_bars_spacing .~ BarsFixGap 30 5
-      $ plot_bars_item_styles .~ map mkstyle (cycle customColorSeq)
-      $ def
+    weight2 = plot_lines_style . line_color .~ customColorSeq!!3
+           $ plot_lines_values .~ [ [ (d,v) | (d,_,v) <- weightValues'] ]
+           $ plot_lines_title .~ titles_series!!2
+           $ def
 
-  alabels = getLabelsSeries
+    layout = layoutlr_title .~ title_main
+           $ layoutlr_plot_background .~ customColorSeq!!1
+           $ layoutlr_left_axis . laxis_override .~ axisGridHide
+           $ layoutlr_right_axis . laxis_override .~ axisGridHide
+           $ layoutlr_x_axis . laxis_override .~ axisGridHide
+           $ layoutlr_plots .~ [Left (toPlot weight1),
+                                Right (toPlot weight2)]
+           $ layoutlr_grid_last .~ False
 
-  customColorSeq = [ toAlphaColour (sRGB 255 0 0)
+  customColorSeq = [ toAlphaColour (sRGB 255 100 100)
                      , toAlphaColour (sRGB 0 255 0)
                      , toAlphaColour (sRGB 0 0 255)
           ]
-  btitle = if borders then "" else " (no borders)"
-  bstyle = if borders then Just (solidLine 1.0 $ opaque black) else Nothing
-  mkstyle c = (solidFillStyle c, bstyle)
 
 -- ||| Data loading for plot
 loadDataFromFile :: FilePath -> IO [Double]
@@ -63,17 +64,11 @@ loadData = do
     from_file = "data.dat"
     to_file = "data.png"
     title_main = "Weight vs ideal weight"
-    titles_series = getTitlesSeries
+    title_series = ["weight", "ideal"]
 
--- | Get the labels for the series
-getLabelsSeries :: [String]
-getLabelsSeries = 
-    [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ]
-
--- | Get the titles for the series
-getTitlesSeries :: [String]
-getTitlesSeries = 
-    [ "Weight", "Ideal" ]
+-- TODO: fix this, it's no longer prices.
+weightValues' :: [(LocalTime,Double,Double)]
+weightValues' = filterPrices prices (mkDate 1 1 2005) (mkDate 31 12 2006)
 
 -- | Return file content as a list of (IO) strings.
 parseFileToStringList :: FilePath -> IO [String]
@@ -118,12 +113,20 @@ addIdealWeightToList (x:y:xs) = [x] ++ [y] ++ [74.0] ++ (addIdealWeightToList xs
 getIdealWeight = 74.0
 
 -- | Remove first element from list
--- | Example: [20141112;82.3;20141113;82.1]
+-- | Example: [20141112;82.3;a comment;20141113;82.1;another comment]
 -- | gives: [82.3;82.1]
 removeDateFromList [] = []
 removeDateFromList [x] = []
 removeDateFromList (x:y:[]) = [y]
 removeDateFromList (x:y:xs) = [y] ++ (removeDateFromList xs)
+
+-- | Remove last element from list
+-- | Example: [20141112;82.3;a comment;20141113;82.1another comment]
+-- | gives: [20141112;82.3;20141113;82.1]
+removeCommentFromList [] = []
+removeCommentFromList [x] = []
+removeCommentFromList (x:y:[]) = [x] ++ [y]
+removeCommentFromList (x:y:xs) = [x] ++ [y] ++ (removeDateFromList xs)
 
 -- | Turn list into list of lists (2 pairs)
 -- | Example: ["12", "10", "15", 5"]
