@@ -299,7 +299,7 @@ rawValues = [
     ]
 
 weightValues :: [(LocalTime,Double,Double)]
-weightValues = [ (mkDate dd mm yyyy, p1, p2) | (dd,mm,yyyy,p1,p2) <- rawPrices ]
+weightValues = [ (mkDate dd mm yyyy, p1, p2) | (dd,mm,yyyy,p1,p2) <- rawValues ]
 
 filterValues weight_values t1 t2 = [ v | v@(d,_,_) <- weight_values
                                 , let t = d in t >= t1 && t <= t2]

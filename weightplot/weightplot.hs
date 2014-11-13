@@ -15,7 +15,7 @@ import Control.Monad (when)
 import System.Exit (exitSuccess)
 import Data.Time.LocalTime
 
-import WeightValues(weight_values,mkDate,filterValues)
+import WeightValues(weightValues,mkDate,filterValues)
 
 -- ||| Declaration of datatypes
 
@@ -23,26 +23,46 @@ import WeightValues(weight_values,mkDate,filterValues)
 chart :: [[Double]] -> String -> [String] -> Bool -> Renderable ()
 chart plot_data title_main titles_series borders = toRenderable layout
  where
-   weight1 = plot_lines_style . line_color .~ customColorSeq!!2
+   {--weight1 = plot_lines_style . line_color .~ opaque blue --(customColorSeq!!2)
            $ plot_lines_values .~ [ [ (d,v) | (d,v,_) <- weightValues'] ]
-           $ plot_lines_title .~ titles_series!!1
+           $ plot_lines_title .~ "test1" --(titles_series!!1)
            $ def
 
-    weight2 = plot_lines_style . line_color .~ customColorSeq!!3
+   weight2 = plot_lines_style . line_color .~ opaque green --(customColorSeq!!3)
            $ plot_lines_values .~ [ [ (d,v) | (d,_,v) <- weightValues'] ]
-           $ plot_lines_title .~ titles_series!!2
+           $ plot_lines_title .~ "test2" --(titles_series!!2)
            $ def
-
+ 
     layout = layoutlr_title .~ title_main
-           $ layoutlr_plot_background .~ customColorSeq!!1
+--           $ layoutlr_plot_background .~ (customColorSeq!!1)
            $ layoutlr_left_axis . laxis_override .~ axisGridHide
            $ layoutlr_right_axis . laxis_override .~ axisGridHide
            $ layoutlr_x_axis . laxis_override .~ axisGridHide
            $ layoutlr_plots .~ [Left (toPlot weight1),
                                 Right (toPlot weight2)]
            $ layoutlr_grid_last .~ False
+           $ def
+    --}
+    price1 = plot_lines_style . line_color .~ opaque blue
+           $ plot_lines_values .~ [ [ (d,v) | (d,v,_) <- weightValues'] ]
+           $ plot_lines_title .~ "price 1"
+           $ def
 
-  customColorSeq = [ toAlphaColour (sRGB 255 100 100)
+    price2 = plot_lines_style . line_color .~ opaque green
+           $ plot_lines_values .~ [ [ (d,v) | (d,_,v) <- weightValues'] ]
+           $ plot_lines_title .~ "price 2"
+           $ def
+
+    layout = layoutlr_title .~"Price History"
+           $ layoutlr_left_axis . laxis_override .~ axisGridHide
+           $ layoutlr_right_axis . laxis_override .~ axisGridHide
+           $ layoutlr_x_axis . laxis_override .~ axisGridHide
+           $ layoutlr_plots .~ [Left (toPlot price1),
+                                Right (toPlot price2)]
+           $ layoutlr_grid_last .~ False
+           $ def
+ 
+    customColorSeq = [ toAlphaColour (sRGB 255 100 100)
                      , toAlphaColour (sRGB 0 255 0)
                      , toAlphaColour (sRGB 0 0 255)
           ]
@@ -64,11 +84,11 @@ loadData = do
     from_file = "data.dat"
     to_file = "data.png"
     title_main = "Weight vs ideal weight"
-    title_series = ["weight", "ideal"]
+    titles_series = ["weight", "ideal"]
 
 -- TODO: fix this, it's no longer prices.
 weightValues' :: [(LocalTime,Double,Double)]
-weightValues' = filterPrices prices (mkDate 1 1 2005) (mkDate 31 12 2006)
+weightValues' = filterValues weightValues (mkDate 1 1 2005) (mkDate 31 12 2006)
 
 -- | Return file content as a list of (IO) strings.
 parseFileToStringList :: FilePath -> IO [String]
