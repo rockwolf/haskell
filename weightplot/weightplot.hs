@@ -16,7 +16,7 @@ import System.Exit (exitSuccess)
 import Data.Time.LocalTime
 import Graphics.Rendering.Chart.Easy
 
-import Weights(prices,mkDate,filterPrices)
+import WeightValues(weight_values,mkDate,filterValues)
 
 -- ||| Declaration of datatypes
 
