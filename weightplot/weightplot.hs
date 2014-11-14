@@ -119,7 +119,8 @@ getIdealWeight = 74.0
 removeDateFromList [] = []
 removeDateFromList [x] = []
 removeDateFromList (x:y:[]) = [y]
-removeDateFromList (x:y:xs) = [y] ++ (removeDateFromList xs)
+removeDateFromList (x:y:z:[]) = [y] ++ [z]
+removeDateFromList (x:y:z:xs) = [y] ++ [z] ++ (removeDateFromList xs)
 
 -- | Remove last element from list
 -- | Example: [20141112;82.3;a comment;20141113;82.1another comment]
@@ -127,7 +128,8 @@ removeDateFromList (x:y:xs) = [y] ++ (removeDateFromList xs)
 removeCommentFromList [] = []
 removeCommentFromList [x] = []
 removeCommentFromList (x:y:[]) = [x] ++ [y]
-removeCommentFromList (x:y:xs) = [x] ++ [y] ++ (removeDateFromList xs)
+removeCommentFromList (x:y:z:[]) = [x] ++ [y] ++ [z]
+removeCommentFromList (x:y:z:xs) = [x] ++ [y] ++ [z] ++ (removeDateFromList xs)
 
 -- | Turn list into list of lists (2 pairs)
 -- | Example: ["12", "10", "15", 5"]
