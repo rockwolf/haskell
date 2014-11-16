@@ -67,7 +67,10 @@ loadData = do
     title_main = "Weight vs ideal weight"
     titles_series = ["weight", "ideal"]
 
--- TODO: fix this, it's no longer prices.
+-- TODO: weightValues gets the data from the hardcoded data.
+-- Make the loadData function and create a new function that
+-- transforms the data into the same format as in WeighValues
+-- and than we can use that.
 weightValues' :: [(LocalTime,Double,Double)]
 weightValues' = filterValues weightValues (mkDate 1 1 2005) (mkDate 31 12 2006)
 
