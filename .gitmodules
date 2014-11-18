@@ -1,0 +1,3 @@
+[submodule "weightplot/generic"]
+	path = weightplot/generic
+	url = https://github.com/rockwolf/haskell_generic.git
