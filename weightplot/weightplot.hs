@@ -58,8 +58,9 @@ loadDataFromFile file_name = do
 loadData :: IO (PickFn ())
 loadData = do
     file_data <- loadDataFromFile from_file
-    let minimal_plot_data = map removeDateFromList $ map addIdealWeightToList $ convertListToListOfLists file_data
-    let plot_data = addMissingMonths minimal_plot_data
+    let minimal_plot_data = convertListToListOfLists $ map addIdealWeightToList $ map removeFirstFromList $ file_data
+    --let plot_data = addMissingMonths minimal_plot_data
+    let plot_data = minimal_plot_data
     renderableToFile def to_file $ chart plot_data title_main titles_series True
   where
     from_file = "data.dat"
@@ -119,20 +120,20 @@ getIdealWeight = 74.0
 -- | Remove first element from list
 -- | Example: [20141112;82.3;a comment;20141113;82.1;another comment]
 -- | gives: [82.3;82.1]
-removeDateFromList [] = []
-removeDateFromList [x] = []
-removeDateFromList (x:y:[]) = [y]
-removeDateFromList (x:y:z:[]) = [y] ++ [z]
-removeDateFromList (x:y:z:xs) = [y] ++ [z] ++ (removeDateFromList xs)
+removeFirstFromList [] = []
+removeFirstFromList [x] = []
+removeFirstFromList (x:y:[]) = [y]
+removeFirstFromList (x:y:z:[]) = [y] ++ [z]
+removeFirstFromList (x:y:z:xs) = [y] ++ [z] ++ (removeFirstFromList xs)
 
 -- | Remove last element from list
 -- | Example: [20141112;82.3;a comment;20141113;82.1another comment]
 -- | gives: [20141112;82.3;20141113;82.1]
-removeCommentFromList [] = []
-removeCommentFromList [x] = []
-removeCommentFromList (x:y:[]) = [x] ++ [y]
-removeCommentFromList (x:y:z:[]) = [x] ++ [y] ++ [z]
-removeCommentFromList (x:y:z:xs) = [x] ++ [y] ++ [z] ++ (removeDateFromList xs)
+removeLastFromList [] = []
+removeLastFromList [x] = []
+removeLastFromList (x:y:[]) = [x] ++ [y]
+removeLastFromList (x:y:z:[]) = [x] ++ [y] ++ [z]
+removeLastFromList (x:y:z:xs) = [x] ++ [y] ++ [z] ++ (removeFirstFromList xs)
 
 -- | Turn list into list of lists (2 pairs)
 -- | Example: ["12", "10", "15", 5"]
