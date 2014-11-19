@@ -14,8 +14,10 @@ import Data.List
 import Control.Monad (when)
 import System.Exit (exitSuccess)
 import Data.Time.LocalTime
+-- TODO: some of these imports might no longer be necessary... perform cleanup.
 
 import WeightValues(weightValues,mkDate,filterValues)
+import generic.DataConversion(convertListToListOfLists, removeFirstFromGroupedList)
 
 -- ||| Declaration of datatypes
 
@@ -58,7 +60,7 @@ loadDataFromFile file_name = do
 loadData :: IO (PickFn ())
 loadData = do
     file_data <- loadDataFromFile from_file
-    let minimal_plot_data = convertListToListOfLists $ map addIdealWeightToList $ map removeFirstFromList $ file_data
+    let minimal_plot_data = convertListToListOfLists $ map addIdealWeightToList $ map removeFirstFromGroupedList $ file_data
     --let plot_data = addMissingMonths minimal_plot_data
     let plot_data = minimal_plot_data
     renderableToFile def to_file $ chart plot_data title_main titles_series True
@@ -75,6 +77,7 @@ loadData = do
 weightValues' :: [(LocalTime,Double,Double)]
 weightValues' = filterValues weightValues (mkDate 1 1 2005) (mkDate 31 12 2006)
 
+-- TODO: Put this in a generic module called FileIO
 -- | Return file content as a list of (IO) strings.
 parseFileToStringList :: FilePath -> IO [String]
 parseFileToStringList filename = do
@@ -82,29 +85,6 @@ parseFileToStringList filename = do
   return $ lines my_data
 
 -- ||| Data parsing functions
--- | Parses a list of ;-separated string to a list of strings
--- | Example: ["12;10", "15;5"]
--- | gives ["12", "10", "15", "5"]
-parseLinesToStringList :: [String] -> [String]
-parseLinesToStringList [] = []
-parseLinesToStringList [x] = parseCurrent x
-parseLinesToStringList (x:xs) = (parseLinesToStringList $ parseCurrent x) ++ parseLinesToStringList xs
-
--- | Splits a ;-separated string into a list
--- | Example: "12;10"
--- | gives ["12", "10"]
-parseCurrent :: String -> [String]
-parseCurrent c = splitOn ";" $ filter (/=' ') c
-
--- | Converst list of strings to list of double values
-convertListStringToDouble :: [String] -> [Double]
-convertListStringToDouble = map convertToDouble
-
--- | Convert String to Double datatype
--- TODO: use reads?
-convertToDouble :: String -> Double
-convertToDouble aString = read aString :: Double
-
 -- | Add difference to list
 -- | Example: [12, 10]
 -- | gives [12, 10, 2]
@@ -116,33 +96,6 @@ addIdealWeightToList (x:y:xs) = [x] ++ [y] ++ [74.0] ++ (addIdealWeightToList xs
 
 --getIdealWeight :: Num t
 getIdealWeight = 74.0
-
--- | Remove first element from list
--- | Example: [20141112;82.3;a comment;20141113;82.1;another comment]
--- | gives: [82.3;82.1]
-removeFirstFromList [] = []
-removeFirstFromList [x] = []
-removeFirstFromList (x:y:[]) = [y]
-removeFirstFromList (x:y:z:[]) = [y] ++ [z]
-removeFirstFromList (x:y:z:xs) = [y] ++ [z] ++ (removeFirstFromList xs)
-
--- | Remove last element from list
--- | Example: [20141112;82.3;a comment;20141113;82.1;another comment]
--- | gives: [20141112;82.3;20141113;82.1]
-removeLastFromList [] = []
-removeLastFromList [x] = []
-removeLastFromList (x:y:[]) = [x] ++ [y]
-removeLastFromList (x:y:z:[]) = [x] ++ [y] ++ [z]
-removeLastFromList (x:y:z:xs) = [x] ++ [y] ++ [z] ++ (removeFirstFromList xs)
-
--- | Turn list into list of lists (2 pairs)
--- | Example: ["12", "10", "15", 5"]
--- | gives [["12", "10"], ["15", 5"]]
-convertListToListOfLists :: [a] -> [[a]]
-convertListToListOfLists [] = []
-convertListToListOfLists [x] = []
-convertListToListOfLists (x:y:[]) = [[x] ++ [y]]
-convertListToListOfLists (x:y:xs) = [[x] ++ [y]] ++ (convertListToListOfLists xs)
 
 -- | Add missing months
 -- | Example: [[12, 10, 2], [15, 5, 10]]
@@ -156,15 +109,6 @@ addMissingMonths (x:y:xs) = [x] ++ [y] ++ xs ++ getMissingMonthsEmpty (10 - leng
 -- | Returns a list of [0,0,0] elements for <missing_months> elements
 getMissingMonthsEmpty :: Num t => Int -> [[t]]
 getMissingMonthsEmpty missing_months = take missing_months $ repeat [0,0,0]
-
--- ||| General functions
--- | Drop the last n elements from a list
-dropLastN :: Int -> [a] -> [a]
-dropLastN n xs = reverse $ foldl' (const . drop 1) (reverse xs) (drop n xs)
-
--- | Get the last n elements from a list
-getLastN :: Int -> [a] -> [a]
-getLastN n xs = foldl' (const . drop 1) xs (drop n xs)
 
 -- ||| Main
 main :: IO (PickFn ())
