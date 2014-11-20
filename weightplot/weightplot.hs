@@ -18,6 +18,7 @@ import Data.Time.LocalTime
 
 import WeightValues(weightValues,mkDate,filterValues)
 import generic.DataConversion(convertListToListOfLists, removeFirstFromGroupedList)
+import generic.FileIO(parseFileToStringList)
 
 -- ||| Declaration of datatypes
 
@@ -76,13 +77,6 @@ loadData = do
 -- and than we can use that.
 weightValues' :: [(LocalTime,Double,Double)]
 weightValues' = filterValues weightValues (mkDate 1 1 2005) (mkDate 31 12 2006)
-
--- TODO: Put this in a generic module called FileIO
--- | Return file content as a list of (IO) strings.
-parseFileToStringList :: FilePath -> IO [String]
-parseFileToStringList filename = do
-  my_data <- readFile filename
-  return $ lines my_data
 
 -- ||| Data parsing functions
 -- | Add difference to list
