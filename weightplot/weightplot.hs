@@ -17,8 +17,8 @@ import Data.Time.LocalTime
 -- TODO: some of these imports might no longer be necessary... perform cleanup.
 
 import WeightValues(weightValues,mkDate,filterValues)
-import generic.DataConversion(convertListToListOfLists, removeFirstFromGroupedList)
-import generic.FileIO(parseFileToStringList)
+import generic.DataConversion(convertListToListOfLists, splitLinesToElements, removeFirstFromGroupedList)
+import generic.FileIO(loadFileToStringList)
 
 -- ||| Declaration of datatypes
 
@@ -54,8 +54,8 @@ chart plot_data title_main titles_series borders = toRenderable layout
 -- ||| Data loading for plot
 loadDataFromFile :: FilePath -> IO [Double]
 loadDataFromFile file_name = do
-    file_data <- parseFileToStringList file_name
-    return $ convertListStringToDouble $ parseLinesToStringList file_data
+    file_data <- loadFileToStringList file_name
+    return $ splitLinesToElements file_data
 
 -- | Load, transform and plot the data
 loadData :: IO (PickFn ())
