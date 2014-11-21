@@ -21,6 +21,7 @@ import generic.DataConversion(convertListToListOfLists, splitLinesToElements, re
 import generic.FileIO(loadFileToStringList)
 
 -- ||| Declaration of datatypes
+let ideal_weight = 74.0
 
 -- ||| Plotting
 chart :: [[Double]] -> String -> [String] -> Bool -> Renderable ()
@@ -61,7 +62,7 @@ loadDataFromFile file_name = do
 loadData :: IO (PickFn ())
 loadData = do
     file_data <- loadDataFromFile from_file
-    let minimal_plot_data = convertListToListOfLists $ map addIdealWeightToList $ map removeFirstFromGroupedList $ file_data
+    let minimal_plot_data = convertListToListOfLists $ map addIdealWeightToGroupedList $ map removeFirstFromGroupedList $ file_data
     --let plot_data = addMissingMonths minimal_plot_data
     let plot_data = minimal_plot_data
     renderableToFile def to_file $ chart plot_data title_main titles_series True
@@ -79,17 +80,15 @@ weightValues' :: [(LocalTime,Double,Double)]
 weightValues' = filterValues weightValues (mkDate 1 1 2005) (mkDate 31 12 2006)
 
 -- ||| Data parsing functions
--- | Add difference to list
+-- | Add number to list
 -- | Example: [12, 10]
--- | gives [12, 10, 2]
---addIdealWeightToList :: Num t => [t] -> [t]
-addIdealWeightToList [] = []
-addIdealWeightToList [x] = [x]
-addIdealWeightToList (x:y:[]) = [x] ++ [y] ++ [74.0]
-addIdealWeightToList (x:y:xs) = [x] ++ [y] ++ [74.0] ++ (addIdealWeightToList xs)
-
---getIdealWeight :: Num t
-getIdealWeight = 74.0
+-- | gives [12, 10, <number>]
+--addIdealWeightToGroupedList :: Num t => [t] -> [t]
+-- TODO: make ideal_weight a parameter and call it with the parameter, to make this function more generic.
+addIdealWeightToGroupedList [] = []
+addIdealWeightToGroupedList [x] = [x]
+addIdealWeightToGroupedList (x:y:[]) = [x] ++ [y] ++ [ideal_weight]
+addIdealWeightToGroupedList (x:y:xs) = [x] ++ [y] ++ [ideal_weight] ++ (addIdealWeightToGroupedList xs)
 
 -- | Add missing months
 -- | Example: [[12, 10, 2], [15, 5, 10]]
