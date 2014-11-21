@@ -17,8 +17,8 @@ import Data.Time.LocalTime
 -- TODO: some of these imports might no longer be necessary... perform cleanup.
 
 import WeightValues(weightValues,mkDate,filterValues)
-import generic.DataConversion(convertListToListOfLists, splitLinesToElements, removeFirstFromGroupedList)
-import generic.FileIO(loadFileToStringList)
+import DataConversion(convertListToListOfLists, splitLinesToElements, removeFirstFromGroupedList)
+import FileIO(loadFileToStringList)
 
 -- ||| Declaration of datatypes
 
