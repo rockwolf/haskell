@@ -21,12 +21,12 @@ import DataConversion(convertListToListOfLists, splitLinesToElements, removeFirs
 import FileIO(loadFileToStringList)
 
 -- ||| Declaration of datatypes
-let ideal_weight = 74.0
+ideal_weight = 74.0
 
 -- ||| Plotting
 chart :: [[Double]] -> String -> [String] -> Bool -> Renderable ()
 chart plot_data title_main titles_series borders = toRenderable layout
- where
+  where
     weight1 = plot_lines_style . line_color .~ (customColorSeq!!1)
            $ plot_lines_values .~ [ [ (d,v) | (d,v,_) <- weightValues'] ]
            $ plot_lines_title .~ (titles_series!!0)
