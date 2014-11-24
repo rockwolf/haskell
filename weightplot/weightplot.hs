@@ -61,6 +61,8 @@ loadDataFromFile file_name = do
 -- | Load, transform and plot the data
 loadData :: IO (PickFn ())
 loadData = do
+    -- TODO: test what happens in this file?
+    -- TEST: file_data contains ["date;v1;v2;comment", "date;v3;v4;comment"]
     file_data <- loadDataFromFile from_file
     let minimal_plot_data = convertListToListOfLists $ map addIdealWeightToGroupedList $ map removeFirstFromGroupedList $ file_data
     --let plot_data = addMissingMonths minimal_plot_data
