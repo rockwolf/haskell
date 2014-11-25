@@ -16,9 +16,9 @@ import System.Exit (exitSuccess)
 import Data.Time.LocalTime
 -- TODO: some of these imports might no longer be necessary... perform cleanup.
 
-import WeightValues(weightValues,mkDate,filterValues)
 import DataConversion(convertListToListOfLists, splitLinesToElements, removeFirstFromGroupedList)
 import FileIO(loadFileToStringList)
+import DateUtil(mkDate)
 
 -- ||| Declaration of datatypes
 ideal_weight = 74.0
@@ -74,12 +74,19 @@ loadData = do
     title_main = "Weight vs ideal weight"
     titles_series = ["weight", "ideal"]
 
--- TODO: weightValues gets the data from the hardcoded data.
--- Make the loadData function and create a new function that
--- transforms the data into the same format as in WeighValues
--- and than we can use that.
+-- | transform the data and filter it
 weightValues' :: [(LocalTime,Double,Double)]
-weightValues' = filterValues weightValues (mkDate 1 1 2005) (mkDate 31 12 2006)
+weightValues' day_start month_start year_start day_end month_end year_end = filterValues weightValues (
+    mkDate day_start month_start year_start) (mkDate day_end month_end year_end)
+
+-- | Create plotable data from available sets
+-- | Example: [(10, 12, 2014, 80.1), (11, 12, 2014, 79.6)]
+weightValues :: [(Int, Int, Int, Int)] -> [(LocalTime,Double,Double)]
+weightValues plot_data_raw = [ (mkDate dd mm yyyy, p1) | (dd,mm,yyyy,p1) <- plot_data_raw ]
+
+-- | apply date filter to data
+filterValues weight_values t1 t2 = [ v | v@(d,_,_) <- weight_values
+                                   , let t = d in t >= t1 && t <= t2]
 
 -- ||| Data parsing functions
 -- | Add number to list
