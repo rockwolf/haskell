@@ -49,6 +49,25 @@ instance FromRow Project where
 instance Show Project where
     show (Project title description) =
       "Project { title: " ++ T.unpack title ++ ", description: " ++ T.unpack description ++ " }n"
+      
+createNewProject :: Handler App App ()
+createNewProject = do
+  title <- getPostParam "title"
+  description <- getPostParam "description"
+  newProject <- execute "INSERT INTO projects VALUES (?, ?)" (title, description)
+  redirect "/"
+  
+getAllProjects :: Handler App App ()
+getAllProjects = do
+  allProjects <- query_ "SELECT * FROM projects"
+  liftIO $ print (allProjects :: [Project])
+  
+deleteProjectByTitle :: Handler App App ()
+deleteProjectByTitle = do
+  title <- getPostParam "title"
+  deleteProject <- execute "DELETE FROM projects WHERE title = ?" (Only title)
+  redirect "/"
+  
 ------------------------------------------------------------------------------
 -- | Render login form
 handleLogin :: Maybe T.Text -> Handler App (AuthManager App) ()
@@ -115,6 +134,8 @@ routes :: [(ByteString, Handler App App ())]
 routes = [ ("/login",    with auth handleLoginSubmit)
          , ("/logout",   with auth handleLogout)
          , ("/new_user", with auth handleNewUser)
+         , ("/projects", method GET getAllProjects)
+         , ("/project", method DELETE deleteProjectByTitle)
          --, ("/leverage", with auth handleLeverageSubmit)
          --, ("/drawdown", with auth handleDrawDownSubmit)
          --, ("/reports", with auth handleReports)
