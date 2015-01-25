@@ -1,0 +1,17 @@
+BEGIN;
+drop table "1".T_ACCOUNT cascade;
+drop table "1".T_COMMODITY cascade;
+drop table "1".T_MARKET cascade;
+drop table "1".T_TRADE_POOL cascade;
+drop table "1".T_TRADE_CALCULATED cascade;
+drop table "1".T_TRADE cascade;
+drop table "1".T_RATE cascade;
+drop table "1".T_CURRENCY_EXCHANGE cascade;
+drop table "1".T_CURRENCY cascade;
+drop table "1".T_PARAMETER cascade;
+drop table "1".T_DRAWDOWN cascade;
+drop table "1".T_VERSION cascade;
+drop table "1".T_POOL cascade;
+drop table "1".T_COMMODITY_TYPE cascade;
+drop table "1".T_CFD_GENERAL cascade;
+COMMIT;
