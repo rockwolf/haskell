@@ -16,7 +16,7 @@ import System.Exit (exitSuccess)
 import Data.Time.LocalTime
 -- TODO: some of these imports might no longer be necessary... perform cleanup.
 
-import DataConversion(convertListToListOfLists, splitLinesToElements, removeFirstFromGroupedList)
+import DataConversion(convertListToListOfLists, splitLinesToElements, removeFirstFromGroupedList, removeLastFromGroupedList)
 import FileIO(loadFileToStringList)
 import DateUtil(mkDate)
 
@@ -65,7 +65,7 @@ loadData = do
     -- TEST: file_data contains ["date;v1;v2;comment", "date;v3;v4;comment"]
     -- TODO: removeFirst removes the date, but don't we need to remove the comment too?
     file_data <- loadDataFromFile from_file
-    let minimal_plot_data = convertListToListOfLists $ map addIdealWeightToGroupedList $ map removeFirstFromGroupedList $ file_data
+    let minimal_plot_data = convertListToListOfLists $ map addIdealWeightToGroupedList $ map removeLastFromGroupedList $ map removeFirstFromGroupedList $ file_data
     --let plot_data = addMissingMonths minimal_plot_data
     let plot_data = minimal_plot_data
     renderableToFile def to_file $ chart plot_data title_main titles_series True
