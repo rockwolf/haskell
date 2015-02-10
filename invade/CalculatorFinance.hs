@@ -7,6 +7,188 @@ import Foreign.C.String
 import Data.List
 import Data.Char
 
+
+--
+-- General calculations
+--
+
+-----------------------------------------------------------------------------
+-- | Calculates the stoploss.
+--
+-- Note:
+-- Long
+-- ----
+-- amount selling at stoploss - amount at buying = initial risk of pool
+-- (S.Pb + S.Pb.T + C) - (S.Ps - S.Ps.T - C) = R/100 * pool
+-- Short
+-- -----
+-- amount selling - amount buying at stoploss = initial risk of pool
+-- (S.Psl + S.Psl.T + C) - (S.Ps - S.Ps.T - C) = R/100 * pool
+-----------------------------------------------------------------------------
+calcStoploss :: CDouble -> CInt -> CDouble -> CDouble -> CDouble -> CDouble -> IO CDouble
+calcStoploss a_price_buy a_shares_buy a_tax_buy a_commission_buy a_risk pool_at_start = do
+    return $ (((l_risk * a_pool_at_start) - l_amount_buy) - a_commission_buy) / (l_shares_buy * (l_tax_buy - 1))
+    where
+        l_risk = realToFrac i_risk / 100.0
+        l_amount_buy = realToFrac $ calcAmount' (realToFrac a_price_buy) (fromIntegral a_shares_buy)
+        l_shares_buy = fromIntegral a_shares_buy
+        l_tax_buy = realToFrac (a_tax_buy / 100.0)
+
+-----------------------------------------------------------------------------
+-- |  Calculates the risk based on total pool and input.
+--
+-- Consider this the theoretical risk we want to take.
+-----------------------------------------------------------------------------
+calcRiskInput :: CDouble -> CDouble -> IO CDouble
+calcRiskInput a_risk a_pool = do
+    return $ realToFrac $ l_risk * l_pool
+    where
+        l_risk = realToFrac $ a_risk / 100.0
+        l_pool = a_pool
+
+-----------------------------------------------------------------------------
+-- |   Calculates the initial risk.
+--
+-- This is the risk we will take if our stoploss is reached.
+-- This should be equal to the risk_input if everything was
+-- correctly calculated.
+-- Note:
+-- Long
+-- ----
+-- S.Pb + S.Pb.T + C - (S.Psl - S.Psl.T - C)
+-- Short
+-- -----
+-- S.Ps + S.Psl.T + C - (S.Ps - S.Ps.T - C)
+-----------------------------------------------------------------------------
+calcRiskInitial :: CDouble -> CInt -> CDouble -> IO CDouble
+calcRiskInitial a_price_buy a_shares_buy a_stoploss = do
+    return $ (a_price_buy * a_shares_buy_) - (a_stoploss * l_shares_buy)
+    where
+        l_shares_buy = fromIntegral shares_buy
+
+-- NOTE: price_sell > stoploss = max risk was the initial risk
+calcRiskActual :: CDouble -> CInt -> CDouble -> CInt -> CDouble -> CDouble -> IO CDouble
+calcRiskActual a_price_buy a_shares_buy a_price_sell a_shares_sell a_stoploss a_risk_initial = do
+    if a_price_sell < a_stoploss
+    then return ((a_price_buy * l_shares_buy) - (a_price_sell * l_shares_sell))
+    else return a_risk_initial
+    where
+        l_shares_buy = fromIntegral a_shares_buy
+        l_shares_sell = fromIntegral a_shares_sell
+
+-----------------------------------------------------------------------------
+-- |   Function to calculate R-multiple.
+-----------------------------------------------------------------------------
+calcRMultiple :: CDouble -> CDouble -> CDouble -> IO CDouble
+calcRMultiple a_price_buy a_price_sell stoploss = do 
+    return $ (a_price_sell - a_price_buy) / (a_price_buy - a_stoploss)
+
+calcCostTotal :: CDouble -> CDouble -> CDouble -> CDouble -> IO CDouble
+calcCostTotal a_tax_buy a_commission_buy a_tax_sell a_commission_sell = do
+    return $ tax_buy + a_commission_buy + a_tax_sell + a_commission_sell
+
+-- NOTE: commission + tax = seperate = costs
+calcAmount :: CDouble -> CInt -> IO CDouble
+calcAmount a_price a_shares = do
+    return $ realToFrac (calcAmount' (realToFrac a_price) (fromIntegral a_shares))
+
+--- internal function that does not return an IO monad
+calcAmount' :: Double -> Int -> Double
+calcAmount' a_price a_shares = a_price * (fromIntegral a_shares)
+
+-- cost of transaction (tax and commission)
+costTransaction :: CInt -> CDouble -> CInt -> CDouble -> CDouble -> IO CDouble
+costTransaction a_transactionid a_price a_shares a_tax a_commission = do
+    -- Note: transactionid = 
+    -- 0: buy
+    -- 1: sell
+    --var_transaction <- peekCString transaction
+    --case lowerCase var_transaction of
+    case a_transactionid of
+        --[] -> error errorMsgEmpty
+        0 -> return ((a_price * (fromIntegral a_shares) * (1 + a_tax)) + a_commission)
+        1 -> return ((a_price * (fromIntegral a_shares) * (1 - a_tax)) - a_commission)
+    --where
+    --    errorMsgEmpty = "Error in costTransaction: buy or sell not specified!"
+
+calcProfitLoss :: CDouble -> CDouble -> CDouble -> IO CDouble
+calcProfitLoss amount_sell_simple amount_buy_simple totalcost = do
+    return (amount_sell_simple - amount_buy_simple - totalcost)
+
+calcCostOther :: CDouble -> CDouble -> IO CDouble
+calcCostOther totalCost profitLoss = do
+    if diffCostProfit > defaultDecimal
+    then return diffCostProfit
+    else return defaultDecimal
+    where
+        diffCostProfit = totalCost - profitLoss
+        defaultDecimal = 0.0
+
+calcSharesRecommended :: IO CInt
+calcSharesRecommended = do
+    return 0
+
+-----------------------------------------------------------------------------
+-- |   calcPrice:
+--
+-- Returns the price a commodity must have, for the given amount, tax, commission
+-- and number of shares.
+-----------------------------------------------------------------------------
+calcPrice :: CDouble -> CDouble -> CDouble -> CInt -> IO CDouble
+calcPrice a_amount a_commission a_tax a_shares = do
+    return $ (a_amount - a_commission) / ((1 + a_tax) * l_shares)
+    where
+        l_shares = fromIntegral a_shares
+
+-- 
+-- Helper functions
+-- 
+
+-----------------------------------------------------------------------------
+-- | Calculate what percentage value is from from_value.
+-----------------------------------------------------------------------------
+calcPercentageOf :: Double -> Double -> Double
+calcPercentageOf value from_value = (value / from_value) * 100.0
+
+-----------------------------------------------------------------------------
+-- | ConvertFromOrig:
+--
+-- Returns a price, with an exchange rate applied to it.
+-- Used to convert a given currency to a new currency.
+-----------------------------------------------------------------------------
+convertFromOrig :: CDouble -> CDouble -> IO CDouble
+convertFromOrig a_price, a_exchange_rate = do
+  return $ a_price * a_exchange_rate
+
+-----------------------------------------------------------------------------
+-- |   ConvertToOrig:
+--
+-- Returns a price in the original currency, with the
+-- exchange rate no longer applied to it.
+-----------------------------------------------------------------------------
+convertToOrig :: CDouble -> CDouble -> IO CDouble
+convertToOrig a_converted_price, a_exchange_rate = do
+  return $ a_converted_price / a_exchange_rate
+
+-----------------------------------------------------------------------------
+-- |   upperCase and lowerCase:
+--
+-- upperCase returns a string with lowerCase characters converted to upperCase
+-- lowerCase returns a string with upperCase characters converted to lowerCase
+-----------------------------------------------------------------------------
+upperCase, lowerCase :: String -> String
+upperCase = map toUpper
+lowerCase = map toLower
+
+-----------------------------------------------------------------------------
+-- |   Merge:
+-- Merges 2 lists together.
+-----------------------------------------------------------------------------
+merge :: [a] -> [a] -> [a]
+merge xs     []     = xs
+merge []     ys     = ys
+merge (x:xs) (y:ys) = x : y : merge xs ys
+
 --
 -- Market information
 --
@@ -103,146 +285,6 @@ markets_cfd_us = [
            "cfd US"
            ]
 -- /whsi00
-
---
--- General calculations
---
-
------------------------------------------------------------------------------
--- | Calculates the stoploss.
---
--- Note:
--- Long
--- ----
--- amount selling at stoploss - amount at buying = initial risk of pool
--- (S.Pb + S.Pb.T + C) - (S.Ps - S.Ps.T - C) = R/100 * pool
--- Short
--- -----
--- amount selling - amount buying at stoploss = initial risk of pool
--- (S.Psl + S.Psl.T + C) - (S.Ps - S.Ps.T - C) = R/100 * pool
------------------------------------------------------------------------------
-calcStoploss :: CDouble -> CInt -> CDouble -> CDouble -> CDouble -> CDouble -> IO CDouble
-calcStoploss price_buy shares_buy tax_buy commission_buy i_risk pool_at_start = do
-    return ((((var_R * var_P) - var_A) - var_C) / (var_S * (var_T - 1)))
-    where
-        var_R = realToFrac $ calcPercentage $ realToFrac i_risk
-        var_P = pool_at_start
-        var_A = realToFrac $ calcAmountSimple' (realToFrac price_buy) (fromIntegral shares_buy)
-        var_S = fromIntegral shares_buy
-        var_T = realToFrac (tax_buy / 100.0)
-        var_C = commission_buy
-
------------------------------------------------------------------------------
--- |  Calculates the risk based on total pool and input.
---
--- Consider this the theoretical risk we want to take.
------------------------------------------------------------------------------
-calcRiskInput :: CDouble -> CDouble -> IO CDouble
-calcRiskInput a_risk a_pool = do
-    return $ realToFrac $ l_risk * l_pool
-    where
-        l_risk = realToFrac $ a_risk / 100.0
-        l_pool = a_pool
-
-calcRiskInitial :: CDouble -> CInt -> CDouble -> IO CDouble
-calcRiskInitial price_buy shares_buy stoploss = do
-    return ((price_buy * shares_buy_) - (stoploss * shares_buy_))
-    where
-        shares_buy_ = fromIntegral shares_buy
-
--- NOTE: price_sell > stoploss = max risk was the initial risk
-calcRiskActual :: CDouble -> CInt -> CDouble -> CInt -> CDouble -> CDouble -> IO CDouble
-calcRiskActual price_buy shares_buy price_sell shares_sell stoploss risk_initial = do
-    if price_sell < stoploss
-    then return ((price_buy * shares_buy_) - (price_sell * shares_sell_))
-    else return risk_initial
-    where
-        shares_buy_ = fromIntegral shares_buy
-        shares_sell_ = fromIntegral shares_sell
-
-calcRMultiple :: CDouble -> CDouble -> CDouble -> IO CDouble
-calcRMultiple price_buy price_sell stoploss = do 
-    return ((price_sell - price_buy) / (price_buy - stoploss))
-
-calcCostTotal :: CDouble -> CDouble -> CDouble -> CDouble -> IO CDouble
-calcCostTotal tax_buy commission_buy tax_sell commission_sell = do
-    return (tax_buy + commission_buy + tax_sell + commission_sell)
-
--- NOTE: commission + tax = seperate = costs
-calcAmountSimple :: CDouble -> CInt -> IO CDouble
-calcAmountSimple price shares = do
-    return $ realToFrac (calcAmountSimple' (realToFrac price) (fromIntegral shares))
-
---- internal function that does not return an IO monad
-calcAmountSimple' :: Double -> Int -> Double
-calcAmountSimple' price shares = price * (fromIntegral shares)
-
--- cost of transaction (tax and commission)
-costTransaction :: CInt -> CDouble -> CInt -> CDouble -> CDouble -> IO CDouble
-costTransaction transactionid price shares tax commission = do
-    -- Note: transactionid = 
-    -- 0: buy
-    -- 1: sell
-    --var_transaction <- peekCString transaction
-    --case lowerCase var_transaction of
-    case transactionid of
-        --[] -> error errorMsgEmpty
-        0 -> return ((price * (fromIntegral shares) * (1 + tax)) + commission)
-        1 -> return ((price * (fromIntegral shares) * (1 - tax)) - commission)
-        --"buy" -> return ((price * (fromIntegral shares) * (1 + tax)) + commission)
-        --"sell" -> return ((price * (fromIntegral shares) * (1 - tax)) - commission)
-    --where
-    --    errorMsgEmpty = "Error in costTransaction: buy or sell not specified!"
-
-calcProfitLoss :: CDouble -> CDouble -> CDouble -> IO CDouble
-calcProfitLoss amount_sell_simple amount_buy_simple totalcost = do
-    return (amount_sell_simple - amount_buy_simple - totalcost)
-
-calcCostOther :: CDouble -> CDouble -> IO CDouble
-calcCostOther totalCost profitLoss = do
-    if diffCostProfit > defaultDecimal
-    then return diffCostProfit
-    else return defaultDecimal
-    where
-        diffCostProfit = totalCost - profitLoss
-        defaultDecimal = 0.0
-
-calcSharesRecommended :: IO CInt
-calcSharesRecommended = do
-    return 0
-
-calcPrice :: CDouble -> CDouble -> CDouble -> CInt -> IO CDouble
-calcPrice amount commission tax shares = do
-    return ((amount - commission) / ((1 + tax) * var_shares))
-    where
-        var_shares = fromIntegral shares
-
--- 
--- Helper functions
--- 
-
------------------------------------------------------------------------------
--- | Calculate what percentage value is from from_value.
------------------------------------------------------------------------------
-calcPercentageOf :: Double -> Double -> Double
-calcPercentageOf value from_value = (value / from_value) * 100.0
-
------------------------------------------------------------------------------
--- | ConvertFromOrig:
---
--- Returns a price, with an exchange rate applied to it.
--- Used to convert a given currency to a new currency.
------------------------------------------------------------------------------
-
-
-upperCase, lowerCase :: String -> String
-upperCase = map toUpper
-lowerCase = map toLower
-
-merge :: [a] -> [a] -> [a]
-merge xs     []     = xs
-merge []     ys     = ys
-merge (x:xs) (y:ys) = x : y : merge xs ys
 
 --
 -- Commission calculations
