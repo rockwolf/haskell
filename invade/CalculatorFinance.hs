@@ -108,9 +108,19 @@ markets_cfd_us = [
 -- General calculations
 --
 
--- NOTE: amount_buy = with tax and everything included, amount_buy_simple = without tax and commission!
--- NOTE: ((risk/100 * pool_at_start - amount_buy_simple) - commission_buy)/(shares_buy * (tax_buy/100 - 1))
--- NOTE: ((R * P - A) - C) / (S * (T - 1))
+-----------------------------------------------------------------------------
+-- | Calculates the stoploss.
+--
+-- Note:
+-- Long
+-- ----
+-- amount selling at stoploss - amount at buying = initial risk of pool
+-- (S.Pb + S.Pb.T + C) - (S.Ps - S.Ps.T - C) = R/100 * pool
+-- Short
+-- -----
+-- amount selling - amount buying at stoploss = initial risk of pool
+-- (S.Psl + S.Psl.T + C) - (S.Ps - S.Ps.T - C) = R/100 * pool
+-----------------------------------------------------------------------------
 calcStoploss :: CDouble -> CInt -> CDouble -> CDouble -> CDouble -> CDouble -> IO CDouble
 calcStoploss price_buy shares_buy tax_buy commission_buy i_risk pool_at_start = do
     return ((((var_R * var_P) - var_A) - var_C) / (var_S * (var_T - 1)))
@@ -122,13 +132,17 @@ calcStoploss price_buy shares_buy tax_buy commission_buy i_risk pool_at_start = 
         var_T = realToFrac (tax_buy / 100.0)
         var_C = commission_buy
 
--- TODO: only allow positive numbers
+-----------------------------------------------------------------------------
+-- |  Calculates the risk based on total pool and input.
+--
+-- Consider this the theoretical risk we want to take.
+-----------------------------------------------------------------------------
 calcRiskInput :: CDouble -> CDouble -> IO CDouble
-calcRiskInput i_risk i_pool = do
-    return (realToFrac $ var_R * var_Po)
+calcRiskInput a_risk a_pool = do
+    return $ realToFrac $ l_risk * l_pool
     where
-        var_R = realToFrac $ calcPercentage $ realToFrac i_risk
-        var_Po = i_pool
+        l_risk = realToFrac $ a_risk / 100.0
+        l_pool = a_pool
 
 calcRiskInitial :: CDouble -> CInt -> CDouble -> IO CDouble
 calcRiskInitial price_buy shares_buy stoploss = do
@@ -207,11 +221,19 @@ calcPrice amount commission tax shares = do
 -- Helper functions
 -- 
 
-calcPercentage :: Double -> Double
-calcPercentage value = value / 100.0
-
+-----------------------------------------------------------------------------
+-- | Calculate what percentage value is from from_value.
+-----------------------------------------------------------------------------
 calcPercentageOf :: Double -> Double -> Double
 calcPercentageOf value from_value = (value / from_value) * 100.0
+
+-----------------------------------------------------------------------------
+-- | ConvertFromOrig:
+--
+-- Returns a price, with an exchange rate applied to it.
+-- Used to convert a given currency to a new currency.
+-----------------------------------------------------------------------------
+
 
 upperCase, lowerCase :: String -> String
 upperCase = map toUpper
