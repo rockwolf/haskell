@@ -4,6 +4,7 @@
 # views, roles and grant permissions.
 
 HOSTNAME="debby_test"
+DATABASE_SETUP="pgsql"
 DATABASE="finance"
 SQLDIR="sql/"
 
@@ -14,10 +15,10 @@ echo "HOSTNAME=$HOSTNAME"
 echo "DATABASE=$DATABASE"
 echo "Create database $DATABASE"
 FILE=$SQLDIR"create_database.sql"
-echo "Install postgrest configuration..."
 echo "Running $FILE"
-psql -h $HOSTNAME $DATABASE < $FILE
+psql -h $HOSTNAME $DATABASE_SETUP < $FILE
 echo "[Done]"
+echo "Install postgrest configuration..."
 FILE=$SQLDIR"postgrest_01_create_http_auth.sql"
 echo "Running $FILE"
 psql -h $HOSTNAME $DATABASE < $FILE
@@ -28,11 +29,11 @@ psql -h $HOSTNAME $DATABASE < $FILE
 echo "[Done]"
 FILE=$SQLDIR"postgrest_03_create_roles.sql"
 echo "Running $FILE"
-psql -h $HOSTNAME $DATABASE < $FILE
+#psql -h $HOSTNAME $DATABASE < $FILE
 echo "[Done]"
 FILE=$SQLDIR"postgrest_04_create_readonly_access_everyone.sql"
 echo "Running $FILE"
-psql -h $HOSTNAME $DATABASE < $FILE
+#psql -h $HOSTNAME $DATABASE < $FILE
 echo "[Done]"
 echo
 echo "Creating tables..."

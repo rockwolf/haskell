@@ -1,6 +1,7 @@
 #!/bin/sh
 
 HOSTNAME="debby_test"
+DATABASE_SETUP="pgsql"
 DATABASE="finance"
 SQLDIR="sql/"
 SCRIPTV=$SQLDIR"drop_views.sql"
@@ -18,17 +19,17 @@ echo "HOSTNAME=$HOSTNAME"
 echo "DATABASE=$DATABASE"
 echo
 echo "Uninstalling postgrest configuration..."
-echo "Uninstalling $SCRIPT01..."
-psql -h $HOSTNAME $DATABASE < $SCRIPTP01
-echo "[Done]"
-echo "Uninstalling $SCRIPT02..."
-psql -h $HOSTNAME $DATABASE < $SCRIPTP02
+echo "Uninstalling $SCRIPT04..."
+psql -h $HOSTNAME $DATABASE < $SCRIPTP04
 echo "[Done]"
 echo "Uninstalling $SCRIPT03..."
 psql -h $HOSTNAME $DATABASE < $SCRIPTP03
 echo "[Done]"
-echo "Uninstalling $SCRIPT04..."
-psql -h $HOSTNAME $DATABASE < $SCRIPTP04
+echo "Uninstalling $SCRIPT02..."
+#psql -h $HOSTNAME $DATABASE < $SCRIPTP02
+echo "[Done]"
+echo "Uninstalling $SCRIPT01..."
+#psql -h $HOSTNAME $DATABASE < $SCRIPTP01
 echo "[Done]"
 echo "Running $SCRIPT [OK]"
 echo
@@ -40,6 +41,8 @@ echo "Dropping tables..."
 echo "Running $SCRIPTT [OK]"
 echo
 echo "Dropping database $DATABASE"
-echo "WARNING: Please execute the drop database script manually, if you really want to remove the database."
-echo "You can find it at $SCRIPTD"
+psql -h $HOSTNAME $DATABASE_SETUP < $SCRIPTD
+#echo "Dropping database $DATABASE"
+#echo "WARNING: Please execute the drop database script manually, if you really want to remove the database."
+#echo "You can find it at $SCRIPTD"
 echo 'Done.'
