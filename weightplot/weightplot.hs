@@ -28,8 +28,12 @@ C_IDEAL_WEIGHT = 74.0
 -----------------------------------------------------------------------------
 -- ||| Plotting
 -----------------------------------------------------------------------------
-chart :: [[Double]] -> String -> [String] -> Bool -> Renderable ()
-chart plot_data title_main titles_series borders = toRenderable layout
+-----------------------------------------------------------------------------
+-- | plotLines2 
+-- | Create a line chart with 2 lines
+-----------------------------------------------------------------------------
+plotLines2 :: [[Double]] -> String -> [String] -> Bool -> Renderable ()
+plotLines2 plot_data title_main titles_series borders = toRenderable layout
   where
     weight1 = plot_lines_style . line_color .~ (customColorSeq!!1)
            $ plot_lines_values .~ [ [ (d,v) | (d,v,_) <- weightValues'] ]
@@ -59,12 +63,17 @@ chart plot_data title_main titles_series borders = toRenderable layout
 -----------------------------------------------------------------------------
 -- ||| Data loading for plot
 -----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+-- | loadDataFromFile
+-- | Read the data from the file and put it in a list
+-----------------------------------------------------------------------------
 loadDataFromFile :: FilePath -> IO [Double]
 loadDataFromFile file_name = do
     file_data <- loadFileToStringList file_name
     return $ splitLinesToElements file_data
 
 -----------------------------------------------------------------------------
+-- | loadData
 -- | Load, transform and plot the data
 -----------------------------------------------------------------------------
 loadData :: IO (PickFn ())
@@ -72,6 +81,11 @@ loadData = do
     -- TODO: test what happens in this file?
     -- TEST: file_data contains ["date;v1;v2;comment", "date;v3;v4;comment"]
     -- TODO: removeFirst removes the date, but don't we need to remove the comment too?
+    -- TODO:
+    -- load data from file ["date;v1;comment", "date;v3;comment"]
+    -- transform data to list of elements ["date", v1, v2, "comment", "date", v3, v4, "comment"]
+    -- remove each comment field ["date", v1, "date", v2,]
+    -- add ideal weight ["date", v1, vi, "date", v2, vi]
     file_data <- loadDataFromFile from_file
     --let minimal_plot_data = convertListToListOfLists $ map addIdealWeightToGroupedList $ map removeLastFromGroupedList $ map removeFirstFromGroupedList $ file_data
     --let plot_data = addMissingMonths minimal_plot_data
@@ -85,13 +99,15 @@ loadData = do
     titles_series = ["weight", "ideal"]
 
 -----------------------------------------------------------------------------
--- | transform the data and filter it
+-- | weightValues'
+-- | Transform the dates and filter the data.
 -----------------------------------------------------------------------------
 weightValues' :: [(LocalTime,Double,Double)]
 weightValues' day_start month_start year_start day_end month_end year_end = filterValues weightValues (
     mkDate day_start month_start year_start) (mkDate day_end month_end year_end)
 
 -----------------------------------------------------------------------------
+-- | weightValues
 -- | Create plotable data from available sets
 -- | Example: [(10, 12, 2014, 80.1), (11, 12, 2014, 79.6)]
 -----------------------------------------------------------------------------
@@ -99,7 +115,8 @@ weightValues :: [(Int, Int, Int, Int)] -> [(LocalTime,Double,Double)]
 weightValues plot_data_raw = [ (mkDate dd mm yyyy, p1) | (dd,mm,yyyy,p1) <- plot_data_raw ]
 
 -----------------------------------------------------------------------------
--- | apply date filter to data
+-- | filterValues
+-- | Apply date filter to data.
 -----------------------------------------------------------------------------
 filterValues weight_values t1 t2 = [ v | v@(d,_,_) <- weight_values
                                    , let t = d in t >= t1 && t <= t2]
@@ -120,7 +137,8 @@ addIdealWeightToGroupedList (x:y:[]) = [x] ++ [y] ++ [C_IDEAL_WEIGHT]
 addIdealWeightToGroupedList (x:y:xs) = [x] ++ [y] ++ [C_IDEAL_WEIGHT] ++ (addIdealWeightToGroupedList xs)
 
 -----------------------------------------------------------------------------
--- | Add missing months
+-- | addMissingMonths
+-- | Add missing months to get a complete calendar year.
 -- | Example: [[12, 10, 2], [15, 5, 10]]
 -- | gives [[12, 10, 2], [15, 5, 10], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
 -----------------------------------------------------------------------------
@@ -131,6 +149,7 @@ addMissingMonths (x:y:[]) = [x] ++ [y] ++ getMissingMonthsEmpty 10
 addMissingMonths (x:y:xs) = [x] ++ [y] ++ xs ++ getMissingMonthsEmpty (10 - length xs)
 
 -----------------------------------------------------------------------------
+-- | getMissingMonthsEmpty
 -- | Returns a list of [0,0,0] elements for <missing_months> elements
 -----------------------------------------------------------------------------
 getMissingMonthsEmpty :: Num t => Int -> [[t]]
