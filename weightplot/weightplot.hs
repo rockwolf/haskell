@@ -1,6 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 --module Main (main) where
 
+-----------------------------------------------------------------------------
+-- ||| Imports
+-----------------------------------------------------------------------------
 import Graphics.Rendering.Chart
 import Graphics.Rendering.Chart.Backend.Cairo
 import Data.Colour
