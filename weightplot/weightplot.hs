@@ -112,7 +112,8 @@ weightValues' day_start month_start year_start day_end month_end year_end = filt
 -----------------------------------------------------------------------------
 -- | weightValues
 -- | Create plotable data from available sets
--- | Example: [(10, 12, 2014, 80.1), (11, 12, 2014, 79.6)]
+--
+-- Example: [(10, 12, 2014, 80.1), (11, 12, 2014, 79.6)]
 -----------------------------------------------------------------------------
 weightValues :: [(Int, Int, Int, Int)] -> [(LocalTime,Double,Double)]
 weightValues plot_data_raw = [ (mkDate dd mm yyyy, p1) | (dd,mm,yyyy,p1) <- plot_data_raw ]
@@ -129,8 +130,9 @@ filterValues weight_values t1 t2 = [ v | v@(d,_,_) <- weight_values
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 -- | Add number to list
--- | Example: [12, 10]
--- | gives [12, 10, <number>]
+--
+-- Example: [12, 10]
+-- gives [12, 10, <number>]
 -----------------------------------------------------------------------------
 --addIdealWeightToGroupedList :: Num t => [t] -> [t]
 -- TODO: make ideal_weight a parameter and call it with the parameter, to make this function more generic.
@@ -142,8 +144,9 @@ addIdealWeightToGroupedList (x:y:xs) = [x] ++ [y] ++ [C_IDEAL_WEIGHT] ++ (addIde
 -----------------------------------------------------------------------------
 -- | addMissingMonths
 -- | Add missing months to get a complete calendar year.
--- | Example: [[12, 10, 2], [15, 5, 10]]
--- | gives [[12, 10, 2], [15, 5, 10], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
+--
+-- Example: [[12, 10, 2], [15, 5, 10]]
+-- gives [[12, 10, 2], [15, 5, 10], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
 -----------------------------------------------------------------------------
 addMissingMonths :: Num t => [[t]] -> [[t]]
 addMissingMonths [] = getMissingMonthsEmpty 12
