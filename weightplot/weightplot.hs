@@ -71,9 +71,14 @@ plotLines2 plot_data title_main titles_series borders = toRenderable layout
 -- | Read the data from the file and put it in a list
 -----------------------------------------------------------------------------
 loadDataFromFile :: FilePath -> IO [Double]
-loadDataFromFile file_name = do
-    file_data <- loadFileToStringList file_name
-    return $ splitLinesToElements file_data
+loadDataFromFile a_file_name = do
+    l_file_data <- loadFileToStringList a_file_name
+    -- l_file_data should be ["date1;v1a;v1b;comment1", "date2;v2a;v2b;comment2"] now
+    let l_split_data = splitLinesToElements l_file_data
+    -- l_split_data should be ["date1", "v1a", ... , "comment2"] now
+    let l_only_doubles_as_string = map removeLastFromGroupedList $ map removeFirstFromGroupedList $ l_split_data
+    -- l_only_doubles_as_string should be ["v1a", "v1b", "v2a", "v2b"]
+    return ["0.0", "0.1"]
 
 -----------------------------------------------------------------------------
 -- | loadData
@@ -81,9 +86,6 @@ loadDataFromFile file_name = do
 -----------------------------------------------------------------------------
 loadData :: IO (PickFn ())
 loadData = do
-    -- TODO: test what happens in this file?
-    -- TEST: file_data contains ["date;v1;v2;comment", "date;v3;v4;comment"]
-    -- TODO: removeFirst removes the date, but don't we need to remove the comment too?
     -- TODO:
     -- load data from file ["date;v1;comment", "date;v3;comment"]
     -- transform data to list of elements ["date", v1, v2, "comment", "date", v3, v4, "comment"]
@@ -93,8 +95,7 @@ loadData = do
     --let minimal_plot_data = convertListToListOfLists $ map addIdealWeightToGroupedList $ map removeLastFromGroupedList $ map removeFirstFromGroupedList $ file_data
     --let plot_data = addMissingMonths minimal_plot_data
     --let plot_data = minimal_plot_data
-    --renderableToFile def to_file $ chart plot_data title_main titles_series True
-    putStrLn "boing"
+    renderableToFile def to_file $ chart plot_data title_main titles_series True
   where
     from_file = "data.dat"
     to_file = "data.png"
