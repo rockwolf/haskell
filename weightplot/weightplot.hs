@@ -20,10 +20,14 @@ import DataConversion(convertListToListOfLists, splitLinesToElements, removeFirs
 import FileIO(loadFileToStringList)
 import DateUtil(mkDate)
 
+-----------------------------------------------------------------------------
 -- ||| Declaration of datatypes
-ideal_weight = 74.0
+-----------------------------------------------------------------------------
+C_IDEAL_WEIGHT = 74.0
 
+-----------------------------------------------------------------------------
 -- ||| Plotting
+-----------------------------------------------------------------------------
 chart :: [[Double]] -> String -> [String] -> Bool -> Renderable ()
 chart plot_data title_main titles_series borders = toRenderable layout
   where
@@ -52,13 +56,17 @@ chart plot_data title_main titles_series borders = toRenderable layout
                      , toAlphaColour (sRGB 0 0 255) -- weight 2
           ]
 
+-----------------------------------------------------------------------------
 -- ||| Data loading for plot
+-----------------------------------------------------------------------------
 loadDataFromFile :: FilePath -> IO [Double]
 loadDataFromFile file_name = do
     file_data <- loadFileToStringList file_name
     return $ splitLinesToElements file_data
 
+-----------------------------------------------------------------------------
 -- | Load, transform and plot the data
+-----------------------------------------------------------------------------
 loadData :: IO (PickFn ())
 loadData = do
     -- TODO: test what happens in this file?
@@ -76,45 +84,61 @@ loadData = do
     title_main = "Weight vs ideal weight"
     titles_series = ["weight", "ideal"]
 
+-----------------------------------------------------------------------------
 -- | transform the data and filter it
+-----------------------------------------------------------------------------
 weightValues' :: [(LocalTime,Double,Double)]
 weightValues' day_start month_start year_start day_end month_end year_end = filterValues weightValues (
     mkDate day_start month_start year_start) (mkDate day_end month_end year_end)
 
+-----------------------------------------------------------------------------
 -- | Create plotable data from available sets
 -- | Example: [(10, 12, 2014, 80.1), (11, 12, 2014, 79.6)]
+-----------------------------------------------------------------------------
 weightValues :: [(Int, Int, Int, Int)] -> [(LocalTime,Double,Double)]
 weightValues plot_data_raw = [ (mkDate dd mm yyyy, p1) | (dd,mm,yyyy,p1) <- plot_data_raw ]
 
+-----------------------------------------------------------------------------
 -- | apply date filter to data
+-----------------------------------------------------------------------------
 filterValues weight_values t1 t2 = [ v | v@(d,_,_) <- weight_values
                                    , let t = d in t >= t1 && t <= t2]
 
+-----------------------------------------------------------------------------
 -- ||| Data parsing functions
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 -- | Add number to list
 -- | Example: [12, 10]
 -- | gives [12, 10, <number>]
+-----------------------------------------------------------------------------
 --addIdealWeightToGroupedList :: Num t => [t] -> [t]
 -- TODO: make ideal_weight a parameter and call it with the parameter, to make this function more generic.
 addIdealWeightToGroupedList [] = []
 addIdealWeightToGroupedList [x] = [x]
-addIdealWeightToGroupedList (x:y:[]) = [x] ++ [y] ++ [ideal_weight]
-addIdealWeightToGroupedList (x:y:xs) = [x] ++ [y] ++ [ideal_weight] ++ (addIdealWeightToGroupedList xs)
+addIdealWeightToGroupedList (x:y:[]) = [x] ++ [y] ++ [C_IDEAL_WEIGHT]
+addIdealWeightToGroupedList (x:y:xs) = [x] ++ [y] ++ [C_IDEAL_WEIGHT] ++ (addIdealWeightToGroupedList xs)
 
+-----------------------------------------------------------------------------
 -- | Add missing months
 -- | Example: [[12, 10, 2], [15, 5, 10]]
 -- | gives [[12, 10, 2], [15, 5, 10], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
+-----------------------------------------------------------------------------
 addMissingMonths :: Num t => [[t]] -> [[t]]
 addMissingMonths [] = getMissingMonthsEmpty 12
 addMissingMonths [x] = [x] ++ getMissingMonthsEmpty 11
 addMissingMonths (x:y:[]) = [x] ++ [y] ++ getMissingMonthsEmpty 10
 addMissingMonths (x:y:xs) = [x] ++ [y] ++ xs ++ getMissingMonthsEmpty (10 - length xs)
 
+-----------------------------------------------------------------------------
 -- | Returns a list of [0,0,0] elements for <missing_months> elements
+-----------------------------------------------------------------------------
 getMissingMonthsEmpty :: Num t => Int -> [[t]]
 getMissingMonthsEmpty missing_months = take missing_months $ repeat [0,0,0]
 
+-----------------------------------------------------------------------------
 -- ||| Main
+-----------------------------------------------------------------------------
 main :: IO (PickFn ())
 main = do
     loadData
