@@ -1,12 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Main (main) where
+--module Main (main) where
 
-import Graphics.Rendering.Chart
-import Graphics.Rendering.Chart.Backend.Cairo
-import Data.Colour
-import Data.Colour.SRGB
-import Diagrams.Attributes
-import Data.Colour.Names
+-----------------------------------------------------------------------------
+-- ||| Imports
+-----------------------------------------------------------------------------
 import Data.Default.Class
 import Control.Lens hiding (argument)
 import Data.List.Split
@@ -15,46 +12,28 @@ import Control.Monad (when)
 import System.Exit (exitSuccess)
 import System.Console.Docopt (optionsWithUsageFile, getArg, isPresent, command,
     argument, longOption)
+    
+import DataConversion(convertListToListOfLists, splitLinesToElements, removeFirstFromGroupedList, removeLastFromGroupedList)
+import FileIO(loadFileToStringList)
+import DataPlot(plotBars)
 
+-----------------------------------------------------------------------------
 -- ||| Declaration of datatypes
+-----------------------------------------------------------------------------
 data PlotType = IncomeVsExpenses | Networth deriving (Show, Eq)
 data PlotPeriod = All | AllMonthly | Year | YearMonthly | Period | PeriodMonthly deriving (Show, Eq)
 
--- ||| Plotting
-chart :: PlotType -> [[Double]] -> String -> [String] -> Bool -> Renderable ()
-chart plot_type plot_data title_main titles_series borders = toRenderable layout
- where
-  layout = 
-        layout_title .~ title_main ++ " " ++ btitle
-      $ layout_title_style . font_size .~ 10
-      $ layout_x_axis . laxis_generate .~ autoIndexAxis alabels
-      $ layout_y_axis . laxis_override .~ axisGridHide
-      $ layout_left_axis_visibility . axis_show_ticks .~ False
-      $ layout_plots .~ [ plotBars plotData ]
-      $ def :: Layout PlotIndex Double
-
-  plotData = plot_bars_titles .~ titles_series
-      $ plot_bars_values .~ addIndexes plot_data
-      $ plot_bars_style .~ BarsClustered
-      $ plot_bars_spacing .~ BarsFixGap 30 5
-      $ plot_bars_item_styles .~ map mkstyle (cycle customColorSeq)
-      $ def
-
-  alabels = getLabelsSeries plot_type
-
-  customColorSeq = [ toAlphaColour (sRGB 255 0 0)
-                     , toAlphaColour (sRGB 0 255 0)
-                     , toAlphaColour (sRGB 0 0 255)
-          ]
-  btitle = if borders then "" else " (no borders)"
-  bstyle = if borders then Just (solidLine 1.0 $ opaque black) else Nothing
-  mkstyle c = (solidFillStyle c, bstyle)
-
+-----------------------------------------------------------------------------
 -- ||| Data loading for plot
-loadDataFromFile :: FilePath -> PlotType -> IO [Double]
-loadDataFromFile file_name plot_type = do
-    file_data <- parseFileToStringList file_name plot_type
-    return $ convertListStringToDouble $ parseLinesToStringList file_data
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+-- | loadDataFromFile
+-- | Read the data from the file and put it in a list
+-----------------------------------------------------------------------------
+--loadDataFromFile :: FilePath -> PlotType -> IO [Double]
+--loadDataFromFile file_name plot_type = do
+--    file_data <- parseFileToStringList file_name plot_type
+--    return $ convertListStringToDouble $ parseLinesToStringList file_data
 
 -- | Load, transform and plot the data for the given PlotType and PlotPeriod
 loadData :: PlotType -> PlotPeriod -> IO (PickFn ())
@@ -62,7 +41,7 @@ loadData plot_type plot_period = do
     file_data <- loadDataFromFile from_file plot_type
     let minimal_plot_data = map addDifferenceToList $ convertListToListOfLists file_data
     let plot_data = addMissingMonths minimal_plot_data
-    renderableToFile def to_file $ chart plot_type plot_data title_main titles_series True
+    renderableToFile def to_file $ plotBars plot_type plot_data title_main titles_series True
   where
     from_file = fromFileName plot_type plot_period
     to_file = toFileName plot_type plot_period
