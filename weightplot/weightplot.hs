@@ -35,16 +35,17 @@ c_ideal_weight = 74.0
 -- | plotLines2 
 -- | Create a line chart with 2 lines
 -----------------------------------------------------------------------------
-plotLines2 :: [[Double]] -> String -> [String] -> Bool -> Renderable ()
-plotLines2 plot_data title_main titles_series borders = toRenderable layout
+-- TODO: find the type sig for values1 and 2
+--plotLines2 :: [[Double]] -> String -> [String] -> Bool -> Renderable ()
+plotLines2 plot_data title_main titles_series borders values1 values2 = toRenderable layout
   where
 --    weight1 = plot_lines_style . line_color .~ (customColorSeq!!1)
---           $ plot_lines_values .~ [ [ (d,v) | (d,v,_) <- weightValues'] ]
+--           $ plot_lines_values .~ values1
 --           $ plot_lines_title .~ (titles_series!!0)
 --           $ def
 --
 --    weight2 = plot_lines_style . line_color .~ (customColorSeq!!2)
---           $ plot_lines_values .~ [ [ (d,v) | (d,_,v) <- weightValues'] ]
+--           $ plot_lines_values .~ 
 --           $ plot_lines_title .~ (titles_series!!1)
 --           $ def
 --
@@ -62,7 +63,9 @@ plotLines2 plot_data title_main titles_series borders = toRenderable layout
                      , toAlphaColour (sRGB 0 255 0) -- weight 1
                      , toAlphaColour (sRGB 0 0 255) -- weight 2
           ]
---
+-- TODO: values1 = [ [ (d,v) | (d,v,_) <- weightValues'] ]
+-- TODO: values2 = [ [ (d,v) | (d,_,v) <- weightValues'] ]
+
 -----------------------------------------------------------------------------
 -- ||| Data loading for plot
 -----------------------------------------------------------------------------
