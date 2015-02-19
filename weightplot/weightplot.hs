@@ -41,24 +41,31 @@ plotLines2 :: [[(LocalTime,Double,Double)]] -> String -> [String] -> Bool -> Ren
 plotLines2 a_plot_data title_main titles_series borders = toRenderable layout
   where
     weight1 = plot_lines_style . line_color .~ (customColorSeq!!1)
-           $ plot_lines_values .~ [ [ (d, v) | (d,v,_) <- a_plot_data!!1] ]
+           $ plot_lines_values .~ [ [ (d, v) | (d,v,_) <- a_plot_data!!0] ]
            $ plot_lines_title .~ (titles_series!!0)
            $ def
 
     weight2 = plot_lines_style . line_color .~ (customColorSeq!!2)
-           $ plot_lines_values .~ [ [ (d, v) | (d,v,_) <- a_plot_data!!2] ]
+           $ plot_lines_values .~ [ [ (d, v) | (d,_,v) <- a_plot_data!!0] ]
            $ plot_lines_title .~ (titles_series!!1)
            $ def
 
-    layout = layoutlr_title .~ title_main
-           $ layoutlr_plot_background .~ Just (solidFillStyle $ customColorSeq!!0)
-           $ layoutlr_left_axis . laxis_override .~ axisGridHide
-           $ layoutlr_right_axis . laxis_override .~ axisGridHide
-           $ layoutlr_x_axis . laxis_override .~ axisGridHide
-           $ layoutlr_plots .~ [Left (toPlot weight1),
-                                Right (toPlot weight2)]
-           $ layoutlr_grid_last .~ False
+    layout = layout_title .~ title_main
+           $ layout_plot_background .~ Just (solidFillStyle $ customColorSeq!!0)
+           $ layout_x_axis . laxis_override .~ axisGridHide
+           $ layout_plots .~ [ (toPlot weight1),
+                                (toPlot weight2)]
            $ def
+
+--    layout = layoutlr_title .~ title_main
+--           $ layoutlr_plot_background .~ Just (solidFillStyle $ customColorSeq!!0)
+--           $ layoutlr_left_axis . laxis_override .~ axisGridHide
+--           $ layoutlr_right_axis . laxis_override .~ axisGridHide
+--           $ layoutlr_x_axis . laxis_override .~ axisGridHide
+--           $ layoutlr_plots .~ [ Left (toPlot weight1),
+--                                Right (toPlot weight2)]
+--           $ layoutlr_grid_last .~ False
+--           $ def
  
     customColorSeq = [ toAlphaColour (sRGB 253 246 227) -- background color
                      , toAlphaColour (sRGB 0 255 0) -- weight 1
@@ -105,7 +112,7 @@ loadData = do
     l_to_file = "data.png"
     l_title_main = "Weight vs ideal weight"
     l_titles_series = ["weight", "ideal"]
-    l_plot_data = [filterValues (weightValues values) (mkDate 1 1 2014) (mkDate 31 12 2014)] ++ [filterValues (weightValues values) (mkDate 1 1 2015) (mkDate 31 12 2015)]
+    l_plot_data = [filterValues (weightValues values) (mkDate 1 1 2014) (mkDate 31 12 2014)]
 
 -----------------------------------------------------------------------------
 -- | weightValues'
@@ -131,16 +138,16 @@ values = [(2014, 01, 01, 82.4, 72.4),
               (2014, 01, 22, 79.4, 72.4),
               (2014, 01, 29, 79.5, 72.4),
               (2014, 02, 05, 78.9, 72.4),
-              (2014, 02, 05, 79.7, 72.4),
-              (2014, 02, 05, 79.2, 72.4),
+              (2014, 02, 12, 79.7, 72.4),
+              (2014, 02, 17, 79.2, 72.4),
               (2015, 01, 01, 81.4, 73.4),
               (2015, 01, 08, 80.3, 73.4),
               (2015, 01, 15, 79.1, 73.4),
               (2015, 01, 22, 78.4, 73.4),
               (2015, 01, 29, 79.2, 73.4),
               (2015, 02, 05, 80.9, 73.4),
-              (2015, 02, 05, 79.1, 73.4),
-              (2015, 02, 05, 78.5, 73.4)]
+              (2015, 02, 12, 79.1, 73.4),
+              (2015, 02, 17, 78.5, 73.4)]
 
 -----------------------------------------------------------------------------
 -- | filterValues
