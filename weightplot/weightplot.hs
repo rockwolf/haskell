@@ -35,17 +35,18 @@ c_ideal_weight = 74.0
 -- | plotLines2 
 -- | Create a line chart with 2 lines
 -----------------------------------------------------------------------------
--- [[x0, y0], [x1, y1]]
-plotLines2 :: [[Double]] -> String -> [String] -> Bool -> Renderable ()
-plotLines2 plot_data title_main titles_series borders = toRenderable layout
+-- TODO: make it [[(localtime,double,double)]]
+-- so the second weight can be added too
+plotLines2 :: [[(LocalTime,Double,Double)]] -> String -> [String] -> Bool -> Renderable ()
+plotLines2 a_plot_data title_main titles_series borders = toRenderable layout
   where
     weight1 = plot_lines_style . line_color .~ (customColorSeq!!1)
-           $ plot_lines_values .~ [[(x0, y0) | [x0, y0] <- plot_data]]
+           $ plot_lines_values .~ [ [ (d, v) | (d,v,_) <- a_plot_data!!1] ]
            $ plot_lines_title .~ (titles_series!!0)
            $ def
 
     weight2 = plot_lines_style . line_color .~ (customColorSeq!!2)
-           $ plot_lines_values .~ [[(x0, y0) | [x0, y0] <- plot_data]]
+           $ plot_lines_values .~ [ [ (d, v) | (d,v,_) <- a_plot_data!!2] ]
            $ plot_lines_title .~ (titles_series!!1)
            $ def
 
@@ -98,12 +99,13 @@ loadData = do
     --let plot_data = addMissingMonths minimal_plot_data
     --let plot_data = minimal_plot_data
     --renderableToFile def to_file $ plotLines2 plot_data title_main titles_series True
-    renderableToFile def to_file $ plotLines2 [[81.4,74.0],[78.6,74.0]] title_main titles_series True
+    renderableToFile def l_to_file $ plotLines2 l_plot_data l_title_main l_titles_series True
   where
-    from_file = "data.dat"
-    to_file = "data.png"
-    title_main = "Weight vs ideal weight"
-    titles_series = ["weight", "ideal"]
+    l_from_file = "data.dat"
+    l_to_file = "data.png"
+    l_title_main = "Weight vs ideal weight"
+    l_titles_series = ["weight", "ideal"]
+    l_plot_data = [filterValues (weightValues values) (mkDate 1 1 2014) (mkDate 31 12 2014)] ++ [filterValues (weightValues values) (mkDate 1 1 2015) (mkDate 31 12 2015)]
 
 -----------------------------------------------------------------------------
 -- | weightValues'
@@ -120,7 +122,25 @@ loadData = do
 -- Example: [(10, 12, 2014, 80.1), (11, 12, 2014, 79.6)]
 -----------------------------------------------------------------------------
 weightValues :: [(Int, Int, Int, Double, Double)] -> [(LocalTime,Double,Double)]
-weightValues plot_data_raw = [ (mkDate dd mm yyyy, p1, p2) | (dd,mm,yyyy,p1, p2) <- plot_data_raw ]
+weightValues a_values = [ (mkDate dd mm yyyy, p1, p2) | (yyyy, mm, dd, p1, p2) <- a_values ]
+
+-- example values
+values = [(2014, 01, 01, 82.4, 72.4),
+              (2014, 01, 08, 81.3, 72.4),
+              (2014, 01, 15, 80.1, 72.4),
+              (2014, 01, 22, 79.4, 72.4),
+              (2014, 01, 29, 79.5, 72.4),
+              (2014, 02, 05, 78.9, 72.4),
+              (2014, 02, 05, 79.7, 72.4),
+              (2014, 02, 05, 79.2, 72.4),
+              (2015, 01, 01, 81.4, 73.4),
+              (2015, 01, 08, 80.3, 73.4),
+              (2015, 01, 15, 79.1, 73.4),
+              (2015, 01, 22, 78.4, 73.4),
+              (2015, 01, 29, 79.2, 73.4),
+              (2015, 02, 05, 80.9, 73.4),
+              (2015, 02, 05, 79.1, 73.4),
+              (2015, 02, 05, 78.5, 73.4)]
 
 -----------------------------------------------------------------------------
 -- | filterValues
