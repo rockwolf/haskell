@@ -40,18 +40,20 @@ c_ideal_weight = 74.0
 plotLines2 :: [[(LocalTime,Double,Double)]] -> String -> [String] -> Bool -> Renderable ()
 plotLines2 a_plot_data title_main titles_series borders = toRenderable layout
   where
-    weight1 = plot_lines_style . line_color .~ (customColorSeq!!1)
+    weight1 = plot_lines_style . line_color .~ (customColorSeq!!2)
            $ plot_lines_values .~ [ [ (d, v) | (d,v,_) <- a_plot_data!!0] ]
            $ plot_lines_title .~ (titles_series!!0)
            $ def
 
-    weight2 = plot_lines_style . line_color .~ (customColorSeq!!2)
+    weight2 = plot_lines_style . line_color .~ (customColorSeq!!1)
            $ plot_lines_values .~ [ [ (d, v) | (d,_,v) <- a_plot_data!!0] ]
            $ plot_lines_title .~ (titles_series!!1)
            $ def
 
     layout = layout_title .~ title_main
-           $ layout_plot_background .~ Just (solidFillStyle $ customColorSeq!!0)
+           $ layout_plot_background .~ Just (solidFillStyle $ customColorSeq!!3)
+           $ layout_background .~ (solidFillStyle $ customColorSeq!!3)
+           $ layout_foreground .~ customColorSeq!!0
            $ layout_x_axis . laxis_override .~ axisGridHide
            $ layout_plots .~ [ (toPlot weight1),
                                 (toPlot weight2)]
@@ -66,10 +68,13 @@ plotLines2 a_plot_data title_main titles_series borders = toRenderable layout
 --                                Right (toPlot weight2)]
 --           $ layoutlr_grid_last .~ False
 --           $ def
- 
-    customColorSeq = [ toAlphaColour (sRGB 253 246 227) -- background color
-                     , toAlphaColour (sRGB 0 255 0) -- weight 1
-                     , toAlphaColour (sRGB 0 0 255) -- weight 2
+
+     
+    customColorSeq = [ toAlphaColour (sRGB24 253 246 227) -- base0
+                     , toAlphaColour (sRGB24 133 153 0) -- green
+                     , toAlphaColour (sRGB24 38 139 210) -- blue
+                     , toAlphaColour (sRGB24 0 43 54) -- base03
+                     , toAlphaColour (sRGB24 0 0 0) -- black
           ]
 -- TODO: values1 = [ [ (d,v) | (d,v,_) <- weightValues'] ]
 -- TODO: values2 = [ [ (d,v) | (d,_,v) <- weightValues'] ]
