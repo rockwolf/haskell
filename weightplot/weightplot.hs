@@ -38,19 +38,19 @@ c_ideal_weight = 74.0
 -- TODO: make it [[(localtime,double,double)]]
 -- so the second weight can be added too
 plotLines2 :: [[(LocalTime,Double,Double)]] -> String -> [String] -> Bool -> Renderable ()
-plotLines2 a_plot_data title_main titles_series borders = toRenderable layout
+plotLines2 a_plot_data a_title_main a_titles_series = toRenderable layout
   where
     weight1 = plot_lines_style . line_color .~ (customColorSeq!!2)
            $ plot_lines_values .~ [ [ (d, v) | (d,v,_) <- a_plot_data!!0] ]
-           $ plot_lines_title .~ (titles_series!!0)
+           $ plot_lines_title .~ (a_titles_series!!0)
            $ def
 
     weight2 = plot_lines_style . line_color .~ (customColorSeq!!1)
            $ plot_lines_values .~ [ [ (d, v) | (d,_,v) <- a_plot_data!!0] ]
-           $ plot_lines_title .~ (titles_series!!1)
+           $ plot_lines_title .~ (a_titles_series!!1)
            $ def
 
-    layout = layout_title .~ title_main
+    layout = layout_title .~ a_title_main
            $ layout_plot_background .~ Just (solidFillStyle $ customColorSeq!!3)
            $ layout_background .~ (solidFillStyle $ customColorSeq!!3)
            $ layout_foreground .~ customColorSeq!!0
@@ -76,8 +76,6 @@ plotLines2 a_plot_data title_main titles_series borders = toRenderable layout
                      , toAlphaColour (sRGB24 0 43 54) -- base03
                      , toAlphaColour (sRGB24 0 0 0) -- black
           ]
--- TODO: values1 = [ [ (d,v) | (d,v,_) <- weightValues'] ]
--- TODO: values2 = [ [ (d,v) | (d,_,v) <- weightValues'] ]
 
 -----------------------------------------------------------------------------
 -- ||| Data loading for plot
@@ -111,7 +109,7 @@ loadData = do
     --let plot_data = addMissingMonths minimal_plot_data
     --let plot_data = minimal_plot_data
     --renderableToFile def to_file $ plotLines2 plot_data title_main titles_series True
-    renderableToFile def l_to_file $ plotLines2 l_plot_data l_title_main l_titles_series True
+    renderableToFile def l_to_file $ plotLines2 l_plot_data l_title_main l_titles_series
   where
     l_from_file = "data.dat"
     l_to_file = "data.png"
@@ -158,8 +156,8 @@ values = [(2014, 01, 01, 82.4, 72.4),
 -- | filterValues
 -- | Apply date filter to data.
 -----------------------------------------------------------------------------
-filterValues weight_values t1 t2 = [ v | v@(d,_,_) <- weight_values
-                                   , let t = d in t >= t1 && t <= t2]
+filterValues a_weight_values a_t1 a_t2 = [ v | v@(d,_,_) <- a_weight_values
+                                   , let t = d in t >= a_t1 && t <= a_t2]
 
 -----------------------------------------------------------------------------
 -- ||| Data parsing functions
@@ -195,7 +193,7 @@ addMissingMonths (x:y:xs) = [x] ++ [y] ++ xs ++ getMissingMonthsEmpty (10 - leng
 -- | Returns a list of [0,0,0] elements for <missing_months> elements
 -----------------------------------------------------------------------------
 getMissingMonthsEmpty :: Num t => Int -> [[t]]
-getMissingMonthsEmpty missing_months = take missing_months $ repeat [0,0,0]
+getMissingMonthsEmpty a_missing_months = take a_missing_months $ repeat [0,0,0]
 
 -----------------------------------------------------------------------------
 -- ||| Main
