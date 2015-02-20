@@ -202,6 +202,7 @@ getMissingMonthsEmpty missing_months = take missing_months $ repeat [0,0,0]
 -----------------------------------------------------------------------------
 main :: IO (PickFn ())
 main = do
+    putStrLn "Loading data and creating png..."
     loadData
-    putStrLn "dumbass"
+    putStrLn "Done."
     exitSuccess
