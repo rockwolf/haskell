@@ -37,7 +37,7 @@ c_ideal_weight = 74.0
 -----------------------------------------------------------------------------
 -- TODO: make it [[(localtime,double,double)]]
 -- so the second weight can be added too
-plotLines2 :: [[(LocalTime,Double,Double)]] -> String -> [String] -> Bool -> Renderable ()
+plotLines2 :: [[(LocalTime,Double,Double)]] -> String -> [String] -> Renderable ()
 plotLines2 a_plot_data a_title_main a_titles_series = toRenderable layout
   where
     weight1 = plot_lines_style . line_color .~ (customColorSeq!!2)
@@ -85,10 +85,10 @@ plotLines2 a_plot_data a_title_main a_titles_series = toRenderable layout
 -- | Read the data from the file and put it in a list
 -----------------------------------------------------------------------------
 --loadDataFromFile :: FilePath -> IO [Double]
-loadDataFromFile a_file_name = [0.0, 0.1]
-    --l_file_data <- loadFileToStringList a_file_name
+loadDataFromFile a_file_name = do --[0.0, 0.1]
+    l_file_data <- loadFileToStringList a_file_name
     -- l_file_data should be ["date1;v1a;v1b;comment1", "date2;v2a;v2b;comment2"] now
-    --let l_split_data = splitLinesToElements l_file_data
+    let l_split_data = l_file_data
     -- l_split_data should be ["date1", "v1a", ... , "comment2"] now
     --let l_only_doubles_as_string = map removeLastFromGroupedList $ map removeFirstFromGroupedList $ l_split_data
     -- l_only_doubles_as_string should be ["v1a", "v1b", "v2a", "v2b"]
@@ -104,8 +104,9 @@ loadData = do
     -- transform data to list of elements ["date", v1, v2, "comment", "date", v3, v4, "comment"]
     -- remove each comment field ["date", v1, "date", v2,]
     -- add ideal weight ["date", v1, vi, "date", v2, vi]
-    --file_data <- loadDataFromFile from_file
-    --let minimal_plot_data = convertListToListOfLists $ map addIdealWeightToGroupedList $ map removeLastFromGroupedList $ map removeFirstFromGroupedList $ file_data
+    l_file_data <- loadDataFromFile from_file
+    --let l_minimal_plot_data = convertListToListOfLists $ map addIdealWeightToGroupedList $ map removeLastFromGroupedList $ map removeFirstFromGroupedList $ file_data
+    --let l_minimal_plot_data = convertListToListOfLists $ map addIdealWeightToGroupedList $ map removeLastFromGroupedList $ map removeFirstFromGroupedList $ file_data
     --let plot_data = addMissingMonths minimal_plot_data
     --let plot_data = minimal_plot_data
     --renderableToFile def to_file $ plotLines2 plot_data title_main titles_series True
