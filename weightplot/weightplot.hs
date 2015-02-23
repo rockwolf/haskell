@@ -19,7 +19,7 @@ import System.Exit (exitSuccess)
 import Data.Time.LocalTime
 -- TODO: some of these imports might no longer be necessary... perform cleanup.
 
-import DataConversion(convertListToListOfLists, splitLinesToElements, removeFirstFromGroupedList, removeLastFromGroupedList)
+import DataConversion(splitLinesToListOfStrings, dropLastN)
 import FileIO(loadFileToStringList)
 import DateUtil(mkDate)
 
@@ -87,9 +87,11 @@ plotLines2 a_plot_data a_title_main a_titles_series = toRenderable layout
 --loadDataFromFile :: FilePath -> IO [Double]
 loadDataFromFile a_file_name = do --[0.0, 0.1]
     l_file_data <- loadFileToStringList a_file_name
-    -- l_file_data should be ["date1;v1a;v1b;comment1", "date2;v2a;v2b;comment2"] now
-    let l_split_data = l_file_data
-    -- l_split_data should be ["date1", "v1a", ... , "comment2"] now
+    -- l_file_data should be ["date1;v1a;v1b;comment1", "date2;v2a;v2b;comment2"]
+    let l_split_data = splitLinesToListOfStrings ";" l_file_data
+    -- l_split_data should be [["date1", "v1a", "v1b", "comment1"], ["date2", "v2a", "v2b", "comment2"]]
+    les l_split_data_no_comment = map  (dropLastN 1) l_split_data
+    -- l_split_data_no_comment should be [["date1", "v1a", "v1b"], ["date2", "v2a", "v2b"]]
     --let l_only_doubles_as_string = map removeLastFromGroupedList $ map removeFirstFromGroupedList $ l_split_data
     -- l_only_doubles_as_string should be ["v1a", "v1b", "v2a", "v2b"]
 
