@@ -90,10 +90,13 @@ loadDataFromFile a_file_name = do --[0.0, 0.1]
     -- l_file_data should be ["date1;v1a;v1b;comment1", "date2;v2a;v2b;comment2"]
     let l_split_data = splitLinesToListOfStrings ";" l_file_data
     -- l_split_data should be [["date1", "v1a", "v1b", "comment1"], ["date2", "v2a", "v2b", "comment2"]]
-    les l_split_data_no_comment = map  (dropLastN 1) l_split_data
+    let l_split_data_no_comment = map  (dropLastN 1) l_split_data
     -- l_split_data_no_comment should be [["date1", "v1a", "v1b"], ["date2", "v2a", "v2b"]]
+    -- TODO: so far, so good.
+    -- Now continue with the below.
     --let l_only_doubles_as_string = map removeLastFromGroupedList $ map removeFirstFromGroupedList $ l_split_data
     -- l_only_doubles_as_string should be ["v1a", "v1b", "v2a", "v2b"]
+    putStrLn "dumdum"
 
 -----------------------------------------------------------------------------
 -- | loadData
@@ -106,7 +109,7 @@ loadData = do
     -- transform data to list of elements ["date", v1, v2, "comment", "date", v3, v4, "comment"]
     -- remove each comment field ["date", v1, "date", v2,]
     -- add ideal weight ["date", v1, vi, "date", v2, vi]
-    l_file_data <- loadDataFromFile from_file
+    l_file_data <- loadDataFromFile l_from_file
     --let l_minimal_plot_data = convertListToListOfLists $ map addIdealWeightToGroupedList $ map removeLastFromGroupedList $ map removeFirstFromGroupedList $ file_data
     --let l_minimal_plot_data = convertListToListOfLists $ map addIdealWeightToGroupedList $ map removeLastFromGroupedList $ map removeFirstFromGroupedList $ file_data
     --let plot_data = addMissingMonths minimal_plot_data
