@@ -35,7 +35,7 @@ routes = []
 ------------------------------------------------------------------------------
 -- | The application initializer.
 app :: SnapletInit App App
-app = makeSnaplet "app" "An snaplet example application." Nothing $ do
+app = makeSnaplet "app" "An api to perform financial calculations." Nothing $ do
     api <- nestSnaplet "api" api apiInit
     addRoutes routes
     return $ App api
