@@ -17,7 +17,8 @@ data KubarService = KubarService { }
 makeLenses ''KubarService
 
 kubarRoutes :: [(B.ByteString, Handler b KubarService ())]
-kubarRoutes = [("/", method GET getTodos)]
+kubarRoutes = [("/", method GET getTodos),
+               ("/status", method GET getStatus)]
 
 getTodos :: Handler b KubarService ()
 getTodos = do
@@ -25,8 +26,19 @@ getTodos = do
 
   -- TODO: the above works, for api/kubar.
   --
-  modifyResponse $ setHeader "Content-Type" "application/json"
+  modifyResponse $ setHeader "Content-Type" "application/json;charset=utf-8"
   writeLBS . encode $ (todos :: [Todo])
+
+getStatus :: Handler b KubarService ()
+getStatus = do
+  let todos = "Status ok."
+
+  -- TODO: the above works, for api/kubar.
+  --
+  modifyResponse $ setHeader "Content-Type" "application/json;charset=utf-8"
+  writeLBS . encode $ (todos :: String)
+
+
 
 kubarServiceInit :: SnapletInit b KubarService
 kubarServiceInit = makeSnaplet "kubar" "Kubar Service" Nothing $ do
