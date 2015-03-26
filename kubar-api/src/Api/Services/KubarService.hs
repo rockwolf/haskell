@@ -17,26 +17,26 @@ data KubarService = KubarService { }
 makeLenses ''KubarService
 
 kubarRoutes :: [(B.ByteString, Handler b KubarService ())]
-kubarRoutes = [("/", method GET getTodos),
+kubarRoutes = [("/", method GET getKubarResults),
                ("/status", method GET getStatus)]
 
-getTodos :: Handler b KubarService ()
-getTodos = do
-  let todos = [Todo 1 "test1"] ++ [Todo 2 "test2"] ++ [Todo 3 "test3"]
+getKubarResults :: Handler b KubarService ()
+getKubarResults = do
+  let results = [KubarResult 1 "test1"] ++ [KubarResult 2 "test2"] ++ [KubarResult 3 "test3"]
 
   -- TODO: the above works, for api/kubar.
   --
-  modifyResponse $ setHeader "Content-Type" "application/json;charset=utf-8"
-  writeLBS . encode $ (todos :: [Todo])
+  modifyResponse $ setHeader "Content-Type" "application/json"
+  writeLBS . encode $ (results :: [KubarResult])
 
 getStatus :: Handler b KubarService ()
 getStatus = do
-  let todos = "Status ok."
+  let results = "Status ok."
 
   -- TODO: the above works, for api/kubar.
   --
-  modifyResponse $ setHeader "Content-Type" "application/json;charset=utf-8"
-  writeLBS . encode $ (todos :: String)
+  modifyResponse $ setHeader "Content-Type" "application/json"
+  writeLBS . encode $ (results :: String)
 
 
 

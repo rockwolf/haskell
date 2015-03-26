@@ -36,7 +36,8 @@ Executable kubar-api
     snap-loader-static        >= 0.1,
     text                      >= 0.1,
     time                      >= 0.1,
-    xmlhtml                   >= 0.1
+    xmlhtml                   >= 0.1,
+    syb                       >= 0.4.1
 
   if flag(old-base)
     build-depends:
