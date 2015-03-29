@@ -146,7 +146,7 @@ calcRiskInitial a_price a_shares a_stoploss a_is_long =
 -- NOTE: price_sell > stoploss = max risk was the initial risk
 calcRiskActual :: CDouble -> CInt -> CDouble -> CInt -> CDouble -> CDouble -> IO CDouble
 calcRiskActual a_price_buy a_shares_buy a_price_sell a_shares_sell a_stoploss a_risk_initial =
-    return $ if (a_profit_loss < 0.0) and (abs(a_profit_loss) < a_risk_initial) or (a_profit_loss >= 0.0)
+    return $ if (a_profit_loss < 0.0) and (abs a_profit_loss < a_risk_initial) or (a_profit_loss >= 0.0)
     then a_risk_initial
     else a_price_buy * l_shares_buy - a_price_sell * l_shares_sell
     where
@@ -459,13 +459,13 @@ isShareCfdDev2 market = market `elem` marketsCfdDev2
 isShareCfdUS :: String -> Bool
 isShareCfdUS market = market `elem` marketsCfdUS
 
---
--- Export functions
---
-{-
+-----------------------------------------------------------------------------
+-- ||| Export functions
+-----------------------------------------------------------------------------
 foreign export ccall
     calcStoploss :: CDouble -> CInt -> CDouble -> CDouble -> CDouble -> CDouble -> IO CDouble
 
+{-
 foreign export ccall
   calcRiskInput :: CDouble -> CDouble -> IO CDouble
 
