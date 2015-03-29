@@ -7,6 +7,7 @@
 
 module CalculatorFinance where
 
+
 -----------------------------------------------------------------------------
 -- ||| Imports
 -----------------------------------------------------------------------------
@@ -14,6 +15,13 @@ import Foreign.C.Types
 import Foreign.C.String
 import Data.List
 import Data.Char
+
+
+-----------------------------------------------------------------------------
+-- ||| DataTypes
+-----------------------------------------------------------------------------
+data TransactionType = TtBuy | TtSell | Nothing deriving (Show, Eq)
+
 
 -----------------------------------------------------------------------------
 -- ||| Other functions
@@ -136,6 +144,48 @@ calcRiskInitial a_price a_shares a_stoploss a_is_long =
         l_denominator_short = a_shares * 1.0 + a_tax / 100.0
 
 -----------------------------------------------------------------------------
+-- |   Calculates the amount without tax and commission.
+-----------------------------------------------------------------------------
+calcAmount :: CDouble -> CInt -> IO CDouble
+calcAmount a_price a_shares =
+    return $ realToFrac (calcAmount' (realToFrac a_price) (fromIntegral a_shares))
+
+-----------------------------------------------------------------------------
+-- |   Internal function that does not return an IO monad
+-----------------------------------------------------------------------------
+calcAmount' :: Double -> Int -> Double
+calcAmount' a_price a_shares = a_price * fromIntegral a_shares
+
+-----------------------------------------------------------------------------
+-- |   Calculates the amount (buy/sell) with tax included,
+-- |   but not the commission.
+--
+-- Note:
+-- profit_loss = S.P + S.P.T (buy)
+-- profit_loss = S.P - S.P.T (sell)
+-----------------------------------------------------------------------------
+calcAmountWithTax :: CDouble -> CInt -> CDouble -> CInt -> IO CDouble
+calcAmountWithTax a_price a_shares a_tax a_transaction_type_id =
+    return $ (*) (l_shares * a_price) $ if l_transaction_type == TtBuy
+    then  1.0 - a_tax / 100.0
+    else 1.0 + a_tax / 100.0
+    where
+        l_shares = fromIntegral a_shares
+        l_transaction_type = convertIntToTransactionType a_transaction_type_id
+
+-----------------------------------------------------------------------------
+-- |   Converts an integer to a transactiontype datatype.
+-----------------------------------------------------------------------------
+convertIntToTransactionType a_transaction_type_id
+    | a_transaction_type_id == 0 = TtBuy
+    | a_transaction_type_id == 1 = TtSell
+    | otherwise = Nothing
+
+-----------------------------------------------------------------------------
+-- ||| After trade
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
 -- |   Calculates the risk we actually took,
 -- | based on the data at the end of the trade.
 --
@@ -163,15 +213,6 @@ calcRMultiple a_price_buy a_price_sell a_stoploss =
 calcCostTotal :: CDouble -> CDouble -> CDouble -> CDouble -> IO CDouble
 calcCostTotal a_tax_buy a_commission_buy a_tax_sell a_commission_sell =
     return $ a_tax_buy + a_commission_buy + a_tax_sell + a_commission_sell
-
--- NOTE: commission + tax = seperate = costs
-calcAmount :: CDouble -> CInt -> IO CDouble
-calcAmount a_price a_shares =
-    return $ realToFrac (calcAmount' (realToFrac a_price) (fromIntegral a_shares))
-
---- internal function that does not return an IO monad
-calcAmount' :: Double -> Int -> Double
-calcAmount' a_price a_shares = a_price * fromIntegral a_shares
 
 -- cost of transaction (tax and commission)
 costTransaction :: CInt -> CDouble -> CInt -> CDouble -> CDouble -> IO CDouble
