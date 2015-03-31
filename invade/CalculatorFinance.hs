@@ -94,7 +94,7 @@ calcStoploss :: CDouble -> CInt -> CDouble -> CDouble -> CDouble -> CDouble -> C
 calcStoploss a_price a_shares a_tax a_commission a_risk a_pool a_is_long =
     return (if a_is_long
     then l_numerator_long / l_denominator_long
-    else l_numerator_short / l_denomitator_short)
+    else l_numerator_short / l_denominator_short)
     where
         l_risk = realToFrac a_risk / 100.0
         l_amount = realToFrac $ calcAmount' (realToFrac a_price) (fromIntegral a_shares)
@@ -176,6 +176,7 @@ calcAmountWithTax a_price a_shares a_tax a_transaction_type_id =
 -----------------------------------------------------------------------------
 -- |   Converts an integer to a transactiontype datatype.
 -----------------------------------------------------------------------------
+convertIntToTransactionType :: CInt -> Maybe TransactionType
 convertIntToTransactionType a_transaction_type_id
     | a_transaction_type_id == 0 = TtBuy
     | a_transaction_type_id == 1 = TtSell
