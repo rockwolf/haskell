@@ -97,7 +97,6 @@ calcStoploss a_price a_shares a_tax a_commission a_risk a_pool a_is_long =
     else l_numerator_short / l_denominator_short)
     where
         l_risk = realToFrac a_risk / 100.0
-        l_amount = realToFrac $ calcAmount' (realToFrac a_price) (fromIntegral a_shares)
         l_shares = fromIntegral a_shares
         l_tax = realToFrac (a_tax / 100.0)
         l_numerator_long = l_shares * a_price * (1.0 + a_tax / 100.0) - a_risk / 100.0 * a_pool + 2.0 * a_commission
