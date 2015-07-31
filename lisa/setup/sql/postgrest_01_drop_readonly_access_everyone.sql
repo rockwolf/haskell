@@ -1,3 +1,0 @@
-REVOKE usage on SCHEMA "1" from anon;
-REVOKE SELECT ON ALL TABLES IN SCHEMA "1" FROM anon;
-DROP ROLE anon;
